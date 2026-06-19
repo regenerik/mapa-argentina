@@ -243,9 +243,6 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
                 <stop offset="0" stopColor="#1687b7" />
                 <stop offset="1" stopColor="#075678" />
               </linearGradient>
-              <filter id="country-shadow" x="-30%" y="-20%" width="160%" height="150%">
-                <feDropShadow dx="0" dy="14" stdDeviation="18" floodColor="#000817" floodOpacity=".7" />
-              </filter>
               <pattern id="map-grid" width="56" height="56" patternUnits="userSpaceOnUse">
                 <path d="M56 0H0V56" fill="none" stroke="#5ea8c8" strokeOpacity=".07" strokeWidth="1" />
               </pattern>
@@ -254,7 +251,7 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
             <rect width={WIDTH} height={HEIGHT} fill="url(#map-grid)" />
             <text className="ocean-label" x="680" y="610" transform="rotate(90 680 610)">OCÉANO ATLÁNTICO SUR</text>
 
-            <g className="province-layer" filter="url(#country-shadow)">
+            <g className="province-layer">
               {provinces.map((feature) => (
                 <path key={feature.properties.name} d={pathGenerator(feature as unknown as GeoPermissibleObjects) ?? undefined} data-province={feature.properties.name} />
               ))}
