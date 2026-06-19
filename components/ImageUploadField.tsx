@@ -2,6 +2,7 @@
 
 import { useId, useState, type ChangeEvent } from "react";
 import { uploadImageToCloudinary, type CloudinaryAsset } from "@/lib/cloudinary";
+import { useLanguage } from "@/components/LanguageProvider";
 
 interface ImageUploadFieldProps {
   label: string;
@@ -13,6 +14,7 @@ interface ImageUploadFieldProps {
 }
 
 export function ImageUploadField({ label, value, compact = false, onChange, onUploaded, onBusyChange }: ImageUploadFieldProps) {
+  const { copy } = useLanguage();
   const inputId = useId();
   const [preview, setPreview] = useState(value);
   const [isUploading, setIsUploading] = useState(false);
@@ -23,11 +25,11 @@ export function ImageUploadField({ label, value, compact = false, onChange, onUp
     event.target.value = "";
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      setError("Seleccioná un archivo de imagen.");
+      setError(copy.selectImageFile);
       return;
     }
     if (file.size > 12 * 1024 * 1024) {
-      setError("La imagen supera el límite de 12 MB.");
+      setError(copy.imageTooLarge);
       return;
     }
 
@@ -45,7 +47,7 @@ export function ImageUploadField({ label, value, compact = false, onChange, onUp
       onChange(asset);
     } catch (uploadError) {
       setPreview(value);
-      setError(uploadError instanceof Error ? uploadError.message : "No se pudo subir la imagen.");
+      setError(uploadError instanceof Error ? uploadError.message : copy.uploadFailed);
     } finally {
       setIsUploading(false);
       onBusyChange(false);
@@ -61,17 +63,17 @@ export function ImageUploadField({ label, value, compact = false, onChange, onUp
         <div
           className={`upload-preview${shownImage ? " has-image" : ""}`}
           style={shownImage ? { backgroundImage: `url("${shownImage}")` } : undefined}
-          aria-label={shownImage ? `Preview de ${label}` : undefined}
+          aria-label={shownImage ? `${copy.previewOf} ${label}` : undefined}
         >
           {!shownImage && (
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l1.5-2h7L17 7h3v12H4V7Zm8 3v6m-3-3h6" /></svg>
           )}
-          {isUploading && <span className="upload-spinner" aria-label="Subiendo imagen" />}
+          {isUploading && <span className="upload-spinner" aria-label={copy.uploadingImage} />}
         </div>
         <div className="upload-actions">
-          <label className="upload-button" htmlFor={inputId}>{isUploading ? "Subiendo..." : shownImage ? "Reemplazar" : "Subir imagen"}</label>
+          <label className="upload-button" htmlFor={inputId}>{isUploading ? copy.uploading : shownImage ? copy.replace : copy.uploadImage}</label>
           {shownImage && !isUploading && (
-            <button type="button" onClick={() => { setPreview(""); onChange(null); }}>Quitar</button>
+            <button type="button" onClick={() => { setPreview(""); onChange(null); }}>{copy.remove}</button>
           )}
         </div>
         <input id={inputId} type="file" accept="image/*" onChange={handleFile} disabled={isUploading} />

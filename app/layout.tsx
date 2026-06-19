@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { HydrationMarker } from "@/components/HydrationMarker";
+import { LanguageProvider } from "@/components/LanguageProvider";
 import "./globals.css";
 
 const hydrationRecoveryScript = `
@@ -7,9 +8,12 @@ const hydrationRecoveryScript = `
     const recoveryKey = "mapa-hydration-recovery";
     window.setTimeout(() => {
       if (document.documentElement.dataset.appHydrated === "true") return;
-      const lastRecovery = Number(window.sessionStorage.getItem(recoveryKey) || 0);
+      let storage;
+      try { storage = window.sessionStorage; } catch { return; }
+      if (!storage) return;
+      const lastRecovery = Number(storage.getItem(recoveryKey) || 0);
       if (Date.now() - lastRecovery < 60000) return;
-      window.sessionStorage.setItem(recoveryKey, String(Date.now()));
+      storage.setItem(recoveryKey, String(Date.now()));
       const recoveryUrl = new URL(window.location.href);
       recoveryUrl.searchParams.set("_recover", String(Date.now()));
       window.location.replace(recoveryUrl.toString());
@@ -18,7 +22,7 @@ const hydrationRecoveryScript = `
 `;
 
 export const metadata: Metadata = {
-  title: "Territorio Productivo | Argentina",
+  title: "Eficiencia Empera | Argentina",
   description: "Mapa interactivo de la actividad agroindustrial argentina.",
 };
 
@@ -36,7 +40,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <script dangerouslySetInnerHTML={{ __html: hydrationRecoveryScript }} />
         <HydrationMarker />
-        {children}
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );

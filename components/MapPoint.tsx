@@ -1,4 +1,7 @@
+"use client";
+
 import type { KeyboardEvent, PointerEvent } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 import type { MapPoint as MapPointData } from "@/types/map";
 
 interface MapPointProps {
@@ -9,6 +12,7 @@ interface MapPointProps {
 }
 
 export function MapPoint({ point, position, onSelect, selected = false }: MapPointProps) {
+  const { copy } = useLanguage();
   const isInteractive = Boolean(onSelect);
   const clipId = `point-clip-${point.id}`;
 
@@ -34,7 +38,7 @@ export function MapPoint({ point, position, onSelect, selected = false }: MapPoi
       data-point-id={point.id}
       role={isInteractive ? "button" : undefined}
       tabIndex={isInteractive ? 0 : undefined}
-      aria-label={isInteractive ? `Ver ${point.title}` : undefined}
+      aria-label={isInteractive ? `${copy.viewPoint} ${point.title}` : undefined}
       onPointerDown={stopMapPan}
       onClick={(event) => {
         event.stopPropagation();

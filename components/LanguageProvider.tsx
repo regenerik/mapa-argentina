@@ -1,0 +1,284 @@
+"use client";
+
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+
+export type Language = "es" | "en";
+
+const spanish = {
+  homeEyebrow: "Experiencia interactiva",
+  homeTitleLine1: "Territorio",
+  homeTitleLine2: "Productivo",
+  homeLead: "Descubrí la eficiencia de Empera a lo largo de toda la Argentina",
+  homeViewMap: "Ver mapa",
+  homeExplore: "Explorar el territorio",
+  homeEdit: "Editar puntos",
+  homeManage: "Gestionar ubicaciones",
+  homeFooter: "Sumitomo Chemical Argentina",
+  mainNavigation: "Navegación principal",
+  languageSelector: "Idioma",
+  interactiveMap: "Mapa interactivo",
+  productiveArgentina: "Argentina productiva",
+  loadingPoints: "Cargando puntos...",
+  mapHint: "Arrastrá para mover · Pellizcá para acercar",
+  mapAria: "Mapa interactivo de Argentina con sus provincias y puntos",
+  editableMapAria: "Mapa editable de la República Argentina",
+  mapDescription: "Mapa interactivo con las provincias argentinas y sus nombres.",
+  mapPoints: "Puntos del mapa",
+  ocean: "OCÉANO ATLÁNTICO SUR",
+  viewPoint: "Ver",
+  back: "Volver",
+  backHome: "Volver al inicio",
+  fullscreen: "Pantalla completa",
+  fullscreenAria: "Ver en pantalla completa",
+  restore: "Restaurar",
+  restoreAria: "Restaurar pantalla",
+  mapControls: "Controles del mapa",
+  zoomIn: "Acercar",
+  zoomOut: "Alejar",
+  resetView: "Restablecer vista",
+  closeDetail: "Cerrar detalle",
+  enlargeImage: "Ampliar imagen de",
+  tracking: "Seguimiento",
+  temporalRecords: "registros temporales",
+  fieldEfficiency: "Eficiencia en campo",
+  temporalEvolution: "Evolución temporal",
+  evolutionDay: "Día de la evolución",
+  day: "Día",
+  imageControls: "Controles de imagen",
+  imageZoomIn: "Acercar imagen",
+  imageZoomOut: "Alejar imagen",
+  imageReset: "Restaurar imagen",
+  enlargedImage: "Imagen ampliada",
+  closeEnlargedImage: "Cerrar imagen ampliada",
+  editMode: "Modo edición",
+  pointEditing: "Edición de puntos",
+  preparingAccess: "Preparando acceso...",
+  placePointHint: "Tocá una provincia para ubicar el punto",
+  editMapHint: "Tocá el mapa para crear · Tocá un punto para editar",
+  protectedAccess: "Acceso protegido",
+  accessCopy: "Ingresá la clave configurada como API_TOKEN en Apps Script.",
+  adminKey: "Clave administrativa",
+  validating: "Validando...",
+  enterEditing: "Ingresar a edición",
+  keySession: "La clave permanece únicamente en esta pestaña.",
+  adminAccess: "Acceso administrativo",
+  pointAdministration: "Administración de puntos",
+  administration: "Administración",
+  mapPointsTitle: "Puntos del mapa",
+  newPoint: "+ Nuevo",
+  chooseLocation: "Elegí una ubicación",
+  chooseLocationCopy: "Tocá una provincia en el mapa para crear un punto o seleccioná uno existente para editarlo.",
+  savedPoints: "Puntos guardados",
+  editingPoint: "Editando punto",
+  newPointTitle: "Nuevo punto",
+  untitled: "Sin título",
+  closeForm: "Cerrar formulario",
+  touchNewLocation: "Tocá la nueva ubicación",
+  locationDefined: "Ubicación definida",
+  locationMissing: "Falta elegir ubicación",
+  selectMapLocation: "Seleccioná un lugar en el mapa",
+  relocate: "Reubicar",
+  locate: "Ubicar",
+  title: "Título",
+  titlePlaceholder: "Ej. Lote demostrativo",
+  description: "Descripción",
+  descriptionPlaceholder: "Contá brevemente qué se está mostrando...",
+  mainImage: "Imagen principal / miniatura",
+  evolutionDuration: "Duración de la evolución",
+  untilDay: "Hasta día",
+  imagesByDay: "Imágenes por día",
+  optional: "Opcionales",
+  delete: "Eliminar",
+  saving: "Guardando...",
+  uploadingImages: "Subiendo imágenes...",
+  savePoint: "Guardar punto",
+  selectImageFile: "Seleccioná un archivo de imagen.",
+  imageTooLarge: "La imagen supera el límite de 12 MB.",
+  uploadFailed: "No se pudo subir la imagen.",
+  previewOf: "Preview de",
+  uploadingImage: "Subiendo imagen",
+  uploading: "Subiendo...",
+  replace: "Reemplazar",
+  uploadImage: "Subir imagen",
+  remove: "Quitar",
+  cleanupFailed: "No se pudieron limpiar las imágenes sin guardar.",
+  discardedCleanupWarning: "No se pudieron limpiar algunas imágenes descartadas.",
+  changesSaved: "Cambios guardados",
+  pointCreated: "Punto creado",
+  synced: "y sincronizado.",
+  localOnly: "sólo en este dispositivo.",
+  noConnection: "sin conexión",
+  deleteConfirmStart: "¿Eliminar",
+  deleteConfirmFallback: "este punto",
+  deleteConfirmEnd: "Esta acción no se puede deshacer.",
+  deleteFailed: "No se pudo eliminar el punto.",
+  pointDeleted: "Punto eliminado y sincronizado.",
+  accessValidationFailed: "No se pudo validar la clave.",
+  draftPoint: "Nuevo punto",
+} as const;
+
+export type AppCopy = Record<keyof typeof spanish, string>;
+
+const english: AppCopy = {
+  homeEyebrow: "Interactive experience",
+  homeTitleLine1: "Productive",
+  homeTitleLine2: "Territory",
+  homeLead: "Discover Empera's efficiency throughout Argentina",
+  homeViewMap: "View map",
+  homeExplore: "Explore the territory",
+  homeEdit: "Edit points",
+  homeManage: "Manage locations",
+  homeFooter: "Sumitomo Chemical Argentina",
+  mainNavigation: "Main navigation",
+  languageSelector: "Language",
+  interactiveMap: "Interactive map",
+  productiveArgentina: "Productive Argentina",
+  loadingPoints: "Loading points...",
+  mapHint: "Drag to move · Pinch to zoom",
+  mapAria: "Interactive map of Argentina with its provinces and points",
+  editableMapAria: "Editable map of Argentina",
+  mapDescription: "Interactive map with Argentina's provinces and their names.",
+  mapPoints: "Map points",
+  ocean: "SOUTH ATLANTIC OCEAN",
+  viewPoint: "View",
+  back: "Back",
+  backHome: "Back to home",
+  fullscreen: "Full screen",
+  fullscreenAria: "View in full screen",
+  restore: "Restore",
+  restoreAria: "Restore screen",
+  mapControls: "Map controls",
+  zoomIn: "Zoom in",
+  zoomOut: "Zoom out",
+  resetView: "Reset view",
+  closeDetail: "Close details",
+  enlargeImage: "Enlarge image of",
+  tracking: "Tracking",
+  temporalRecords: "time records",
+  fieldEfficiency: "Field efficiency",
+  temporalEvolution: "Timeline",
+  evolutionDay: "Evolution day",
+  day: "Day",
+  imageControls: "Image controls",
+  imageZoomIn: "Zoom image in",
+  imageZoomOut: "Zoom image out",
+  imageReset: "Reset image",
+  enlargedImage: "Enlarged image",
+  closeEnlargedImage: "Close enlarged image",
+  editMode: "Edit mode",
+  pointEditing: "Point editing",
+  preparingAccess: "Preparing access...",
+  placePointHint: "Tap a province to place the point",
+  editMapHint: "Tap the map to create · Tap a point to edit",
+  protectedAccess: "Protected access",
+  accessCopy: "Enter the key configured as API_TOKEN in Apps Script.",
+  adminKey: "Administrator key",
+  validating: "Validating...",
+  enterEditing: "Enter editing",
+  keySession: "The key is stored only in this tab.",
+  adminAccess: "Administrator access",
+  pointAdministration: "Point administration",
+  administration: "Administration",
+  mapPointsTitle: "Map points",
+  newPoint: "+ New",
+  chooseLocation: "Choose a location",
+  chooseLocationCopy: "Tap a province on the map to create a point or select an existing point to edit it.",
+  savedPoints: "Saved points",
+  editingPoint: "Editing point",
+  newPointTitle: "New point",
+  untitled: "Untitled",
+  closeForm: "Close form",
+  touchNewLocation: "Tap the new location",
+  locationDefined: "Location set",
+  locationMissing: "Location required",
+  selectMapLocation: "Select a place on the map",
+  relocate: "Relocate",
+  locate: "Place",
+  title: "Title",
+  titlePlaceholder: "E.g. Demonstration plot",
+  description: "Description",
+  descriptionPlaceholder: "Briefly describe what is being shown...",
+  mainImage: "Main image / thumbnail",
+  evolutionDuration: "Timeline duration",
+  untilDay: "Up to day",
+  imagesByDay: "Images by day",
+  optional: "Optional",
+  delete: "Delete",
+  saving: "Saving...",
+  uploadingImages: "Uploading images...",
+  savePoint: "Save point",
+  selectImageFile: "Select an image file.",
+  imageTooLarge: "The image exceeds the 12 MB limit.",
+  uploadFailed: "The image could not be uploaded.",
+  previewOf: "Preview of",
+  uploadingImage: "Uploading image",
+  uploading: "Uploading...",
+  replace: "Replace",
+  uploadImage: "Upload image",
+  remove: "Remove",
+  cleanupFailed: "Unsaved images could not be cleaned up.",
+  discardedCleanupWarning: "Some discarded images could not be cleaned up.",
+  changesSaved: "Changes saved",
+  pointCreated: "Point created",
+  synced: "and synced.",
+  localOnly: "only on this device.",
+  noConnection: "no connection",
+  deleteConfirmStart: "Delete",
+  deleteConfirmFallback: "this point",
+  deleteConfirmEnd: "This action cannot be undone.",
+  deleteFailed: "The point could not be deleted.",
+  pointDeleted: "Point deleted and synced.",
+  accessValidationFailed: "The key could not be validated.",
+  draftPoint: "New point",
+};
+
+const STORAGE_KEY = "mapa-argentina-language";
+const LanguageContext = createContext<{ language: Language; setLanguage: (language: Language) => void; copy: AppCopy } | null>(null);
+
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [language, setLanguage] = useState<Language>("es");
+  const [isRestored, setIsRestored] = useState(false);
+
+  useEffect(() => {
+    const restoreTimer = window.setTimeout(() => {
+      try {
+        const stored = window.localStorage?.getItem(STORAGE_KEY);
+        if (stored === "en" || stored === "es") setLanguage(stored);
+      } catch {
+        // Storage may be unavailable in private or embedded browser contexts.
+      } finally {
+        setIsRestored(true);
+      }
+    }, 0);
+    return () => window.clearTimeout(restoreTimer);
+  }, []);
+
+  useEffect(() => {
+    if (!isRestored) return;
+    try {
+      window.localStorage?.setItem(STORAGE_KEY, language);
+    } catch {
+      // The language still works for the current navigation without persistence.
+    }
+    document.documentElement.lang = language;
+  }, [isRestored, language]);
+
+  const value = useMemo(() => ({ language, setLanguage, copy: language === "es" ? spanish : english }), [language]);
+  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
+}
+
+export function useLanguage() {
+  const context = useContext(LanguageContext);
+  if (!context) throw new Error("useLanguage must be used inside LanguageProvider");
+  return context;
+}
+
+export function LanguageSwitch() {
+  const { language, setLanguage, copy } = useLanguage();
+  return (
+    <div className="language-switch" role="group" aria-label={copy.languageSelector}>
+      <button type="button" className={language === "es" ? "is-active" : ""} onClick={() => setLanguage("es")} aria-pressed={language === "es"}>ES</button>
+      <button type="button" className={language === "en" ? "is-active" : ""} onClick={() => setLanguage("en")} aria-pressed={language === "en"}>EN</button>
+    </div>
+  );
+}

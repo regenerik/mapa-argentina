@@ -4,6 +4,7 @@ import { useRef, type MouseEvent, type PointerEvent } from "react";
 import { geoArea, geoCentroid, geoContains, geoMercator, geoPath, type GeoPermissibleObjects } from "d3-geo";
 import { TransformComponent, TransformWrapper, useTransformEffect, type ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 import provincesData from "@/data/argentina-provinces.json";
+import { useLanguage } from "@/components/LanguageProvider";
 import { MapControls } from "@/components/MapControls";
 import { MapPoint as MapPointMarker } from "@/components/MapPoint";
 import type { MapMode, MapPoint, ProvinceLabel } from "@/types/map";
@@ -91,6 +92,7 @@ function getLabel(feature: ProvinceFeature): ProvinceLabel {
 
 function MapPointLayer({ points, onPointSelect, selectedPointId }: { points: MapPoint[]; onPointSelect?: (point: MapPoint) => void; selectedPointId?: string }) {
   const layerRef = useRef<SVGGElement>(null);
+  const { copy } = useLanguage();
 
   useTransformEffect(({ state }) => {
     const compensatedScale = 1 / Math.pow(state.scale, 0.82);
@@ -100,7 +102,7 @@ function MapPointLayer({ points, onPointSelect, selectedPointId }: { points: Map
   });
 
   return (
-    <g ref={layerRef} className="map-points" aria-label="Puntos del mapa">
+    <g ref={layerRef} className="map-points" aria-label={copy.mapPoints}>
       {points.map((point) => {
         const position = projectCoordinates(point.coordinates);
         if (!position) return null;
@@ -154,6 +156,7 @@ interface ArgentinaMapProps {
 }
 
 export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selectedPointId }: ArgentinaMapProps) {
+  const { copy } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const pointerStart = useRef<[number, number] | null>(null);
   const pointerMoved = useRef(false);
@@ -238,13 +241,13 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
             className={`argentina-map${onMapSelect ? " is-editable" : ""}`}
             viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
             role="img"
-            aria-labelledby="map-svg-title map-svg-description"
+            aria-label={copy.mapAria}
+            aria-describedby="map-svg-description"
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
             onClick={handleMapClick}
           >
-            <title id="map-svg-title">Mapa político de Argentina</title>
-            <desc id="map-svg-description">Mapa interactivo con las provincias argentinas y sus nombres.</desc>
+            <desc id="map-svg-description">{copy.mapDescription}</desc>
             <defs>
               <linearGradient id="province-fill" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0" stopColor="#1687b7" />
@@ -256,7 +259,7 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
             </defs>
 
             <rect width={WIDTH} height={HEIGHT} fill="url(#map-grid)" />
-            <text className="ocean-label" x="680" y="610" transform="rotate(90 680 610)">OCÉANO ATLÁNTICO SUR</text>
+            <text className="ocean-label" x="680" y="610" transform="rotate(90 680 610)">{copy.ocean}</text>
 
             <g className="province-layer">
               {provinces.map((feature) => (

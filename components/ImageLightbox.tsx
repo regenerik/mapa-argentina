@@ -2,14 +2,16 @@
 
 import { useEffect, useRef } from "react";
 import { TransformComponent, TransformWrapper, useControls, type ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
+import { useLanguage } from "@/components/LanguageProvider";
 
 function LightboxControls() {
   const { zoomIn, zoomOut, resetTransform } = useControls();
+  const { copy } = useLanguage();
   return (
-    <div className="lightbox-controls" aria-label="Controles de imagen">
-      <button type="button" onClick={() => zoomIn(0.5)} aria-label="Acercar imagen">+</button>
-      <button type="button" onClick={() => zoomOut(0.5)} aria-label="Alejar imagen">−</button>
-      <button type="button" onClick={() => resetTransform()} aria-label="Restaurar imagen">
+    <div className="lightbox-controls" aria-label={copy.imageControls}>
+      <button type="button" onClick={() => zoomIn(0.5)} aria-label={copy.imageZoomIn}>+</button>
+      <button type="button" onClick={() => zoomOut(0.5)} aria-label={copy.imageZoomOut}>−</button>
+      <button type="button" onClick={() => resetTransform()} aria-label={copy.imageReset}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6" /></svg>
       </button>
     </div>
@@ -17,6 +19,7 @@ function LightboxControls() {
 }
 
 export function ImageLightbox({ imageUrl, alt, onClose }: { imageUrl: string; alt: string; onClose: () => void }) {
+  const { copy } = useLanguage();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const lightboxRef = useRef<HTMLDivElement>(null);
 
@@ -48,8 +51,8 @@ export function ImageLightbox({ imageUrl, alt, onClose }: { imageUrl: string; al
   }
 
   return (
-    <div ref={lightboxRef} className="image-lightbox" role="dialog" aria-modal="true" aria-label="Imagen ampliada">
-      <button ref={closeButtonRef} className="image-lightbox-close" type="button" onClick={onClose} aria-label="Cerrar imagen ampliada">
+    <div ref={lightboxRef} className="image-lightbox" role="dialog" aria-modal="true" aria-label={copy.enlargedImage}>
+      <button ref={closeButtonRef} className="image-lightbox-close" type="button" onClick={onClose} aria-label={copy.closeEnlargedImage}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
       </button>
       <TransformWrapper

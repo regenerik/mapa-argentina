@@ -5,6 +5,7 @@ import { AdminAccessGate, ADMIN_TOKEN_SESSION_KEY } from "@/components/AdminAcce
 import { ArgentinaMap } from "@/components/ArgentinaMap";
 import { BackButton } from "@/components/BackButton";
 import { FullscreenButton } from "@/components/FullscreenButton";
+import { useLanguage } from "@/components/LanguageProvider";
 import { PointEditorPanel, type PointDraft, type TimelineDuration } from "@/components/PointEditorPanel";
 import { useMapPoints } from "@/hooks/useMapPoints";
 import { deleteCloudinaryAssets, getCloudinaryPublicId, type CloudinaryAsset } from "@/lib/cloudinary";
@@ -58,6 +59,7 @@ function pointAssetIds(point: MapPoint): string[] {
 }
 
 export function MapEditorScreen() {
+  const { copy } = useLanguage();
   const { points } = useMapPoints();
   const [draft, setDraft] = useState<PointDraft | null>(null);
   const [isPlacing, setIsPlacing] = useState(false);
@@ -114,17 +116,17 @@ export function MapEditorScreen() {
     if (!draft?.coordinates) return points;
     const preview: MapPoint = {
       id: draft.id || "draft-point",
-      title: draft.title || "Nuevo punto",
+      title: draft.title || copy.draftPoint,
       description: draft.description,
       coordinates: draft.coordinates,
       thumbnailUrl: draft.thumbnailUrl,
       images: [],
     };
     return [...points.filter((point) => point.id !== draft.id), preview];
-  }, [draft, points]);
+  }, [copy.draftPoint, draft, points]);
 
   function reportCleanupError(error: unknown) {
-    setMessage(error instanceof Error ? error.message : "No se pudieron limpiar las imágenes sin guardar.");
+    setMessage(error instanceof Error ? error.message : copy.cleanupFailed);
   }
 
   function startNewPoint() {
@@ -170,16 +172,16 @@ export function MapEditorScreen() {
       try {
         await deleteCloudinaryAssets(unusedUploads, adminToken);
       } catch {
-        cleanupWarning = " No se pudieron limpiar algunas imágenes descartadas.";
+        cleanupWarning = ` ${copy.discardedCleanupWarning}`;
       }
 
       setDraft(pointToDraft(point));
       setIsPlacing(false);
-      const savedMessage = nextDraft.id ? "Cambios guardados" : "Punto creado";
+      const savedMessage = nextDraft.id ? copy.changesSaved : copy.pointCreated;
       const remoteWarning = result.warning ? ` ${result.warning}` : "";
       const saveStatus = result.synced
-        ? `${savedMessage} y sincronizado.`
-        : `${savedMessage} sólo en este dispositivo. Apps Script: ${result.error || "sin conexión"}.`;
+        ? `${savedMessage} ${copy.synced}`
+        : `${savedMessage} ${copy.localOnly} Apps Script: ${result.error || copy.noConnection}.`;
       setMessage(saveStatus + remoteWarning + cleanupWarning);
     } finally {
       setIsSaving(false);
@@ -188,18 +190,18 @@ export function MapEditorScreen() {
 
   async function removePoint(pointId: string) {
     const point = points.find((current) => current.id === pointId);
-    if (!window.confirm(`¿Eliminar ${point?.title || "este punto"}? Esta acción no se puede deshacer.`)) return;
+    if (!window.confirm(`${copy.deleteConfirmStart} ${point?.title || copy.deleteConfirmFallback}? ${copy.deleteConfirmEnd}`)) return;
     setIsSaving(true);
     try {
       const result = await removeMapPoint(pointId, adminToken);
       if (!result.synced) {
-        setMessage(`No se pudo eliminar el punto. Apps Script: ${result.error || "sin conexión"}.`);
+        setMessage(`${copy.deleteFailed} Apps Script: ${result.error || copy.noConnection}.`);
         return;
       }
       setDraft(null);
       setIsPlacing(false);
       const remoteWarning = result.warning ? ` ${result.warning}` : "";
-      setMessage("Punto eliminado y sincronizado." + remoteWarning);
+      setMessage(copy.pointDeleted + remoteWarning);
     } finally {
       setIsSaving(false);
     }
@@ -223,18 +225,18 @@ export function MapEditorScreen() {
         <BackButton />
         <div className="map-title">
           <span className="status-dot" />
-          <div><p>Modo edición</p><h1>Edición de puntos</h1></div>
+          <div><p>{copy.editMode}</p><h1>{copy.pointEditing}</h1></div>
         </div>
         <FullscreenButton />
       </header>
 
       {!isAccessReady ? (
-        <div className="admin-access-loading" role="status"><span className="map-loading-spinner" />Preparando acceso...</div>
+        <div className="admin-access-loading" role="status"><span className="map-loading-spinner" />{copy.preparingAccess}</div>
       ) : !adminToken ? (
         <AdminAccessGate onAuthorized={authorize} />
       ) : (
         <div className="editor-layout">
-          <section className="map-workspace editor-map" aria-label="Mapa editable de la República Argentina">
+          <section className="map-workspace editor-map" aria-label={copy.editableMapAria}>
             <ArgentinaMap
               mode="edit"
               points={displayedPoints}
@@ -243,7 +245,7 @@ export function MapEditorScreen() {
               selectedPointId={draft?.id || (draft?.coordinates ? "draft-point" : undefined)}
             />
             <div className={`map-hint editor-map-hint${isPlacing ? " is-active" : ""}`}>
-              <span>{isPlacing ? "Tocá una provincia para ubicar el punto" : "Tocá el mapa para crear · Tocá un punto para editar"}</span>
+              <span>{isPlacing ? copy.placePointHint : copy.editMapHint}</span>
             </div>
           </section>
 

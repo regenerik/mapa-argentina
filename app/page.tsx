@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { LanguageSwitch, useLanguage } from "@/components/LanguageProvider";
 
 function MapIcon() {
   return (
@@ -17,25 +20,27 @@ function EditIcon() {
 }
 
 export default function Home() {
+  const { copy } = useLanguage();
   return (
     <main className="home-shell">
       <div className="home-glow home-glow-one" />
       <div className="home-glow home-glow-two" />
+      <LanguageSwitch />
 
       <section className="home-content">
         <div className="brand-mark" aria-hidden="true"><span /></div>
-        <p className="eyebrow">Experiencia interactiva</p>
-        <h1>Territorio<br /><span>Productivo</span></h1>
+        <p className="eyebrow">{copy.homeEyebrow}</p>
+        <h1>{copy.homeTitleLine1}<br /><span>{copy.homeTitleLine2}</span></h1>
         <p className="home-lead">
-          Explorá la presencia agroindustrial a lo largo de toda la Argentina.
+          {copy.homeLead}
         </p>
 
-        <nav className="home-actions" aria-label="Navegación principal">
+        <nav className="home-actions" aria-label={copy.mainNavigation}>
           <Link className="home-card home-card-primary" href="/mapa">
             <span className="card-icon"><MapIcon /></span>
             <span className="card-copy">
-              <strong>Ver mapa</strong>
-              <small>Explorar el territorio</small>
+              <strong>{copy.homeViewMap}</strong>
+              <small>{copy.homeExplore}</small>
             </span>
             <span className="card-arrow" aria-hidden="true">→</span>
           </Link>
@@ -43,15 +48,15 @@ export default function Home() {
           <Link className="home-card" href="/edicion">
             <span className="card-icon"><EditIcon /></span>
             <span className="card-copy">
-              <strong>Editar puntos</strong>
-              <small>Gestionar ubicaciones</small>
+              <strong>{copy.homeEdit}</strong>
+              <small>{copy.homeManage}</small>
             </span>
             <span className="card-arrow" aria-hidden="true">→</span>
           </Link>
         </nav>
       </section>
 
-      <p className="home-footer">Argentina · Plataforma territorial</p>
+      <p className="home-footer">{copy.homeFooter}</p>
     </main>
   );
 }

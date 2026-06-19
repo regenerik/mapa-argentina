@@ -5,7 +5,11 @@ import { useEffect } from "react";
 export function HydrationMarker() {
   useEffect(() => {
     document.documentElement.dataset.appHydrated = "true";
-    window.sessionStorage.removeItem("mapa-hydration-recovery");
+    try {
+      window.sessionStorage?.removeItem("mapa-hydration-recovery");
+    } catch {
+      // Storage can be unavailable in private or embedded browser contexts.
+    }
     return () => {
       delete document.documentElement.dataset.appHydrated;
     };

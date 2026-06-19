@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { ImageUploadField } from "@/components/ImageUploadField";
+import { useLanguage } from "@/components/LanguageProvider";
 import type { CloudinaryAsset } from "@/lib/cloudinary";
 import type { MapPoint, TimelineDay } from "@/types/map";
 
@@ -43,6 +44,7 @@ interface PointEditorPanelProps {
 }
 
 export function PointEditorPanel(props: PointEditorPanelProps) {
+  const { copy } = useLanguage();
   const { points, draft, isPlacing, isSaving, message, onDraftChange, onNew, onSelect, onRelocate, onAssetUploaded, onSave, onDelete, onCancel } = props;
   const [uploadingSlots, setUploadingSlots] = useState<Set<string>>(new Set());
   const visibleDays = draft ? DAYS_BY_DURATION[draft.duration] : [];
@@ -70,10 +72,10 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
   );
 
   return (
-    <aside className="editor-panel" aria-label="Administración de puntos">
+    <aside className="editor-panel" aria-label={copy.pointAdministration}>
       <div className="editor-panel-header">
-        <div><span>Administración</span><h2>Puntos del mapa</h2></div>
-        <button className="editor-new-button" type="button" onClick={onNew}>+ Nuevo</button>
+        <div><span>{copy.administration}</span><h2>{copy.mapPointsTitle}</h2></div>
+        <button className="editor-new-button" type="button" onClick={onNew}>{copy.newPoint}</button>
       </div>
 
       {!draft && message && <div className="editor-message" role="status">{message}</div>}
@@ -81,11 +83,11 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
       {!draft ? (
         <div className="editor-empty">
           <div className="editor-empty-icon">+</div>
-          <h3>Elegí una ubicación</h3>
-          <p>Tocá una provincia en el mapa para crear un punto o seleccioná uno existente para editarlo.</p>
+          <h3>{copy.chooseLocation}</h3>
+          <p>{copy.chooseLocationCopy}</p>
           {points.length > 0 && (
             <div className="editor-point-list">
-              <span>Puntos guardados · {points.length}</span>
+              <span>{copy.savedPoints} · {points.length}</span>
               {points.map((point) => (
                 <button key={point.id} type="button" onClick={() => onSelect(point)}>
                   <i style={{ backgroundImage: `url("${point.thumbnailUrl}")` }} />
@@ -99,31 +101,31 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
       ) : (
         <form className="editor-form" onSubmit={submit}>
           <div className="editor-form-title">
-            <div><span>{draft.id ? "Editando punto" : "Nuevo punto"}</span><h3>{draft.title || "Sin título"}</h3></div>
-            <button type="button" onClick={onCancel} aria-label="Cerrar formulario">×</button>
+            <div><span>{draft.id ? copy.editingPoint : copy.newPointTitle}</span><h3>{draft.title || copy.untitled}</h3></div>
+            <button type="button" onClick={onCancel} aria-label={copy.closeForm}>×</button>
           </div>
 
           <div className={`location-card${isPlacing ? " is-active" : ""}`}>
             <span className="location-pin" />
             <div>
-              <strong>{isPlacing ? "Tocá la nueva ubicación" : draft.coordinates ? "Ubicación definida" : "Falta elegir ubicación"}</strong>
-              <small>{draft.coordinates ? `${draft.coordinates[1].toFixed(4)}, ${draft.coordinates[0].toFixed(4)}` : "Seleccioná un lugar en el mapa"}</small>
+              <strong>{isPlacing ? copy.touchNewLocation : draft.coordinates ? copy.locationDefined : copy.locationMissing}</strong>
+              <small>{draft.coordinates ? `${draft.coordinates[1].toFixed(4)}, ${draft.coordinates[0].toFixed(4)}` : copy.selectMapLocation}</small>
             </div>
-            <button type="button" onClick={onRelocate}>{draft.coordinates ? "Reubicar" : "Ubicar"}</button>
+            <button type="button" onClick={onRelocate}>{draft.coordinates ? copy.relocate : copy.locate}</button>
           </div>
 
           <label className="editor-field">
-            <span>Título</span>
-            <input value={draft.title} onChange={(event) => onDraftChange({ ...draft, title: event.target.value })} placeholder="Ej. Lote demostrativo" maxLength={70} required />
+            <span>{copy.title}</span>
+            <input value={draft.title} onChange={(event) => onDraftChange({ ...draft, title: event.target.value })} placeholder={copy.titlePlaceholder} maxLength={70} required />
           </label>
           <label className="editor-field">
-            <span>Descripción</span>
-            <textarea value={draft.description} onChange={(event) => onDraftChange({ ...draft, description: event.target.value })} placeholder="Contá brevemente qué se está mostrando..." rows={4} maxLength={420} required />
+            <span>{copy.description}</span>
+            <textarea value={draft.description} onChange={(event) => onDraftChange({ ...draft, description: event.target.value })} placeholder={copy.descriptionPlaceholder} rows={4} maxLength={420} required />
           </label>
 
           <ImageUploadField
             key={`thumbnail-${draft.id || "new"}`}
-            label="Imagen principal / miniatura"
+            label={copy.mainImage}
             value={draft.thumbnailUrl}
             onUploaded={onAssetUploaded}
             onChange={(asset) => onDraftChange({
@@ -135,23 +137,23 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
           />
 
           <label className="editor-field">
-            <span>Duración de la evolución</span>
+            <span>{copy.evolutionDuration}</span>
             <select value={draft.duration} onChange={(event) => onDraftChange({ ...draft, duration: event.target.value as TimelineDuration })}>
-              <option value="15">Hasta día 15</option>
-              <option value="30">Hasta día 30</option>
-              <option value="60">Hasta día 60</option>
-              <option value="120">Hasta día 120</option>
+              <option value="15">{copy.untilDay} 15</option>
+              <option value="30">{copy.untilDay} 30</option>
+              <option value="60">{copy.untilDay} 60</option>
+              <option value="120">{copy.untilDay} 120</option>
             </select>
           </label>
 
           <fieldset className="timeline-uploads">
-            <legend>Imágenes por día <small>Opcionales</small></legend>
+            <legend>{copy.imagesByDay} <small>{copy.optional}</small></legend>
             <div className="timeline-upload-grid">
               {visibleDays.map((day) => (
                 <ImageUploadField
                   key={`${draft.id || "new"}-${day}`}
                   compact
-                  label={`Día ${day}`}
+                  label={`${copy.day} ${day}`}
                   value={draft.images[day] || ""}
                   onUploaded={onAssetUploaded}
                   onChange={(asset) => onDraftChange({
@@ -167,10 +169,10 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
 
           <div className="editor-form-actions">
             <div className="editor-buttons-row">
-              {draft.id && <button className="editor-delete-button" type="button" onClick={() => onDelete(draft.id!)} disabled={isSaving}>Eliminar</button>}
+              {draft.id && <button className="editor-delete-button" type="button" onClick={() => onDelete(draft.id!)} disabled={isSaving}>{copy.delete}</button>}
               <button className="editor-save-button" type="submit" disabled={!canSave}>
                 {isSaving && <span className="button-spinner" aria-hidden="true" />}
-                {isSaving ? "Guardando..." : uploadingSlots.size > 0 ? "Subiendo imágenes..." : "Guardar punto"}
+                {isSaving ? copy.saving : uploadingSlots.size > 0 ? copy.uploadingImages : copy.savePoint}
               </button>
             </div>
             {message && <div className="editor-message editor-save-feedback" role="status">{message}</div>}

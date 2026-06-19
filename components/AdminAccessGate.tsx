@@ -2,10 +2,12 @@
 
 import { useState, type FormEvent } from "react";
 import { verifyAdminToken } from "@/lib/mapPointsRepository";
+import { useLanguage } from "@/components/LanguageProvider";
 
 export const ADMIN_TOKEN_SESSION_KEY = "mapa-argentina-admin-token";
 
 export function AdminAccessGate({ onAuthorized }: { onAuthorized: (token: string) => void }) {
+  const { copy } = useLanguage();
   const [token, setToken] = useState("");
   const [isChecking, setIsChecking] = useState(false);
   const [error, setError] = useState("");
@@ -21,29 +23,29 @@ export function AdminAccessGate({ onAuthorized }: { onAuthorized: (token: string
       window.sessionStorage.setItem(ADMIN_TOKEN_SESSION_KEY, cleanToken);
       onAuthorized(cleanToken);
     } catch (accessError) {
-      setError(accessError instanceof Error ? accessError.message : "No se pudo validar la clave.");
+      setError(accessError instanceof Error ? accessError.message : copy.accessValidationFailed);
     } finally {
       setIsChecking(false);
     }
   }
 
   return (
-    <section className="admin-access-shell" aria-label="Acceso administrativo">
+    <section className="admin-access-shell" aria-label={copy.adminAccess}>
       <form className="admin-access-card" onSubmit={submit}>
         <span className="admin-access-mark" aria-hidden="true">•••</span>
-        <p>Acceso protegido</p>
-        <h2>Edición de puntos</h2>
-        <span className="admin-access-copy">Ingresá la clave configurada como <strong>API_TOKEN</strong> en Apps Script.</span>
+        <p>{copy.protectedAccess}</p>
+        <h2>{copy.pointEditing}</h2>
+        <span className="admin-access-copy">{copy.accessCopy}</span>
         <label>
-          <span>Clave administrativa</span>
+          <span>{copy.adminKey}</span>
           <input type="password" value={token} onChange={(event) => setToken(event.target.value)} autoComplete="current-password" autoFocus disabled={isChecking} />
         </label>
         <button type="submit" disabled={isChecking || !token.trim()}>
           {isChecking && <span className="button-spinner" aria-hidden="true" />}
-          {isChecking ? "Validando..." : "Ingresar a edición"}
+          {isChecking ? copy.validating : copy.enterEditing}
         </button>
         {error && <div className="admin-access-error" role="alert">{error}</div>}
-        <small>La clave permanece únicamente en esta pestaña.</small>
+        <small>{copy.keySession}</small>
       </form>
     </section>
   );

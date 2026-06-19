@@ -2,6 +2,7 @@
 
 import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import type { MapPointImage } from "@/types/map";
+import { useLanguage } from "@/components/LanguageProvider";
 
 interface TimelineSliderProps {
   images: MapPointImage[];
@@ -10,6 +11,7 @@ interface TimelineSliderProps {
 }
 
 export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSliderProps) {
+  const { copy } = useLanguage();
   const trackRef = useRef<HTMLDivElement>(null);
   const dragProgressRef = useRef<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -82,10 +84,10 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
   }
 
   return (
-    <div className="timeline" aria-label="Evolución temporal">
+    <div className="timeline" aria-label={copy.temporalEvolution}>
       <div className="timeline-heading">
-        <span>Evolución del cultivo</span>
-        <strong>Día {images[selectedIndex].day}</strong>
+        <span>{copy.fieldEfficiency}</span>
+        <strong>{copy.day} {images[selectedIndex].day}</strong>
       </div>
       <div
         ref={trackRef}
@@ -105,18 +107,18 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
           className="timeline-handle"
           type="button"
           role="slider"
-          aria-label="Día de la evolución"
+          aria-label={copy.evolutionDay}
           aria-valuemin={0}
           aria-valuemax={lastIndex}
           aria-valuenow={selectedIndex}
-          aria-valuetext={`Día ${images[selectedIndex].day}`}
+          aria-valuetext={`${copy.day} ${images[selectedIndex].day}`}
           onKeyDown={handleKeyDown}
           style={{ left: `${visualProgress}%` }}
         />
       </div>
       <div className="timeline-endpoints" aria-hidden="true">
-        <span>Día {images[0].day}</span>
-        {images.length > 1 && <span>Día {images[lastIndex].day}</span>}
+        <span>{copy.day} {images[0].day}</span>
+        {images.length > 1 && <span>{copy.day} {images[lastIndex].day}</span>}
       </div>
     </div>
   );

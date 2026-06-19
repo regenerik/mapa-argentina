@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLanguage } from "@/components/LanguageProvider";
 
 type WebkitDocument = Document & {
   webkitFullscreenElement?: Element | null;
@@ -12,6 +13,7 @@ type WebkitElement = HTMLElement & {
 };
 
 export function FullscreenButton() {
+  const { copy } = useLanguage();
   const [isSupported, setIsSupported] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -52,11 +54,11 @@ export function FullscreenButton() {
   if (!isSupported) return null;
 
   return (
-    <button className="icon-button fullscreen-button" type="button" onClick={toggleFullscreen} aria-label={isFullscreen ? "Restaurar pantalla" : "Ver en pantalla completa"}>
+    <button className="icon-button fullscreen-button" type="button" onClick={toggleFullscreen} aria-label={isFullscreen ? copy.restoreAria : copy.fullscreenAria}>
       <svg viewBox="0 0 24 24" aria-hidden="true">
         {isFullscreen ? <path d="M9 3v6H3m12-6v6h6M9 21v-6H3m12 6v-6h6" /> : <path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5" />}
       </svg>
-      <span>{isFullscreen ? "Restaurar" : "Pantalla completa"}</span>
+      <span>{isFullscreen ? copy.restore : copy.fullscreen}</span>
     </button>
   );
 }
