@@ -1,8 +1,8 @@
 # Mapa Argentina
 
-Aplicación interactiva construida con Next.js App Router, React y TypeScript.
+Aplicación interactiva construida con Next.js App Router, React y TypeScript. Se exporta como sitio completamente estático; Google Apps Script funciona como backend gratuito para Google Sheets y para las operaciones privadas de Cloudinary.
 
-## Desarrollo
+## Desarrollo local
 
 ```bash
 npm install
@@ -11,58 +11,105 @@ npm run dev
 
 Abrir `http://localhost:3000`.
 
-## Cloudinary
-
-La carga usa unsigned upload directamente desde el navegador. Las variables públicas son:
+Crear `.env.local` con:
 
 ```env
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=drlqmol4c
 NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=mapa_argentina_2026_x7k9p
+NEXT_PUBLIC_GOOGLE_SHEETS_WEB_APP_URL=https://script.google.com/macros/s/ID_DE_IMPLEMENTACION/exec
 ```
 
-El preset `mapa_argentina_2026_x7k9p` debe estar habilitado como **Unsigned** en Cloudinary y define la carpeta de destino. El frontend no envía `folder`.
+La subida de imágenes usa el preset unsigned directamente desde el navegador. El preset define la carpeta; el frontend no envía `folder`.
 
-Para eliminar imágenes abandonadas, reemplazadas o asociadas a puntos borrados, el servidor usa:
+## Configurar Google Sheets y Apps Script
+
+### 1. Reemplazar el código
+
+1. Abrir la planilla de Google Sheets.
+2. Ir a **Extensiones > Apps Script**.
+3. Abrir el archivo `Código.gs`.
+4. Borrar su contenido.
+5. Pegar completo el contenido de `docs/google-apps-script.js`.
+6. Guardar el proyecto.
+
+No hace falta modificar la pestaña `points`. El script conserva las columnas existentes:
+
+```text
+id | title | description | longitude | latitude | thumbnailUrl | images | updatedAt
+```
+
+### 2. Configurar propiedades privadas
+
+En Apps Script abrir **Configuración del proyecto > Propiedades de la secuencia de comandos** y crear exactamente estas propiedades:
+
+```text
+API_TOKEN                       = una_clave_administrativa_larga
+CLOUDINARY_CLOUD_NAME           = drlqmol4c
+CLOUDINARY_API_KEY              = API key de Cloudinary
+CLOUDINARY_API_SECRET           = API secret de Cloudinary
+CLOUDINARY_ALLOWED_FOLDERS      = mapa-argentina-v2/uploads,mapa-argentina
+```
+
+Notas importantes:
+
+- No agregar comillas alrededor de los valores.
+- `API_TOKEN` es la clave que se ingresa al abrir `/edicion`.
+- `CLOUDINARY_API_SECRET` queda solamente en Apps Script.
+- La lectura del mapa es pública; crear, modificar y eliminar requiere `API_TOKEN`.
+- Las imágenes reemplazadas y las de un punto eliminado se borran desde Apps Script.
+
+### 3. Actualizar la implementación
+
+Si ya existe una implementación:
+
+1. Presionar **Implementar > Administrar implementaciones**.
+2. Abrir la implementación existente con el ícono del lápiz.
+3. En **Versión**, elegir **Nueva versión**.
+4. En **Ejecutar como**, elegir **Yo**.
+5. En **Quién tiene acceso**, elegir **Cualquier persona**.
+6. Presionar **Implementar**.
+7. Autorizar el acceso a Google Sheets y las conexiones externas de `UrlFetchApp`.
+8. Copiar la URL que termina en `/exec`.
+
+Al actualizar la implementación existente, la URL normalmente permanece igual. No usar la URL de prueba terminada en `/dev`.
+
+### 4. Probar Apps Script
+
+Abrir la URL `/exec` en el navegador. Debe responder algo similar a:
+
+```json
+{"ok":true,"service":"mapa-argentina"}
+```
+
+Después abrir `/edicion` en la app e ingresar el valor de `API_TOKEN`. La clave se conserva únicamente en `sessionStorage`, por lo que vuelve a pedirse al cerrar la pestaña.
+
+## Configurar Render como Static Site
+
+Usar estos valores:
+
+```text
+Branch:             main
+Root Directory:     vacío
+Build Command:      npm ci && npm run build
+Publish Directory:  out
+```
+
+Eliminar la variable `PORT` y agregar solamente:
 
 ```env
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
-CLOUDINARY_ALLOWED_FOLDERS=mapa-argentina-v2/uploads,mapa-argentina
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=drlqmol4c
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=mapa_argentina_2026_x7k9p
+NEXT_PUBLIC_GOOGLE_SHEETS_WEB_APP_URL=https://script.google.com/macros/s/ID_DE_IMPLEMENTACION/exec
 ```
 
-Estas variables son privadas y nunca deben llevar el prefijo `NEXT_PUBLIC_`.
+No cargar en Render `API_TOKEN`, `CLOUDINARY_API_KEY` ni `CLOUDINARY_API_SECRET`. Esos valores privados pertenecen a Script Properties de Apps Script.
 
-## Persistencia
+## Arquitectura
 
-La aplicación sincroniza con Google Sheets cuando está configurado y usa `localStorage` como fallback offline. El navegador nunca recibe el token privado de la hoja: las operaciones pasan por `/api/map-points` en el servidor Next.js.
-
-## Configurar Google Sheets
-
-1. Crear un Google Sheet nuevo. No hace falta agregar columnas manualmente.
-2. Abrir **Extensiones > Apps Script**.
-3. Borrar el contenido inicial y pegar completo `docs/google-apps-script.js`.
-4. Abrir **Configuración del proyecto > Propiedades de la secuencia de comandos**.
-5. Crear una propiedad llamada `API_TOKEN` con un valor largo y aleatorio.
-6. Presionar **Implementar > Nueva implementación**.
-7. Elegir **Aplicación web**.
-8. En **Ejecutar como**, elegir tu cuenta.
-9. En **Quién tiene acceso**, elegir **Cualquier persona**. La escritura sigue protegida por `API_TOKEN` y la hoja permanece privada.
-10. Autorizar el script y copiar la URL final que termina en `/exec`.
-11. Agregar a `.env.local`:
-
-```env
-GOOGLE_SHEETS_WEB_APP_URL=https://script.google.com/macros/s/ID_DE_IMPLEMENTACION/exec
-GOOGLE_SHEETS_API_TOKEN=EL_MISMO_TOKEN_DE_APPS_SCRIPT
+```text
+Render Static Site -> Google Apps Script -> Google Sheets
+Render Static Site -> Cloudinary unsigned upload
+Google Apps Script -> Cloudinary signed destroy
 ```
 
-12. Reiniciar `npm run dev` para que Next.js lea las variables.
-
-El script crea automáticamente una pestaña `points` con las columnas `id`, `title`, `description`, `longitude`, `latitude`, `thumbnailUrl`, `images` y `updatedAt`. La columna `images` guarda un JSON con las URLs de Cloudinary y sus días.
-
-### Datos necesarios para finalizar la conexión
-
-- La URL `/exec` de la implementación de Apps Script.
-- Confirmación de que agregaste `API_TOKEN` a las propiedades del script.
-- El mismo token dentro de `GOOGLE_SHEETS_API_TOKEN` en el servidor donde se ejecute Next.js.
-
-No envíes ese token en código cliente ni lo nombres con el prefijo `NEXT_PUBLIC_`.
+`localStorage` continúa funcionando como respaldo si Google Apps Script no responde temporalmente.

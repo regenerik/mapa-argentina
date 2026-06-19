@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AdminAccessGate, ADMIN_TOKEN_SESSION_KEY } from "@/components/AdminAccessGate";
 import { ArgentinaMap } from "@/components/ArgentinaMap";
 import { BackButton } from "@/components/BackButton";
 import { FullscreenButton } from "@/components/FullscreenButton";
@@ -62,14 +63,27 @@ export function MapEditorScreen() {
   const [isPlacing, setIsPlacing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState("");
+  const [adminToken, setAdminToken] = useState("");
+  const [isAccessReady, setIsAccessReady] = useState(false);
   const pendingUploads = useRef(new Set<string>());
+  const adminTokenRef = useRef("");
+
+  useEffect(() => {
+    const accessTimer = window.setTimeout(() => {
+      const savedToken = window.sessionStorage.getItem(ADMIN_TOKEN_SESSION_KEY) || "";
+      adminTokenRef.current = savedToken;
+      setAdminToken(savedToken);
+      setIsAccessReady(true);
+    }, 0);
+    return () => window.clearTimeout(accessTimer);
+  }, []);
 
   const discardPendingUploads = useCallback(async (keepalive = false) => {
     const publicIds = [...pendingUploads.current];
-    if (publicIds.length === 0) return;
+    if (publicIds.length === 0 || !adminTokenRef.current) return;
     pendingUploads.current.clear();
     try {
-      await deleteCloudinaryAssets(publicIds, keepalive);
+      await deleteCloudinaryAssets(publicIds, adminTokenRef.current, keepalive);
     } catch (error) {
       if (!keepalive) publicIds.forEach((publicId) => pendingUploads.current.add(publicId));
       throw error;
@@ -79,7 +93,9 @@ export function MapEditorScreen() {
   useEffect(() => () => {
     const publicIds = [...pendingUploads.current];
     pendingUploads.current.clear();
-    if (publicIds.length > 0) void deleteCloudinaryAssets(publicIds, true).catch(() => undefined);
+    if (publicIds.length > 0 && adminTokenRef.current) {
+      void deleteCloudinaryAssets(publicIds, adminTokenRef.current, true).catch(() => undefined);
+    }
   }, []);
 
   const displayedPoints = useMemo(() => {
@@ -95,8 +111,12 @@ export function MapEditorScreen() {
     return [...points.filter((point) => point.id !== draft.id), preview];
   }, [draft, points]);
 
+  function reportCleanupError(error: unknown) {
+    setMessage(error instanceof Error ? error.message : "No se pudieron limpiar las imágenes sin guardar.");
+  }
+
   function startNewPoint() {
-    void discardPendingUploads().catch((error) => setMessage(error instanceof Error ? error.message : "No se pudieron limpiar las imágenes sin guardar."));
+    void discardPendingUploads().catch(reportCleanupError);
     setDraft(emptyDraft());
     setIsPlacing(true);
     setMessage("");
@@ -104,7 +124,7 @@ export function MapEditorScreen() {
 
   function selectPoint(point: MapPoint) {
     if (point.id === "draft-point") return;
-    void discardPendingUploads().catch((error) => setMessage(error instanceof Error ? error.message : "No se pudieron limpiar las imágenes sin guardar."));
+    void discardPendingUploads().catch(reportCleanupError);
     const source = points.find((current) => current.id === point.id) || point;
     setDraft(pointToDraft(source));
     setIsPlacing(false);
@@ -129,26 +149,23 @@ export function MapEditorScreen() {
     setMessage("");
     try {
       const point = draftToPoint(nextDraft);
-      const previousPoint = nextDraft.id ? points.find((current) => current.id === nextDraft.id) : undefined;
-      const result = await upsertMapPoint(point);
+      const result = await upsertMapPoint(point, adminToken);
       const referencedIds = new Set(pointAssetIds(point));
       const unusedUploads = [...pendingUploads.current].filter((publicId) => !referencedIds.has(publicId));
       pendingUploads.current.clear();
 
       let cleanupWarning = "";
-      const replacedIds = result.synced && previousPoint
-        ? pointAssetIds(previousPoint).filter((publicId) => !referencedIds.has(publicId))
-        : [];
       try {
-        await deleteCloudinaryAssets([...unusedUploads, ...replacedIds]);
+        await deleteCloudinaryAssets(unusedUploads, adminToken);
       } catch {
-        cleanupWarning = " No se pudieron limpiar algunas imágenes reemplazadas.";
+        cleanupWarning = " No se pudieron limpiar algunas imágenes descartadas.";
       }
 
       setDraft(pointToDraft(point));
       setIsPlacing(false);
       const savedMessage = nextDraft.id ? "Cambios guardados" : "Punto creado";
-      setMessage((result.synced ? `${savedMessage} y sincronizado.` : `${savedMessage} localmente. Google Sheets pendiente.`) + cleanupWarning);
+      const remoteWarning = result.warning ? ` ${result.warning}` : "";
+      setMessage((result.synced ? `${savedMessage} y sincronizado.` : `${savedMessage} localmente. Google Sheets pendiente.`) + remoteWarning + cleanupWarning);
     } finally {
       setIsSaving(false);
     }
@@ -159,28 +176,26 @@ export function MapEditorScreen() {
     if (!window.confirm(`¿Eliminar ${point?.title || "este punto"}? Esta acción no se puede deshacer.`)) return;
     setIsSaving(true);
     try {
-      const result = await removeMapPoint(pointId);
-      let cleanupWarning = "";
-      if (result.synced && point) {
-        try {
-          await deleteCloudinaryAssets(pointAssetIds(point));
-        } catch {
-          cleanupWarning = " No se pudieron eliminar sus imágenes de Cloudinary.";
-        }
-      }
+      const result = await removeMapPoint(pointId, adminToken);
       setDraft(null);
       setIsPlacing(false);
-      setMessage((result.synced ? "Punto eliminado y sincronizado." : "Punto eliminado localmente. Google Sheets pendiente.") + cleanupWarning);
+      const remoteWarning = result.warning ? ` ${result.warning}` : "";
+      setMessage((result.synced ? "Punto eliminado y sincronizado." : "Punto eliminado localmente. Google Sheets pendiente.") + remoteWarning);
     } finally {
       setIsSaving(false);
     }
   }
 
   function cancelEditing() {
-    void discardPendingUploads().catch((error) => setMessage(error instanceof Error ? error.message : "No se pudieron limpiar las imágenes sin guardar."));
+    void discardPendingUploads().catch(reportCleanupError);
     setDraft(null);
     setIsPlacing(false);
     setMessage("");
+  }
+
+  function authorize(token: string) {
+    adminTokenRef.current = token;
+    setAdminToken(token);
   }
 
   return (
@@ -194,36 +209,42 @@ export function MapEditorScreen() {
         <FullscreenButton />
       </header>
 
-      <div className="editor-layout">
-        <section className="map-workspace editor-map" aria-label="Mapa editable de la República Argentina">
-          <ArgentinaMap
-            mode="edit"
-            points={displayedPoints}
-            onPointSelect={selectPoint}
-            onMapSelect={selectLocation}
-            selectedPointId={draft?.id || (draft?.coordinates ? "draft-point" : undefined)}
-          />
-          <div className={`map-hint editor-map-hint${isPlacing ? " is-active" : ""}`}>
-            <span>{isPlacing ? "Tocá una provincia para ubicar el punto" : "Tocá el mapa para crear · Tocá un punto para editar"}</span>
-          </div>
-        </section>
+      {!isAccessReady ? (
+        <div className="admin-access-loading" role="status"><span className="map-loading-spinner" />Preparando acceso...</div>
+      ) : !adminToken ? (
+        <AdminAccessGate onAuthorized={authorize} />
+      ) : (
+        <div className="editor-layout">
+          <section className="map-workspace editor-map" aria-label="Mapa editable de la República Argentina">
+            <ArgentinaMap
+              mode="edit"
+              points={displayedPoints}
+              onPointSelect={selectPoint}
+              onMapSelect={selectLocation}
+              selectedPointId={draft?.id || (draft?.coordinates ? "draft-point" : undefined)}
+            />
+            <div className={`map-hint editor-map-hint${isPlacing ? " is-active" : ""}`}>
+              <span>{isPlacing ? "Tocá una provincia para ubicar el punto" : "Tocá el mapa para crear · Tocá un punto para editar"}</span>
+            </div>
+          </section>
 
-        <PointEditorPanel
-          points={points}
-          draft={draft}
-          isPlacing={isPlacing}
-          isSaving={isSaving}
-          message={message}
-          onDraftChange={setDraft}
-          onNew={startNewPoint}
-          onSelect={selectPoint}
-          onRelocate={() => setIsPlacing(true)}
-          onAssetUploaded={(asset: CloudinaryAsset) => pendingUploads.current.add(asset.publicId)}
-          onSave={saveDraft}
-          onDelete={removePoint}
-          onCancel={cancelEditing}
-        />
-      </div>
+          <PointEditorPanel
+            points={points}
+            draft={draft}
+            isPlacing={isPlacing}
+            isSaving={isSaving}
+            message={message}
+            onDraftChange={setDraft}
+            onNew={startNewPoint}
+            onSelect={selectPoint}
+            onRelocate={() => setIsPlacing(true)}
+            onAssetUploaded={(asset: CloudinaryAsset) => pendingUploads.current.add(asset.publicId)}
+            onSave={saveDraft}
+            onDelete={removePoint}
+            onCancel={cancelEditing}
+          />
+        </div>
+      )}
     </main>
   );
 }

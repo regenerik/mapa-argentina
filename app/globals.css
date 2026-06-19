@@ -128,6 +128,20 @@ a { color: inherit; text-decoration: none; }
 .edit-notice strong { margin-top: 5px; color: #b8cfda; font-size: 12px; font-weight: 500; line-height: 1.4; }
 
 .editor-layout { display: grid; min-height: 0; grid-template-columns: minmax(0, 1fr) 420px; overflow: hidden; }
+.admin-access-shell { display: grid; min-height: 0; place-items: center; padding: 24px; background: radial-gradient(circle at 50% 35%, #0d2b43 0, #061522 48%, #030b15 100%); }
+.admin-access-card { display: flex; width: min(100%, 420px); flex-direction: column; align-items: stretch; padding: 32px; border: 1px solid rgba(102, 193, 224, .24); border-radius: 22px; background: rgba(8, 27, 42, .92); box-shadow: 0 28px 80px rgba(0, 5, 14, .42); text-align: center; }
+.admin-access-mark { display: grid; width: 54px; height: 54px; margin: 0 auto 20px; place-items: center; border: 1px solid rgba(91, 200, 233, .36); border-radius: 16px; color: #7dd8ef; background: rgba(32, 135, 168, .13); font-size: 18px; letter-spacing: .12em; }
+.admin-access-card > p { margin: 0; color: #4dbbde; font-size: 9px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
+.admin-access-card h2 { margin: 7px 0 10px; font-size: 26px; letter-spacing: -.035em; }
+.admin-access-copy { color: #7896a7; font-size: 12px; line-height: 1.55; }
+.admin-access-card label { display: flex; flex-direction: column; gap: 7px; margin-top: 24px; color: #91acb9; font-size: 10px; font-weight: 700; text-align: left; }
+.admin-access-card input { height: 48px; padding: 0 13px; border: 1px solid rgba(125, 185, 208, .2); border-radius: 12px; outline: 0; color: #e8f4f7; background: #061722; font-size: 14px; }
+.admin-access-card input:focus { border-color: rgba(76, 199, 233, .62); box-shadow: 0 0 0 3px rgba(59, 172, 205, .09); }
+.admin-access-card > button { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: 9px; margin-top: 13px; border: 1px solid rgba(82, 200, 231, .45); border-radius: 12px; color: #e7fbff; background: linear-gradient(135deg, #19799b, #125570); font-size: 11px; font-weight: 800; cursor: pointer; }
+.admin-access-card > button:disabled { opacity: .55; cursor: wait; }
+.admin-access-card > small { margin-top: 15px; color: #547384; font-size: 9px; }
+.admin-access-error { margin-top: 12px; padding: 10px; border: 1px solid rgba(225, 107, 107, .25); border-radius: 10px; color: #efaaaa; background: rgba(111, 35, 43, .18); font-size: 10px; }
+.admin-access-loading { display: flex; align-items: center; justify-content: center; gap: 10px; color: #91acb9; background: #061522; font-size: 11px; }
 .editor-map { min-width: 0; }
 .editor-map-hint.is-active { color: #d8f7ff; border-color: rgba(74, 201, 236, .48); background: rgba(11, 58, 79, .9); box-shadow: 0 0 24px rgba(42, 174, 211, .18); }
 .editor-panel { position: relative; z-index: 15; min-width: 0; overflow-x: hidden; overflow-y: auto; border-left: 1px solid rgba(121, 186, 211, .16); background: linear-gradient(180deg, #091c2b, #06131f); scrollbar-color: #24485d transparent; }

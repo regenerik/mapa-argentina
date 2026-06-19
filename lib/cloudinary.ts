@@ -1,3 +1,5 @@
+import { callGoogleAppsScript } from "@/lib/googleAppsScript";
+
 interface CloudinaryUploadResponse {
   secure_url?: string;
   public_id?: string;
@@ -53,15 +55,11 @@ export function getCloudinaryPublicId(imageUrl: string): string | null {
   }
 }
 
-export async function deleteCloudinaryAssets(publicIds: string[], keepalive = false): Promise<void> {
+export async function deleteCloudinaryAssets(publicIds: string[], adminToken: string, keepalive = false): Promise<void> {
   const uniqueIds = [...new Set(publicIds.filter(Boolean))];
   if (uniqueIds.length === 0) return;
-  const response = await fetch("/api/cloudinary/delete", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ publicIds: uniqueIds }),
-    keepalive,
-  });
-  const result = await response.json().catch(() => ({})) as { error?: string };
-  if (!response.ok) throw new Error(result.error || "No se pudieron eliminar las imágenes de Cloudinary.");
+  await callGoogleAppsScript(
+    { action: "deleteCloudinaryAssets", publicIds: uniqueIds, token: adminToken },
+    { keepalive },
+  );
 }
