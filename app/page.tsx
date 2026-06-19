@@ -30,7 +30,12 @@ export default function Home() {
       <section className="home-content">
         <div className="brand-mark" aria-hidden="true"><span /></div>
         <p className="eyebrow">{copy.homeEyebrow}</p>
-        <h1>{copy.homeTitleLine1}<br /><span>{copy.homeTitleLine2}</span></h1>
+        <div className="home-title-wrap">
+          {/* The source diagram is preserved exactly; CSS blends away its white background. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="home-molecule" src="/molecula.png" alt="" aria-hidden="true" draggable={false} />
+          <h1>{copy.homeTitleLine1}<br /><span>{copy.homeTitleLine2}</span></h1>
+        </div>
         <p className="home-lead">
           {copy.homeLead}
         </p>
