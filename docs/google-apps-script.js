@@ -204,6 +204,19 @@ function handleDelete(sheet, id) {
   });
 }
 
+/**
+ * Ejecutar manualmente una vez desde el editor de Apps Script.
+ * La solicitud es inocua y fuerza a Google a pedir el permiso
+ * script.external_request que necesita la limpieza de Cloudinary.
+ */
+function authorizeExternalRequests() {
+  const response = UrlFetchApp.fetch("https://api.cloudinary.com", {
+    method: "get",
+    muteHttpExceptions: true,
+  });
+  return `Permiso para solicitudes externas habilitado (${response.getResponseCode()}).`;
+}
+
 function doGet() {
   return jsonResponse({ ok: true, service: "mapa-argentina" });
 }

@@ -32,6 +32,20 @@ La subida de imágenes usa el preset unsigned directamente desde el navegador. E
 5. Pegar completo el contenido de `docs/google-apps-script.js`.
 6. Guardar el proyecto.
 
+### 1.1. Habilitar el permiso para Cloudinary
+
+Apps Script necesita autorización explícita para llamar a Cloudinary con `UrlFetchApp`:
+
+1. En Apps Script abrir **Configuración del proyecto**.
+2. Activar **Mostrar el archivo de manifiesto `appsscript.json` en el editor**.
+3. Volver al editor y abrir `appsscript.json`.
+4. Reemplazar su contenido por el de `docs/appsscript.json` y guardar.
+5. En el selector de funciones del editor elegir `authorizeExternalRequests`.
+6. Presionar **Ejecutar** y aceptar los permisos solicitados por Google.
+7. Confirmar en **Ejecuciones** que la función terminó correctamente.
+
+Esta función solo hace una solicitud externa inocua para activar el permiso; no crea ni elimina imágenes. Hay que ejecutarla con la misma cuenta configurada en **Ejecutar como: Yo**.
+
 No hace falta modificar la pestaña `points`. El script conserva las columnas existentes:
 
 ```text
@@ -68,7 +82,7 @@ Si ya existe una implementación:
 4. En **Ejecutar como**, elegir **Yo**.
 5. En **Quién tiene acceso**, elegir **Cualquier persona**.
 6. Presionar **Implementar**.
-7. Autorizar el acceso a Google Sheets y las conexiones externas de `UrlFetchApp`.
+7. Si Google vuelve a solicitar autorización, aceptarla.
 8. Copiar la URL que termina en `/exec`.
 
 Al actualizar la implementación existente, la URL normalmente permanece igual. No usar la URL de prueba terminada en `/dev`.
