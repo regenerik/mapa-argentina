@@ -94,7 +94,9 @@ function MapPointLayer({ points, onPointSelect, selectedPointId }: { points: Map
 
   useTransformEffect(({ state }) => {
     const compensatedScale = 1 / Math.pow(state.scale, 0.82);
-    layerRef.current?.style.setProperty("--point-scale", String(compensatedScale));
+    layerRef.current?.querySelectorAll<SVGGElement>(".map-point-scale").forEach((marker) => {
+      marker.setAttribute("transform", `scale(${compensatedScale})`);
+    });
   });
 
   return (
@@ -115,7 +117,11 @@ function AdaptiveLabelLayer() {
   useTransformEffect(({ state }) => {
     // Labels grow only slightly with the map, remaining useful at every zoom level.
     const compensatedScale = 1 / Math.pow(state.scale, 0.78);
-    layerRef.current?.style.setProperty("--label-scale", String(compensatedScale));
+    layerRef.current?.querySelectorAll<SVGTextElement>("[data-label-size]").forEach((label) => {
+      const baseSize = Number(label.dataset.labelSize || 11);
+      label.style.fontSize = `${baseSize * compensatedScale}px`;
+      label.style.strokeWidth = `${3 * compensatedScale}px`;
+    });
   });
 
   return (
@@ -126,14 +132,14 @@ function AdaptiveLabelLayer() {
         if (!position) return null;
         const [offsetX = 0, offsetY = 0] = label.offset ?? [];
         return (
-          <text key={feature.properties.name} x={position[0] + offsetX} y={position[1] + offsetY}>
+          <text key={feature.properties.name} x={position[0] + offsetX} y={position[1] + offsetY} data-label-size="11">
             {label.shortName ?? label.name}
           </text>
         );
       })}
       <g className="caba-label">
         <circle cx={cabaPosition?.[0]} cy={cabaPosition?.[1]} r="4" />
-        <text x={(cabaPosition?.[0] ?? 0) + 12} y={(cabaPosition?.[1] ?? 0) + 4}>CABA</text>
+        <text x={(cabaPosition?.[0] ?? 0) + 12} y={(cabaPosition?.[1] ?? 0) + 4} data-label-size="9">CABA</text>
       </g>
     </g>
   );

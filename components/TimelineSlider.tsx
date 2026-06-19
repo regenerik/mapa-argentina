@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
+import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import type { MapPointImage } from "@/types/map";
 
 interface TimelineSliderProps {
@@ -11,22 +11,13 @@ interface TimelineSliderProps {
 
 export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSliderProps) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const labelTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [showLabel, setShowLabel] = useState(false);
   const lastIndex = Math.max(images.length - 1, 0);
   const progress = lastIndex === 0 ? 0 : (selectedIndex / lastIndex) * 100;
-
-  useEffect(() => () => {
-    if (labelTimer.current) clearTimeout(labelTimer.current);
-  }, []);
 
   function selectIndex(index: number) {
     const boundedIndex = Math.max(0, Math.min(index, lastIndex));
     onChange(boundedIndex);
-    setShowLabel(true);
-    if (labelTimer.current) clearTimeout(labelTimer.current);
-    labelTimer.current = setTimeout(() => setShowLabel(false), 2500);
   }
 
   function selectFromPosition(clientX: number) {
@@ -105,11 +96,7 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
           aria-valuetext={`Día ${images[selectedIndex].day}`}
           onKeyDown={handleKeyDown}
           style={{ left: `${progress}%` }}
-        >
-          <span className={`timeline-float-label${showLabel ? " is-visible" : ""}`}>
-            Día {images[selectedIndex].day}
-          </span>
-        </button>
+        />
       </div>
       <div className="timeline-endpoints" aria-hidden="true">
         <span>Día {images[0].day}</span>
