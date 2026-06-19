@@ -93,8 +93,7 @@ a { color: inherit; text-decoration: none; }
 .map-transform-wrapper, .map-transform-content { width: 100% !important; height: 100% !important; }
 .map-transform-content { display: grid !important; place-items: center; }
 .argentina-map { display: block; width: min(92vw, 680px); height: min(calc(100svh - 94px), 980px); overflow: visible; user-select: none; }
-.province-layer path { fill: url(#province-fill); stroke: #59c1e0; stroke-width: 1.45; vector-effect: non-scaling-stroke; transition: fill .18s ease, filter .18s ease; }
-.province-layer path:hover { fill: #1d91bd; filter: brightness(1.12); }
+.province-layer path { fill: url(#province-fill); stroke: #59c1e0; stroke-width: 1.45; vector-effect: non-scaling-stroke; -webkit-tap-highlight-color: transparent; }
 .label-layer text { fill: #d7f2fb; font-family: Inter, "Segoe UI", Arial, sans-serif; font-size: 11px; font-weight: 600; letter-spacing: -.02em; paint-order: stroke; pointer-events: none; stroke: rgba(3, 24, 36, .8); stroke-width: 3px; text-anchor: middle; }
 .caba-label circle { fill: #d5f5ff; stroke: #07334a; stroke-width: 2; }
 .caba-label text { font-size: 9px; text-anchor: start; }

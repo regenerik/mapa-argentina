@@ -11,38 +11,61 @@ interface TimelineSliderProps {
 
 export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSliderProps) {
   const trackRef = useRef<HTMLDivElement>(null);
+  const dragProgressRef = useRef<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [dragProgress, setDragProgress] = useState<number | null>(null);
   const lastIndex = Math.max(images.length - 1, 0);
-  const progress = lastIndex === 0 ? 0 : (selectedIndex / lastIndex) * 100;
+  const snappedProgress = lastIndex === 0 ? 0 : (selectedIndex / lastIndex) * 100;
+  const visualProgress = dragProgress ?? snappedProgress;
 
-  function selectIndex(index: number) {
-    const boundedIndex = Math.max(0, Math.min(index, lastIndex));
-    onChange(boundedIndex);
+  function boundedIndex(index: number) {
+    return Math.max(0, Math.min(index, lastIndex));
   }
 
-  function selectFromPosition(clientX: number) {
+  function progressFromPosition(clientX: number) {
     const rect = trackRef.current?.getBoundingClientRect();
-    if (!rect || rect.width === 0) return;
-    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    selectIndex(Math.round(ratio * lastIndex));
+    if (!rect || rect.width === 0 || lastIndex === 0) return 0;
+    return Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+  }
+
+  function nearestIndex(progress: number) {
+    return lastIndex === 0 ? 0 : boundedIndex(Math.round((progress / 100) * lastIndex));
+  }
+
+  function previewPosition(clientX: number) {
+    const nextProgress = progressFromPosition(clientX);
+    dragProgressRef.current = nextProgress;
+    setDragProgress(nextProgress);
+    const nextIndex = nearestIndex(nextProgress);
+    if (nextIndex !== selectedIndex) onChange(nextIndex);
   }
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     setIsDragging(true);
-    selectFromPosition(event.clientX);
+    previewPosition(event.clientX);
   }
 
   function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
-    if (isDragging) selectFromPosition(event.clientX);
+    if (isDragging) previewPosition(event.clientX);
   }
 
   function finishDrag(event: PointerEvent<HTMLDivElement>) {
+    const finalProgress = dragProgressRef.current ?? snappedProgress;
+    const finalIndex = nearestIndex(finalProgress);
+    onChange(finalIndex);
     setIsDragging(false);
+    setDragProgress(null);
+    dragProgressRef.current = null;
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
+  }
+
+  function selectIndex(index: number) {
+    const nextIndex = boundedIndex(index);
+    onChange(nextIndex);
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
@@ -73,17 +96,10 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
         onPointerCancel={finishDrag}
       >
         <div className="timeline-line" />
-        <div className="timeline-progress" style={{ width: `${progress}%` }} />
+        <div className="timeline-progress" style={{ width: `${visualProgress}%` }} />
         {images.map((image, index) => {
           const left = lastIndex === 0 ? 0 : (index / lastIndex) * 100;
-          return (
-            <span
-              key={image.day}
-              className={`timeline-mark${index <= selectedIndex ? " is-past" : ""}`}
-              style={{ left: `${left}%` }}
-              aria-hidden="true"
-            />
-          );
+          return <span key={image.day} className={`timeline-mark${index <= selectedIndex ? " is-past" : ""}`} style={{ left: `${left}%` }} aria-hidden="true" />;
         })}
         <button
           className="timeline-handle"
@@ -95,7 +111,7 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
           aria-valuenow={selectedIndex}
           aria-valuetext={`Día ${images[selectedIndex].day}`}
           onKeyDown={handleKeyDown}
-          style={{ left: `${progress}%` }}
+          style={{ left: `${visualProgress}%` }}
         />
       </div>
       <div className="timeline-endpoints" aria-hidden="true">
