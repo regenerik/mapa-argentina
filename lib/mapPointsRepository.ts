@@ -39,11 +39,12 @@ export async function upsertMapPoint(point: MapPoint, adminToken: string): Promi
 }
 
 export async function removeMapPoint(pointId: string, adminToken: string): Promise<PersistenceResult> {
-  const points = saveMapPoints(getMapPoints().filter((point) => point.id !== pointId));
+  const currentPoints = getMapPoints();
   try {
     const result = await remoteRequest({ action: "delete", id: pointId }, adminToken);
+    const points = saveMapPoints(currentPoints.filter((point) => point.id !== pointId));
     return { points, synced: true, warning: result.warning };
   } catch (error) {
-    return { points, synced: false, error: error instanceof Error ? error.message : undefined };
+    return { points: currentPoints, synced: false, error: error instanceof Error ? error.message : undefined };
   }
 }

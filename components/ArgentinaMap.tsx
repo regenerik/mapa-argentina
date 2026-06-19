@@ -200,10 +200,17 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
     pointerStart.current = null;
     if (!onMapSelect || pointerMoved.current) return;
 
-    const matrix = event.currentTarget.getScreenCTM();
-    if (!matrix) return;
-    const svgPoint = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
-    const coordinates = projection.invert?.([svgPoint.x, svgPoint.y]);
+    // WebKit can omit a CSS-transformed ancestor from getScreenCTM(). Mapping the
+    // rendered SVG viewport manually keeps point placement correct after zoom.
+    const rect = event.currentTarget.getBoundingClientRect();
+    const viewBox = event.currentTarget.viewBox.baseVal;
+    if (!rect.width || !rect.height || !viewBox.width || !viewBox.height) return;
+    const renderedScale = Math.min(rect.width / viewBox.width, rect.height / viewBox.height);
+    const contentLeft = rect.left + (rect.width - viewBox.width * renderedScale) / 2;
+    const contentTop = rect.top + (rect.height - viewBox.height * renderedScale) / 2;
+    const svgX = viewBox.x + (event.clientX - contentLeft) / renderedScale;
+    const svgY = viewBox.y + (event.clientY - contentTop) / renderedScale;
+    const coordinates = projection.invert?.([svgX, svgY]);
     if (!coordinates || !geoContains(mapGeometry, coordinates)) return;
     onMapSelect([Number(coordinates[0].toFixed(6)), Number(coordinates[1].toFixed(6))]);
   }

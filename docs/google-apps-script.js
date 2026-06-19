@@ -193,9 +193,14 @@ function handleDelete(sheet, id) {
     const row = findPointRow(sheet, id);
     if (!row) return { ok: true };
     const point = rowToPoint(sheet.getRange(row, 1, 1, HEADERS.length).getValues()[0]);
-    deleteCloudinaryAssets(pointAssetIds(point));
+    let warning = "";
+    try {
+      deleteCloudinaryAssets(pointAssetIds(point));
+    } catch (error) {
+      warning = `El punto se eliminó, pero Cloudinary no pudo limpiar sus imágenes: ${String(error.message || error)}`;
+    }
     sheet.deleteRow(row);
-    return { ok: true };
+    return { ok: true, warning: warning || undefined };
   });
 }
 

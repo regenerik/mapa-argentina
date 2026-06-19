@@ -8,7 +8,7 @@ import { FullscreenButton } from "@/components/FullscreenButton";
 import { PointEditorPanel, type PointDraft, type TimelineDuration } from "@/components/PointEditorPanel";
 import { useMapPoints } from "@/hooks/useMapPoints";
 import { deleteCloudinaryAssets, getCloudinaryPublicId, type CloudinaryAsset } from "@/lib/cloudinary";
-import { removeMapPoint, upsertMapPoint } from "@/lib/mapPointsRepository";
+import { removeMapPoint, upsertMapPoint, verifyAdminToken } from "@/lib/mapPointsRepository";
 import type { MapPoint, MapPointImage, TimelineDay } from "@/types/map";
 
 const TIMELINE_DAYS: TimelineDay[] = ["1", "7", "15", "30", "60", "120"];
@@ -71,9 +71,21 @@ export function MapEditorScreen() {
   useEffect(() => {
     const accessTimer = window.setTimeout(() => {
       const savedToken = window.sessionStorage.getItem(ADMIN_TOKEN_SESSION_KEY) || "";
-      adminTokenRef.current = savedToken;
-      setAdminToken(savedToken);
-      setIsAccessReady(true);
+      if (!savedToken) {
+        setIsAccessReady(true);
+        return;
+      }
+      void verifyAdminToken(savedToken)
+        .then(() => {
+          adminTokenRef.current = savedToken;
+          setAdminToken(savedToken);
+        })
+        .catch(() => {
+          window.sessionStorage.removeItem(ADMIN_TOKEN_SESSION_KEY);
+          adminTokenRef.current = "";
+          setAdminToken("");
+        })
+        .finally(() => setIsAccessReady(true));
     }, 0);
     return () => window.clearTimeout(accessTimer);
   }, []);
@@ -165,7 +177,10 @@ export function MapEditorScreen() {
       setIsPlacing(false);
       const savedMessage = nextDraft.id ? "Cambios guardados" : "Punto creado";
       const remoteWarning = result.warning ? ` ${result.warning}` : "";
-      setMessage((result.synced ? `${savedMessage} y sincronizado.` : `${savedMessage} localmente. Google Sheets pendiente.`) + remoteWarning + cleanupWarning);
+      const saveStatus = result.synced
+        ? `${savedMessage} y sincronizado.`
+        : `${savedMessage} sólo en este dispositivo. Apps Script: ${result.error || "sin conexión"}.`;
+      setMessage(saveStatus + remoteWarning + cleanupWarning);
     } finally {
       setIsSaving(false);
     }
@@ -177,10 +192,14 @@ export function MapEditorScreen() {
     setIsSaving(true);
     try {
       const result = await removeMapPoint(pointId, adminToken);
+      if (!result.synced) {
+        setMessage(`No se pudo eliminar el punto. Apps Script: ${result.error || "sin conexión"}.`);
+        return;
+      }
       setDraft(null);
       setIsPlacing(false);
       const remoteWarning = result.warning ? ` ${result.warning}` : "";
-      setMessage((result.synced ? "Punto eliminado y sincronizado." : "Punto eliminado localmente. Google Sheets pendiente.") + remoteWarning);
+      setMessage("Punto eliminado y sincronizado." + remoteWarning);
     } finally {
       setIsSaving(false);
     }
