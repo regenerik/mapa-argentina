@@ -1,9 +1,10 @@
 export type MapMode = "view" | "edit";
 
-export type TimelineDay = "1" | "7" | "15" | "30" | "60" | "120";
+export type TimelineDay = string;
 
 export interface MapPointImage {
   day: TimelineDay;
+  daysFromBase: number;
   imageUrl: string;
   publicId?: string;
 }
@@ -16,6 +17,11 @@ export interface MapPoint {
   thumbnailUrl: string;
   thumbnailPublicId?: string;
   images: MapPointImage[];
+  targetWeeds: string[];
+  province: string;
+  locality?: string;
+  advisor?: string;
+  dose?: string;
 }
 
 export interface ProvinceLabel {
@@ -23,4 +29,14 @@ export interface ProvinceLabel {
   shortName?: string;
   coordinates: [longitude: number, latitude: number];
   offset?: [x: number, y: number];
+}
+
+export interface MapCatalog {
+  targetWeeds: string[];
+  filtersEnabled: boolean;
+}
+
+export interface MapFilters {
+  targetWeeds: string[];
+  provinces: string[];
 }

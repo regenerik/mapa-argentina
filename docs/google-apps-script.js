@@ -4,8 +4,38 @@
  * indicadas en README.md. No colocar secretos en el frontend.
  */
 
-const SHEET_NAME = "points";
-const HEADERS = ["id", "title", "description", "longitude", "latitude", "thumbnailUrl", "images", "updatedAt"];
+const POINTS_SHEET_NAME = "points";
+const WEEDS_SHEET_NAME = "target_weeds";
+const SETTINGS_SHEET_NAME = "settings";
+
+const POINT_HEADERS = [
+  "id",
+  "title",
+  "description",
+  "longitude",
+  "latitude",
+  "thumbnailUrl",
+  "images",
+  "targetWeeds",
+  "province",
+  "locality",
+  "advisor",
+  "dose",
+  "updatedAt",
+];
+
+const DEFAULT_TARGET_WEEDS = [
+  "Rama negra - Conyza bonariensis/sumatrensis",
+  "Yuyo colorado - Amaranthus hybridus",
+  "Brachiaria - Urochloa panicoides",
+  "Capin - Echinochloa colona",
+  "Cloris - Chloris virgata",
+  "Pata de gallina - Eleusine indica",
+  "Pasto cuaresma - Digitaria sanguinalis",
+  "Rye Grass - Lolium multiflorum",
+  "Maiz voluntario - Zea mays",
+  "Mani voluntario - Arachis hypogaea",
+];
 
 function jsonResponse(data) {
   return ContentService.createTextOutput(JSON.stringify(data)).setMimeType(ContentService.MimeType.JSON);
@@ -25,12 +55,89 @@ function getScriptConfig() {
   };
 }
 
-function getPointsSheet() {
+function getOrCreateSheet(name, headers) {
   const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  let sheet = spreadsheet.getSheetByName(SHEET_NAME);
-  if (!sheet) sheet = spreadsheet.insertSheet(SHEET_NAME);
-  if (sheet.getLastRow() === 0) sheet.appendRow(HEADERS);
+  let sheet = spreadsheet.getSheetByName(name);
+  if (!sheet) sheet = spreadsheet.insertSheet(name);
+  if (sheet.getLastRow() === 0) sheet.appendRow(headers);
+  ensureHeaders(sheet, headers);
   return sheet;
+}
+
+function ensureHeaders(sheet, headers) {
+  const existing = sheet.getLastColumn() > 0
+    ? sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(String)
+    : [];
+  headers.forEach((header) => {
+    if (!existing.includes(header)) {
+      sheet.getRange(1, sheet.getLastColumn() + 1).setValue(header);
+      existing.push(header);
+    }
+  });
+}
+
+function headerMap(sheet) {
+  return sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0]
+    .reduce((map, header, index) => {
+      map[String(header)] = index;
+      return map;
+    }, {});
+}
+
+function getPointsSheet() {
+  return getOrCreateSheet(POINTS_SHEET_NAME, POINT_HEADERS);
+}
+
+function getWeedsSheet() {
+  const sheet = getOrCreateSheet(WEEDS_SHEET_NAME, ["name"]);
+  if (sheet.getLastRow() < 2) {
+    sheet.getRange(2, 1, DEFAULT_TARGET_WEEDS.length, 1).setValues(DEFAULT_TARGET_WEEDS.map((weed) => [weed]));
+  }
+  return sheet;
+}
+
+function getSettingsSheet() {
+  const sheet = getOrCreateSheet(SETTINGS_SHEET_NAME, ["key", "value"]);
+  if (!getSetting("filtersEnabled")) setSetting("filtersEnabled", "false");
+  return sheet;
+}
+
+function getSetting(key) {
+  const spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = spreadsheet.getSheetByName(SETTINGS_SHEET_NAME);
+  if (!sheet || sheet.getLastRow() < 2) return "";
+  const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 2).getValues();
+  const row = values.find((current) => String(current[0]) === key);
+  return row ? String(row[1]) : "";
+}
+
+function setSetting(key, value) {
+  const sheet = getOrCreateSheet(SETTINGS_SHEET_NAME, ["key", "value"]);
+  if (sheet.getLastRow() >= 2) {
+    const match = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1)
+      .createTextFinder(String(key))
+      .matchEntireCell(true)
+      .findNext();
+    if (match) {
+      sheet.getRange(match.getRow(), 2).setValue(String(value));
+      return;
+    }
+  }
+  sheet.appendRow([String(key), String(value)]);
+}
+
+function getFiltersEnabled() {
+  getSettingsSheet();
+  return getSetting("filtersEnabled") === "true";
+}
+
+function listTargetWeeds() {
+  const sheet = getWeedsSheet();
+  if (sheet.getLastRow() < 2) return [];
+  return sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues()
+    .flat()
+    .map((value) => String(value).trim())
+    .filter(Boolean);
 }
 
 function isAuthorized(token) {
@@ -38,27 +145,59 @@ function isAuthorized(token) {
   return Boolean(expected && token && expected === String(token));
 }
 
-function rowToPoint(row) {
-  let images = [];
-  try { images = JSON.parse(row[6] || "[]"); } catch (error) { images = []; }
+function parseJsonArray(value) {
+  try {
+    const parsed = JSON.parse(value || "[]");
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function normalizeImage(image, index) {
+  const daysFromBase = Math.max(0, Math.round(Number(image.daysFromBase ?? image.day ?? index) || 0));
   return {
-    id: String(row[0]),
-    title: String(row[1] || ""),
-    description: String(row[2] || ""),
-    coordinates: [Number(row[3]), Number(row[4])],
-    thumbnailUrl: String(row[5] || ""),
-    images: Array.isArray(images) ? images : [],
+    day: String(daysFromBase),
+    daysFromBase: daysFromBase,
+    imageUrl: String(image.imageUrl || ""),
+    publicId: image.publicId ? String(image.publicId) : undefined,
+  };
+}
+
+function rowToPoint(row, headers) {
+  const get = (name) => row[headers[name]] ?? "";
+  const images = parseJsonArray(get("images"))
+    .filter((image) => image && image.imageUrl)
+    .map(normalizeImage)
+    .sort((a, b) => a.daysFromBase - b.daysFromBase);
+  return {
+    id: String(get("id")),
+    title: String(get("title") || ""),
+    description: String(get("description") || ""),
+    coordinates: [Number(get("longitude")), Number(get("latitude"))],
+    thumbnailUrl: String(get("thumbnailUrl") || ""),
+    images: images,
+    targetWeeds: parseJsonArray(get("targetWeeds")).map(String).filter(Boolean),
+    province: String(get("province") || ""),
+    locality: String(get("locality") || ""),
+    advisor: String(get("advisor") || ""),
+    dose: String(get("dose") || ""),
   };
 }
 
 function listPoints(sheet) {
   if (sheet.getLastRow() < 2) return [];
-  return sheet.getRange(2, 1, sheet.getLastRow() - 1, HEADERS.length).getValues().map(rowToPoint);
+  const headers = headerMap(sheet);
+  return sheet.getRange(2, 1, sheet.getLastRow() - 1, sheet.getLastColumn()).getValues()
+    .map((row) => rowToPoint(row, headers))
+    .filter((point) => point.id);
 }
 
 function findPointRow(sheet, id) {
   if (sheet.getLastRow() < 2) return null;
-  const match = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1)
+  const headers = headerMap(sheet);
+  const idColumn = headers.id + 1;
+  const match = sheet.getRange(2, idColumn, sheet.getLastRow() - 1, 1)
     .createTextFinder(String(id))
     .matchEntireCell(true)
     .findNext();
@@ -67,30 +206,46 @@ function findPointRow(sheet, id) {
 
 function getPointById(sheet, id) {
   const row = findPointRow(sheet, id);
-  return row ? rowToPoint(sheet.getRange(row, 1, 1, HEADERS.length).getValues()[0]) : null;
+  return row ? rowToPoint(sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0], headerMap(sheet)) : null;
 }
 
 function validatePoint(point) {
   if (!point || !point.id) throw new Error("El punto no tiene id.");
-  if (!point.title || !point.description) throw new Error("Faltan título o descripción.");
-  if (!Array.isArray(point.coordinates) || point.coordinates.length !== 2) throw new Error("La ubicación es inválida.");
+  if (!point.title || !point.description) throw new Error("Faltan titulo o descripcion.");
+  if (!Array.isArray(point.coordinates) || point.coordinates.length !== 2) throw new Error("La ubicacion es invalida.");
   if (!point.thumbnailUrl) throw new Error("Falta la imagen principal.");
+  if (!Array.isArray(point.targetWeeds) || point.targetWeeds.length === 0) throw new Error("Falta seleccionar malezas target.");
+  if (!point.province) throw new Error("Falta seleccionar provincia.");
+  if (!Array.isArray(point.images) || point.images.length === 0) throw new Error("Falta cargar al menos la foto base.");
 }
 
 function upsertPoint(sheet, point) {
   validatePoint(point);
-  const row = [
-    String(point.id),
-    String(point.title),
-    String(point.description),
-    Number(point.coordinates[0]),
-    Number(point.coordinates[1]),
-    String(point.thumbnailUrl),
-    JSON.stringify(Array.isArray(point.images) ? point.images : []),
-    new Date(),
-  ];
+  const images = point.images
+    .filter((image) => image && image.imageUrl)
+    .map(normalizeImage)
+    .sort((a, b) => a.daysFromBase - b.daysFromBase);
+
+  const rowByHeader = {
+    id: String(point.id),
+    title: String(point.title),
+    description: String(point.description),
+    longitude: Number(point.coordinates[0]),
+    latitude: Number(point.coordinates[1]),
+    thumbnailUrl: String(point.thumbnailUrl),
+    images: JSON.stringify(images),
+    targetWeeds: JSON.stringify(Array.isArray(point.targetWeeds) ? point.targetWeeds : []),
+    province: String(point.province || ""),
+    locality: String(point.locality || ""),
+    advisor: String(point.advisor || ""),
+    dose: String(point.dose || ""),
+    updatedAt: new Date(),
+  };
+
+  const headers = headerMap(sheet);
+  const row = Object.keys(headers).map((header) => rowByHeader[header] ?? "");
   const existingRow = findPointRow(sheet, point.id);
-  if (existingRow) sheet.getRange(existingRow, 1, 1, HEADERS.length).setValues([row]);
+  if (existingRow) sheet.getRange(existingRow, 1, 1, row.length).setValues([row]);
   else sheet.appendRow(row);
 }
 
@@ -122,11 +277,11 @@ function pointAssetIds(point) {
 
 function validateCloudinaryPublicIds(publicIds, config) {
   if (!config.cloudName || !config.cloudinaryApiKey || !config.cloudinaryApiSecret || !config.allowedFolders.length) {
-    throw new Error("Falta completar la configuración de Cloudinary en Script Properties.");
+    throw new Error("Falta completar la configuracion de Cloudinary en Script Properties.");
   }
   publicIds.forEach((publicId) => {
     const allowed = config.allowedFolders.some((folder) => String(publicId).indexOf(folder + "/") === 0);
-    if (!allowed) throw new Error("Se intentó eliminar una imagen fuera de las carpetas permitidas.");
+    if (!allowed) throw new Error("Se intento eliminar una imagen fuera de las carpetas permitidas.");
   });
 }
 
@@ -160,7 +315,7 @@ function destroyCloudinaryAsset(publicId, config) {
 function deleteCloudinaryAssets(publicIds) {
   const uniqueIds = [...new Set((Array.isArray(publicIds) ? publicIds : []).filter(Boolean).map(String))];
   if (!uniqueIds.length) return [];
-  if (uniqueIds.length > 30) throw new Error("Demasiadas imágenes en una sola operación.");
+  if (uniqueIds.length > 30) throw new Error("Demasiadas imagenes en una sola operacion.");
   const config = getScriptConfig();
   validateCloudinaryPublicIds(uniqueIds, config);
   return uniqueIds.map((publicId) => ({ publicId: publicId, result: destroyCloudinaryAsset(publicId, config) }));
@@ -170,6 +325,13 @@ function withWriteLock(callback) {
   const lock = LockService.getScriptLock();
   lock.waitLock(15000);
   try { return callback(); } finally { lock.releaseLock(); }
+}
+
+function catalogPayload() {
+  return {
+    targetWeeds: listTargetWeeds(),
+    filtersEnabled: getFiltersEnabled(),
+  };
 }
 
 function handleUpsert(sheet, point) {
@@ -183,7 +345,7 @@ function handleUpsert(sheet, point) {
       deleteCloudinaryAssets(replacedAssetIds);
       return { ok: true };
     } catch (error) {
-      return { ok: true, warning: "El punto se guardó, pero algunas imágenes reemplazadas no pudieron eliminarse." };
+      return { ok: true, warning: "El punto se guardo, pero algunas imagenes reemplazadas no pudieron eliminarse." };
     }
   });
 }
@@ -192,12 +354,12 @@ function handleDelete(sheet, id) {
   return withWriteLock(() => {
     const row = findPointRow(sheet, id);
     if (!row) return { ok: true };
-    const point = rowToPoint(sheet.getRange(row, 1, 1, HEADERS.length).getValues()[0]);
+    const point = rowToPoint(sheet.getRange(row, 1, 1, sheet.getLastColumn()).getValues()[0], headerMap(sheet));
     let warning = "";
     try {
       deleteCloudinaryAssets(pointAssetIds(point));
     } catch (error) {
-      warning = `El punto se eliminó, pero Cloudinary no pudo limpiar sus imágenes: ${String(error.message || error)}`;
+      warning = `El punto se elimino, pero Cloudinary no pudo limpiar sus imagenes: ${String(error.message || error)}`;
     }
     sheet.deleteRow(row);
     return { ok: true, warning: warning || undefined };
@@ -217,22 +379,39 @@ function authorizeExternalRequests() {
   return `Permiso para solicitudes externas habilitado (${response.getResponseCode()}).`;
 }
 
+/**
+ * Ejecutar manualmente una vez despues de pegar el script.
+ * Crea points, target_weeds y settings con sus encabezados.
+ */
+function setupSheets() {
+  getPointsSheet();
+  getWeedsSheet();
+  getSettingsSheet();
+  return "Hojas inicializadas.";
+}
+
 function doGet() {
-  return jsonResponse({ ok: true, service: "mapa-argentina" });
+  setupSheets();
+  return jsonResponse({ ok: true, service: "mapa-argentina", ...catalogPayload() });
 }
 
 function doPost(event) {
   try {
+    setupSheets();
     const payload = JSON.parse((event.postData && event.postData.contents) || "{}");
-    if (payload.action === "list") return jsonResponse({ ok: true, points: listPoints(getPointsSheet()) });
+    if (payload.action === "list") return jsonResponse({ ok: true, points: listPoints(getPointsSheet()), ...catalogPayload() });
     if (!isAuthorized(payload.token)) return jsonResponse({ ok: false, error: "Clave administrativa incorrecta." });
-    if (payload.action === "authorize") return jsonResponse({ ok: true });
+    if (payload.action === "authorize") return jsonResponse({ ok: true, ...catalogPayload() });
     if (payload.action === "upsert") return jsonResponse(handleUpsert(getPointsSheet(), payload.point));
     if (payload.action === "delete") return jsonResponse(handleDelete(getPointsSheet(), payload.id));
+    if (payload.action === "setFiltersEnabled") {
+      setSetting("filtersEnabled", payload.filtersEnabled ? "true" : "false");
+      return jsonResponse({ ok: true, ...catalogPayload() });
+    }
     if (payload.action === "deleteCloudinaryAssets") {
       return jsonResponse({ ok: true, deleted: deleteCloudinaryAssets(payload.publicIds) });
     }
-    return jsonResponse({ ok: false, error: "Acción inválida." });
+    return jsonResponse({ ok: false, error: "Accion invalida." });
   } catch (error) {
     return jsonResponse({ ok: false, error: String(error.message || error) });
   }

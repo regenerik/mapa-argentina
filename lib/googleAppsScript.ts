@@ -3,6 +3,8 @@ interface AppsScriptResponse {
   error?: string;
   warning?: string;
   points?: unknown[];
+  targetWeeds?: unknown[];
+  filtersEnabled?: boolean;
 }
 
 export async function callGoogleAppsScript(

@@ -6,48 +6,106 @@ import { ArgentinaMap } from "@/components/ArgentinaMap";
 import { BackButton } from "@/components/BackButton";
 import { FullscreenButton } from "@/components/FullscreenButton";
 import { useLanguage } from "@/components/LanguageProvider";
-import { PointEditorPanel, type PointDraft, type TimelineDuration } from "@/components/PointEditorPanel";
+import { PointEditorPanel, type PhotoDraft, type PointDraft } from "@/components/PointEditorPanel";
 import { useMapPoints } from "@/hooks/useMapPoints";
 import { deleteCloudinaryAssets, getCloudinaryPublicId, type CloudinaryAsset } from "@/lib/cloudinary";
-import { removeMapPoint, upsertMapPoint, verifyAdminToken } from "@/lib/mapPointsRepository";
-import type { MapPoint, MapPointImage, TimelineDay } from "@/types/map";
+import { removeMapPoint, updateFiltersEnabled, upsertMapPoint, verifyAdminToken } from "@/lib/mapPointsRepository";
+import type { MapPoint, MapPointImage } from "@/types/map";
 
-const TIMELINE_DAYS: TimelineDay[] = ["1", "7", "15", "30", "60", "120"];
+function newPhoto(isBase = false): PhotoDraft {
+  return { id: `photo-${crypto.randomUUID()}`, imageUrl: "", publicId: undefined, daysFromBase: isBase ? "0" : "", isBase };
+}
+
+function basePhotos(): PhotoDraft[] {
+  return [newPhoto(true), newPhoto(), newPhoto(), newPhoto()];
+}
 
 function emptyDraft(): PointDraft {
-  return { id: null, title: "", description: "", coordinates: null, thumbnailUrl: "", images: {}, imagePublicIds: {}, duration: "120" };
+  return {
+    id: null,
+    title: "",
+    description: "",
+    coordinates: null,
+    thumbnailUrl: "",
+    thumbnailPublicId: undefined,
+    photos: basePhotos(),
+    targetWeeds: [],
+    province: "",
+    locality: "",
+    advisor: "",
+    dose: "",
+  };
 }
 
 function pointToDraft(point: MapPoint): PointDraft {
-  const images = Object.fromEntries(point.images.map((image) => [image.day, image.imageUrl])) as Partial<Record<TimelineDay, string>>;
-  const imagePublicIds = Object.fromEntries(point.images.map((image) => [image.day, image.publicId || getCloudinaryPublicId(image.imageUrl) || undefined])) as Partial<Record<TimelineDay, string>>;
-  const highestDay = Math.max(...point.images.map((image) => Number(image.day)), 30);
-  const duration: TimelineDuration = highestDay <= 15 ? "15" : highestDay <= 30 ? "30" : highestDay <= 60 ? "60" : "120";
+  const sortedImages = [...point.images].sort((a, b) => a.daysFromBase - b.daysFromBase);
+  const photos = sortedImages.length > 0
+    ? sortedImages.map((image, index) => ({
+      id: `photo-${point.id}-${index}-${image.daysFromBase}`,
+      imageUrl: image.imageUrl,
+      publicId: image.publicId || getCloudinaryPublicId(image.imageUrl) || undefined,
+      daysFromBase: String(image.daysFromBase),
+      isBase: index === 0,
+    }))
+    : [{
+      id: `photo-${point.id}-base`,
+      imageUrl: point.thumbnailUrl,
+      publicId: point.thumbnailPublicId || getCloudinaryPublicId(point.thumbnailUrl) || undefined,
+      daysFromBase: "0",
+      isBase: true,
+    }];
+
   return {
-    ...point,
+    id: point.id,
+    title: point.title,
+    description: point.description,
+    coordinates: point.coordinates,
+    thumbnailUrl: point.thumbnailUrl,
     thumbnailPublicId: point.thumbnailPublicId || getCloudinaryPublicId(point.thumbnailUrl) || undefined,
-    images,
-    imagePublicIds,
-    duration,
+    photos,
+    targetWeeds: point.targetWeeds || [],
+    province: point.province || "",
+    locality: point.locality || "",
+    advisor: point.advisor || "",
+    dose: point.dose || "",
   };
 }
 
 function draftToPoint(draft: PointDraft): MapPoint {
-  const allowedDays = TIMELINE_DAYS.filter((day) => Number(day) <= Number(draft.duration));
-  const images = allowedDays
-    .map((day): MapPointImage | null => draft.images[day]
-      ? { day, imageUrl: draft.images[day], publicId: draft.imagePublicIds[day] }
-      : null)
-    .filter((image): image is MapPointImage => image !== null);
+  const photos = draft.photos
+    .map((photo, index) => ({
+      ...photo,
+      daysFromBase: index === 0 ? "0" : photo.daysFromBase,
+    }))
+    .filter((photo) => photo.imageUrl);
+
+  const images = photos
+    .map((photo): MapPointImage => {
+      const daysFromBase = Math.max(0, Math.round(Number(photo.daysFromBase) || 0));
+      return {
+        day: String(daysFromBase),
+        daysFromBase,
+        imageUrl: photo.imageUrl,
+        publicId: photo.publicId,
+      };
+    })
+    .sort((a, b) => a.daysFromBase - b.daysFromBase);
+
+  const baseImage = images[0];
 
   return {
     id: draft.id || `point-${crypto.randomUUID()}`,
     title: draft.title.trim(),
     description: draft.description.trim(),
     coordinates: draft.coordinates!,
-    thumbnailUrl: draft.thumbnailUrl,
-    thumbnailPublicId: draft.thumbnailPublicId,
-    images: images.length > 0 ? images : [{ day: "1", imageUrl: draft.thumbnailUrl, publicId: draft.thumbnailPublicId }],
+    thumbnailUrl: baseImage.imageUrl,
+    thumbnailPublicId: baseImage.publicId,
+    images,
+    targetWeeds: draft.targetWeeds,
+    province: draft.province,
+    locality: draft.locality.trim(),
+    advisor: draft.advisor.trim(),
+    dose: draft.dose.trim(),
   };
 }
 
@@ -60,7 +118,7 @@ function pointAssetIds(point: MapPoint): string[] {
 
 export function MapEditorScreen() {
   const { copy } = useLanguage();
-  const { points } = useMapPoints();
+  const { points, catalog } = useMapPoints();
   const [draft, setDraft] = useState<PointDraft | null>(null);
   const [isPlacing, setIsPlacing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -120,7 +178,15 @@ export function MapEditorScreen() {
       description: draft.description,
       coordinates: draft.coordinates,
       thumbnailUrl: draft.thumbnailUrl,
-      images: [],
+      thumbnailPublicId: draft.thumbnailPublicId,
+      images: draft.thumbnailUrl
+        ? [{ day: "0", daysFromBase: 0, imageUrl: draft.thumbnailUrl, publicId: draft.thumbnailPublicId }]
+        : [],
+      targetWeeds: draft.targetWeeds,
+      province: draft.province,
+      locality: draft.locality,
+      advisor: draft.advisor,
+      dose: draft.dose,
     };
     return [...points.filter((point) => point.id !== draft.id), preview];
   }, [copy.draftPoint, draft, points]);
@@ -207,6 +273,11 @@ export function MapEditorScreen() {
     }
   }
 
+  async function changeFiltersEnabled(enabled: boolean) {
+    setMessage("");
+    await updateFiltersEnabled(enabled, adminToken);
+  }
+
   function cancelEditing() {
     void discardPendingUploads().catch(reportCleanupError);
     setDraft(null);
@@ -255,6 +326,8 @@ export function MapEditorScreen() {
             isPlacing={isPlacing}
             isSaving={isSaving}
             message={message}
+            targetWeeds={catalog.targetWeeds}
+            filtersEnabled={catalog.filtersEnabled}
             onDraftChange={setDraft}
             onNew={startNewPoint}
             onSelect={selectPoint}
@@ -263,6 +336,7 @@ export function MapEditorScreen() {
             onSave={saveDraft}
             onDelete={removePoint}
             onCancel={cancelEditing}
+            onFiltersEnabledChange={changeFiltersEnabled}
           />
         </div>
       )}

@@ -12,13 +12,19 @@ interface TimelineSliderProps {
 
 export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSliderProps) {
   const { copy } = useLanguage();
+  const sortedImages = images;
   const trackRef = useRef<HTMLDivElement>(null);
   const dragProgressRef = useRef<number | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [dragProgress, setDragProgress] = useState<number | null>(null);
-  const lastIndex = Math.max(images.length - 1, 0);
+  const lastIndex = Math.max(sortedImages.length - 1, 0);
   const snappedProgress = lastIndex === 0 ? 0 : (selectedIndex / lastIndex) * 100;
   const visualProgress = dragProgress ?? snappedProgress;
+  const selectedImage = sortedImages[Math.min(selectedIndex, lastIndex)];
+
+  function imageLabel(daysFromBase: number) {
+    return daysFromBase === 0 ? copy.basePhoto : `${copy.day} ${daysFromBase}`;
+  }
 
   function boundedIndex(index: number) {
     return Math.max(0, Math.min(index, lastIndex));
@@ -87,7 +93,7 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
     <div className="timeline" aria-label={copy.temporalEvolution}>
       <div className="timeline-heading">
         <span>{copy.fieldEfficiency}</span>
-        <strong>{copy.day} {images[selectedIndex].day}</strong>
+        <strong>{imageLabel(selectedImage.daysFromBase)}</strong>
       </div>
       <div
         ref={trackRef}
@@ -99,9 +105,9 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
       >
         <div className="timeline-line" />
         <div className="timeline-progress" style={{ width: `${visualProgress}%` }} />
-        {images.map((image, index) => {
+        {sortedImages.map((image, index) => {
           const left = lastIndex === 0 ? 0 : (index / lastIndex) * 100;
-          return <span key={image.day} className={`timeline-mark${index <= selectedIndex ? " is-past" : ""}`} style={{ left: `${left}%` }} aria-hidden="true" />;
+          return <span key={`${image.daysFromBase}-${image.imageUrl}`} className={`timeline-mark${index <= selectedIndex ? " is-past" : ""}`} style={{ left: `${left}%` }} aria-hidden="true" />;
         })}
         <button
           className="timeline-handle"
@@ -111,14 +117,14 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
           aria-valuemin={0}
           aria-valuemax={lastIndex}
           aria-valuenow={selectedIndex}
-          aria-valuetext={`${copy.day} ${images[selectedIndex].day}`}
+          aria-valuetext={imageLabel(selectedImage.daysFromBase)}
           onKeyDown={handleKeyDown}
           style={{ left: `${visualProgress}%` }}
         />
       </div>
       <div className="timeline-endpoints" aria-hidden="true">
-        <span>{copy.day} {images[0].day}</span>
-        {images.length > 1 && <span>{copy.day} {images[lastIndex].day}</span>}
+        <span>{imageLabel(sortedImages[0].daysFromBase)}</span>
+        {sortedImages.length > 1 && <span>{imageLabel(sortedImages[lastIndex].daysFromBase)}</span>}
       </div>
     </div>
   );

@@ -1,9 +1,8 @@
-import type { MapPoint, TimelineDay } from "@/types/map";
+import type { MapPoint } from "@/types/map";
 
-const DAY_ORDER: TimelineDay[] = ["1", "7", "15", "30", "60", "120"];
-
-function makeAgroPlaceholder(title: string, day: TimelineDay, colors: [string, string, string]) {
+function makeAgroPlaceholder(title: string, day: number, colors: [string, string, string]) {
   const [sky, field, accent] = colors;
+  const label = day === 0 ? "Foto base" : `Dia ${day}`;
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
       <defs>
@@ -26,25 +25,23 @@ function makeAgroPlaceholder(title: string, day: TimelineDay, colors: [string, s
       </g>
       <g fill="#eaf8f3" font-family="Arial, sans-serif">
         <text x="64" y="92" font-size="34" font-weight="700">${title}</text>
-        <text x="64" y="138" font-size="24" opacity=".75">Evolución del cultivo · Día ${day}</text>
+        <text x="64" y="138" font-size="24" opacity=".75">${label}</text>
       </g>
     </svg>`;
 
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-function createImages(title: string, days: TimelineDay[], colors: [string, string, string]) {
-  return DAY_ORDER
-    .filter((day) => days.includes(day))
-    .map((day) => ({ day, imageUrl: makeAgroPlaceholder(title, day, colors) }));
-}
-
 function createPoint(
-  point: Omit<MapPoint, "thumbnailUrl" | "images">,
-  days: TimelineDay[],
+  point: Omit<MapPoint, "thumbnailUrl" | "images" | "thumbnailPublicId">,
+  days: number[],
   colors: [string, string, string],
 ): MapPoint {
-  const images = createImages(point.title, days, colors);
+  const images = days.map((daysFromBase) => ({
+    day: String(daysFromBase),
+    daysFromBase,
+    imageUrl: makeAgroPlaceholder(point.title, daysFromBase, colors),
+  }));
   return { ...point, thumbnailUrl: images[0].imageUrl, images };
 }
 
@@ -53,40 +50,15 @@ export const mockMapPoints: MapPoint[] = [
     {
       id: "buenos-aires",
       title: "Buenos Aires",
-      description: "Seguimiento de un lote de maíz de alto rendimiento, con monitoreo periódico de cobertura y desarrollo vegetativo.",
+      description: "Seguimiento de un lote demostrativo con monitoreo periodico de control de malezas.",
       coordinates: [-59.35, -35.75],
+      targetWeeds: ["Rama negra - Conyza bonariensis/sumatrensis"],
+      province: "Buenos Aires",
+      locality: "Pergamino",
+      advisor: "",
+      dose: "",
     },
-    ["1", "15", "30", "60", "120"],
+    [0, 7, 15, 30],
     ["#175e78", "#397b4b", "#efc85b"],
-  ),
-  createPoint(
-    {
-      id: "cordoba",
-      title: "Córdoba",
-      description: "Evolución de soja bajo manejo de precisión, observando vigor, uniformidad y respuesta del cultivo durante la campaña.",
-      coordinates: [-64.55, -32.25],
-    },
-    ["1", "7", "30", "120"],
-    ["#284e78", "#4f8248", "#ffbe55"],
-  ),
-  createPoint(
-    {
-      id: "santa-fe",
-      title: "Santa Fe",
-      description: "Ensayo demostrativo de trigo con registro visual de emergencia, macollaje y consolidación del lote.",
-      coordinates: [-60.75, -29.65],
-    },
-    ["1", "15", "60"],
-    ["#146575", "#547c38", "#f3d66a"],
-  ),
-  createPoint(
-    {
-      id: "tucuman",
-      title: "Tucumán",
-      description: "Parcela de caña de azúcar monitoreada a lo largo del ciclo para visualizar crecimiento y cierre del surco.",
-      coordinates: [-65.45, -26.75],
-    },
-    ["1", "7", "15", "30", "60", "120"],
-    ["#1b536a", "#2e7648", "#ffd268"],
   ),
 ];

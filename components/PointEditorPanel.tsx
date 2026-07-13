@@ -1,12 +1,19 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { ARGENTINA_PROVINCES } from "@/data/province-options";
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { CloudinaryAsset } from "@/lib/cloudinary";
-import type { MapPoint, TimelineDay } from "@/types/map";
+import type { MapPoint } from "@/types/map";
 
-export type TimelineDuration = "15" | "30" | "60" | "120";
+export interface PhotoDraft {
+  id: string;
+  imageUrl: string;
+  publicId?: string;
+  daysFromBase: string;
+  isBase?: boolean;
+}
 
 export interface PointDraft {
   id: string | null;
@@ -15,17 +22,13 @@ export interface PointDraft {
   coordinates: [number, number] | null;
   thumbnailUrl: string;
   thumbnailPublicId?: string;
-  images: Partial<Record<TimelineDay, string>>;
-  imagePublicIds: Partial<Record<TimelineDay, string>>;
-  duration: TimelineDuration;
+  photos: PhotoDraft[];
+  targetWeeds: string[];
+  province: string;
+  locality: string;
+  advisor: string;
+  dose: string;
 }
-
-const DAYS_BY_DURATION: Record<TimelineDuration, TimelineDay[]> = {
-  "15": ["1", "7", "15"],
-  "30": ["1", "7", "15", "30"],
-  "60": ["1", "7", "15", "30", "60"],
-  "120": ["1", "7", "15", "30", "60", "120"],
-};
 
 interface PointEditorPanelProps {
   points: MapPoint[];
@@ -33,6 +36,8 @@ interface PointEditorPanelProps {
   isPlacing: boolean;
   isSaving: boolean;
   message: string;
+  targetWeeds: string[];
+  filtersEnabled: boolean;
   onDraftChange: (draft: PointDraft) => void;
   onNew: () => void;
   onSelect: (point: MapPoint) => void;
@@ -41,13 +46,43 @@ interface PointEditorPanelProps {
   onSave: (draft: PointDraft) => void;
   onDelete: (pointId: string) => void;
   onCancel: () => void;
+  onFiltersEnabledChange: (enabled: boolean) => void;
+}
+
+function toggleSelection(values: string[], value: string) {
+  return values.includes(value) ? values.filter((current) => current !== value) : [...values, value];
+}
+
+function ensurePhotoCards(photos: PhotoDraft[]) {
+  const next = [...photos];
+  while (next.length < 4) {
+    next.push({ id: `empty-${next.length}-${crypto.randomUUID()}`, imageUrl: "", daysFromBase: next.length === 0 ? "0" : "" });
+  }
+  return next.map((photo, index) => ({ ...photo, isBase: index === 0, daysFromBase: index === 0 ? "0" : photo.daysFromBase }));
 }
 
 export function PointEditorPanel(props: PointEditorPanelProps) {
   const { copy } = useLanguage();
-  const { points, draft, isPlacing, isSaving, message, onDraftChange, onNew, onSelect, onRelocate, onAssetUploaded, onSave, onDelete, onCancel } = props;
+  const {
+    points,
+    draft,
+    isPlacing,
+    isSaving,
+    message,
+    targetWeeds,
+    filtersEnabled,
+    onDraftChange,
+    onNew,
+    onSelect,
+    onRelocate,
+    onAssetUploaded,
+    onSave,
+    onDelete,
+    onCancel,
+    onFiltersEnabledChange,
+  } = props;
   const [uploadingSlots, setUploadingSlots] = useState<Set<string>>(new Set());
-  const visibleDays = draft ? DAYS_BY_DURATION[draft.duration] : [];
+  const photos = draft ? ensurePhotoCards(draft.photos) : [];
 
   function setUploadBusy(slot: string, busy: boolean) {
     setUploadingSlots((current) => {
@@ -57,16 +92,56 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
     });
   }
 
+  function updatePhoto(index: number, updates: Partial<PhotoDraft>) {
+    if (!draft) return;
+    const nextPhotos = ensurePhotoCards(draft.photos).map((photo, currentIndex) =>
+      currentIndex === index ? { ...photo, ...updates } : photo,
+    );
+    const basePhoto = nextPhotos[0];
+    onDraftChange({
+      ...draft,
+      photos: nextPhotos,
+      thumbnailUrl: basePhoto.imageUrl,
+      thumbnailPublicId: basePhoto.publicId,
+    });
+  }
+
+  function addPhoto() {
+    if (!draft) return;
+    onDraftChange({
+      ...draft,
+      photos: [
+        ...ensurePhotoCards(draft.photos),
+        { id: `photo-${crypto.randomUUID()}`, imageUrl: "", daysFromBase: "" },
+      ],
+    });
+  }
+
+  function removePhoto(index: number) {
+    if (!draft || index === 0) return;
+    const nextPhotos = ensurePhotoCards(draft.photos).filter((_, currentIndex) => currentIndex !== index);
+    onDraftChange({ ...draft, photos: ensurePhotoCards(nextPhotos) });
+  }
+
   function submit(event: FormEvent) {
     event.preventDefault();
-    if (draft) onSave(draft);
+    if (draft) onSave({ ...draft, photos });
   }
+
+  const hasInvalidPhotoDay = photos.some((photo, index) => (
+    index > 0 &&
+    photo.imageUrl &&
+    (!photo.daysFromBase.trim() || Number(photo.daysFromBase) <= 0)
+  ));
 
   const canSave = Boolean(
     draft?.title.trim() &&
     draft.description.trim() &&
     draft.coordinates &&
-    draft.thumbnailUrl &&
+    photos[0]?.imageUrl &&
+    draft.targetWeeds.length > 0 &&
+    draft.province &&
+    !hasInvalidPhotoDay &&
     uploadingSlots.size === 0 &&
     !isSaving,
   );
@@ -76,6 +151,22 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
       <div className="editor-panel-header">
         <div><span>{copy.administration}</span><h2>{copy.mapPointsTitle}</h2></div>
         <button className="editor-new-button" type="button" onClick={onNew}>{copy.newPoint}</button>
+      </div>
+
+      <div className="editor-switch-row">
+        <div>
+          <strong>{copy.filtersFeature}</strong>
+          <small>{copy.filtersFeatureCopy}</small>
+        </div>
+        <button
+          className={`editor-switch${filtersEnabled ? " is-active" : ""}`}
+          type="button"
+          role="switch"
+          aria-checked={filtersEnabled}
+          onClick={() => onFiltersEnabledChange(!filtersEnabled)}
+        >
+          <span />
+        </button>
       </div>
 
       {!draft && message && <div className="editor-message" role="status">{message}</div>}
@@ -123,47 +214,88 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
             <textarea value={draft.description} onChange={(event) => onDraftChange({ ...draft, description: event.target.value })} placeholder={copy.descriptionPlaceholder} rows={4} maxLength={420} required />
           </label>
 
-          <ImageUploadField
-            key={`thumbnail-${draft.id || "new"}`}
-            label={copy.mainImage}
-            value={draft.thumbnailUrl}
-            onUploaded={onAssetUploaded}
-            onChange={(asset) => onDraftChange({
-              ...draft,
-              thumbnailUrl: asset?.imageUrl || "",
-              thumbnailPublicId: asset?.publicId,
-            })}
-            onBusyChange={(busy) => setUploadBusy("thumbnail", busy)}
-          />
+          <fieldset className="editor-choice-group">
+            <legend>{copy.targetWeeds} <small>{copy.required}</small></legend>
+            {targetWeeds.length > 0 ? (
+              <div className="weed-options">
+                {targetWeeds.map((weed) => (
+                  <label key={weed} className="choice-pill">
+                    <input
+                      type="checkbox"
+                      checked={draft.targetWeeds.includes(weed)}
+                      onChange={() => onDraftChange({ ...draft, targetWeeds: toggleSelection(draft.targetWeeds, weed) })}
+                    />
+                    <span>{weed}</span>
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <p className="editor-helper">{copy.noTargetWeeds}</p>
+            )}
+          </fieldset>
 
           <label className="editor-field">
-            <span>{copy.evolutionDuration}</span>
-            <select value={draft.duration} onChange={(event) => onDraftChange({ ...draft, duration: event.target.value as TimelineDuration })}>
-              <option value="15">{copy.untilDay} 15</option>
-              <option value="30">{copy.untilDay} 30</option>
-              <option value="60">{copy.untilDay} 60</option>
-              <option value="120">{copy.untilDay} 120</option>
+            <span>{copy.province} *</span>
+            <select value={draft.province} onChange={(event) => onDraftChange({ ...draft, province: event.target.value })} required>
+              <option value="">{copy.selectProvince}</option>
+              {ARGENTINA_PROVINCES.map((province) => <option key={province} value={province}>{province}</option>)}
             </select>
           </label>
 
-          <fieldset className="timeline-uploads">
-            <legend>{copy.imagesByDay} <small>{copy.optional}</small></legend>
-            <div className="timeline-upload-grid">
-              {visibleDays.map((day) => (
-                <ImageUploadField
-                  key={`${draft.id || "new"}-${day}`}
-                  compact
-                  label={`${copy.day} ${day}`}
-                  value={draft.images[day] || ""}
-                  onUploaded={onAssetUploaded}
-                  onChange={(asset) => onDraftChange({
-                    ...draft,
-                    images: { ...draft.images, [day]: asset?.imageUrl || "" },
-                    imagePublicIds: { ...draft.imagePublicIds, [day]: asset?.publicId },
-                  })}
-                  onBusyChange={(busy) => setUploadBusy(`day-${day}`, busy)}
-                />
+          <label className="editor-field">
+            <span>{copy.locality}</span>
+            <input value={draft.locality} onChange={(event) => onDraftChange({ ...draft, locality: event.target.value })} placeholder={copy.localityPlaceholder} maxLength={90} />
+          </label>
+
+          <label className="editor-field">
+            <span>{copy.advisor}</span>
+            <input value={draft.advisor} onChange={(event) => onDraftChange({ ...draft, advisor: event.target.value })} placeholder={copy.advisorPlaceholder} maxLength={90} />
+          </label>
+
+          <label className="editor-field">
+            <span>{copy.dose}</span>
+            <input value={draft.dose} onChange={(event) => onDraftChange({ ...draft, dose: event.target.value })} placeholder={copy.dosePlaceholder} maxLength={90} />
+          </label>
+
+          <fieldset className="photo-uploads">
+            <legend>{copy.photoTimeline} <small>{copy.dynamicDaysCopy}</small></legend>
+            <div className="photo-upload-grid">
+              {photos.map((photo, index) => (
+                <div key={photo.id} className="photo-card">
+                  <div className="photo-card-header">
+                    <strong>{index === 0 ? copy.basePhoto : `${copy.photo} ${index + 1}`}</strong>
+                    {index > 3 && <button type="button" onClick={() => removePhoto(index)} aria-label={copy.remove}>{copy.remove}</button>}
+                  </div>
+                  <ImageUploadField
+                    compact
+                    label={index === 0 ? copy.basePhoto : copy.uploadImage}
+                    value={photo.imageUrl}
+                    onUploaded={onAssetUploaded}
+                    onChange={(asset) => updatePhoto(index, {
+                      imageUrl: asset?.imageUrl || "",
+                      publicId: asset?.publicId,
+                    })}
+                    onBusyChange={(busy) => setUploadBusy(`photo-${index}`, busy)}
+                  />
+                  {index > 0 && (
+                    <label className="editor-field photo-day-field">
+                      <span>{copy.daysFromBase}</span>
+                      <input
+                        type="number"
+                        min="1"
+                        step="1"
+                        value={photo.daysFromBase}
+                        onChange={(event) => updatePhoto(index, { daysFromBase: event.target.value })}
+                        placeholder="7"
+                      />
+                    </label>
+                  )}
+                </div>
               ))}
+              <button className="photo-add-card" type="button" onClick={addPhoto} title={copy.addMorePhotos}>
+                <span>+</span>
+                <strong>{copy.addMorePhotos}</strong>
+              </button>
             </div>
           </fieldset>
 

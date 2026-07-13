@@ -5,16 +5,27 @@ import { ArgentinaMap } from "@/components/ArgentinaMap";
 import { BackButton } from "@/components/BackButton";
 import { FullscreenButton } from "@/components/FullscreenButton";
 import { useLanguage } from "@/components/LanguageProvider";
+import { MapFilterControls } from "@/components/MapFilterControls";
+import { filterMapPoints, hasActiveFilters, MapFiltersPanel } from "@/components/MapFiltersPanel";
 import { MapEditorScreen } from "@/components/MapEditorScreen";
 import { PointModal } from "@/components/PointModal";
 import { useMapPoints } from "@/hooks/useMapPoints";
-import type { MapMode, MapPoint } from "@/types/map";
+import type { MapFilters, MapMode, MapPoint } from "@/types/map";
 
 function MapViewerScreen() {
   const { copy } = useLanguage();
-  const { points, isHydrated } = useMapPoints();
+  const { points, catalog, isHydrated } = useMapPoints();
   const [selectedPoint, setSelectedPoint] = useState<MapPoint | null>(null);
+  const [appliedFilters, setAppliedFilters] = useState<MapFilters>({ targetWeeds: [], provinces: [] });
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
   const closePoint = useCallback(() => setSelectedPoint(null), []);
+  const visiblePoints = catalog.filtersEnabled ? filterMapPoints(points, appliedFilters) : points;
+
+  function clearFilters() {
+    if (!hasActiveFilters(appliedFilters)) return;
+    if (!window.confirm(copy.clearFiltersConfirm)) return;
+    setAppliedFilters({ targetWeeds: [], provinces: [] });
+  }
 
   return (
     <main className="map-screen">
@@ -28,7 +39,24 @@ function MapViewerScreen() {
       </header>
 
       <section className="map-workspace" aria-label={copy.mapAria}>
-        <ArgentinaMap mode="view" points={points} onPointSelect={setSelectedPoint} />
+        <ArgentinaMap mode="view" points={visiblePoints} onPointSelect={setSelectedPoint} />
+        {catalog.filtersEnabled && (
+          <>
+            <MapFilterControls filters={appliedFilters} onOpen={() => setIsFilterPanelOpen(true)} onClear={clearFilters} />
+            {isFilterPanelOpen && (
+              <MapFiltersPanel
+                points={points}
+                targetWeeds={catalog.targetWeeds}
+                appliedFilters={appliedFilters}
+                onCancel={() => setIsFilterPanelOpen(false)}
+                onConfirm={(filters) => {
+                  setAppliedFilters(filters);
+                  setIsFilterPanelOpen(false);
+                }}
+              />
+            )}
+          </>
+        )}
         {!isHydrated && (
           <div className="map-points-loading" role="status" aria-live="polite">
             <span className="map-loading-spinner" aria-hidden="true" />

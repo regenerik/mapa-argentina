@@ -46,11 +46,43 @@ Apps Script necesita autorización explícita para llamar a Cloudinary con `UrlF
 
 Esta función solo hace una solicitud externa inocua para activar el permiso; no crea ni elimina imágenes. Hay que ejecutarla con la misma cuenta configurada en **Ejecutar como: Yo**.
 
-No hace falta modificar la pestaña `points`. El script conserva las columnas existentes:
+El nuevo script crea y mantiene estas hojas:
 
 ```text
-id | title | description | longitude | latitude | thumbnailUrl | images | updatedAt
+points
+id | title | description | longitude | latitude | thumbnailUrl | images | targetWeeds | province | locality | advisor | dose | updatedAt
+
+target_weeds
+name
+
+settings
+key | value
 ```
+
+`target_weeds` es el catálogo dinámico de malezas target. El frontend no hardcodea esa lista: la pide a Apps Script y la usa tanto en edición como en filtros. El script la inicializa con una lista base si la hoja está vacía; después podés editar los nombres desde Google Sheets.
+
+`settings` guarda `filtersEnabled`, que se controla desde el switch de `/edicion`.
+
+`images` guarda un JSON con todas las fotos del punto. Cada foto incluye:
+
+```json
+[
+  {
+    "day": "0",
+    "daysFromBase": 0,
+    "imageUrl": "https://res.cloudinary.com/...",
+    "publicId": "carpeta/archivo"
+  },
+  {
+    "day": "15",
+    "daysFromBase": 15,
+    "imageUrl": "https://res.cloudinary.com/...",
+    "publicId": "carpeta/archivo"
+  }
+]
+```
+
+La primera imagen es la foto base y se guarda también como `thumbnailUrl`. Las fotos siguientes usan `daysFromBase` para indicar cuántos días pasaron desde la foto base.
 
 ### 2. Configurar propiedades privadas
 
@@ -86,6 +118,22 @@ Si ya existe una implementación:
 8. Copiar la URL que termina en `/exec`.
 
 Al actualizar la implementación existente, la URL normalmente permanece igual. No usar la URL de prueba terminada en `/dev`.
+
+### 3.1. Inicializar hojas nuevas
+
+Después de pegar el nuevo `docs/google-apps-script.js`:
+
+1. En el selector de funciones de Apps Script elegir `setupSheets`.
+2. Presionar **Ejecutar**.
+3. Confirmar que existan las hojas `points`, `target_weeds` y `settings`.
+4. En `target_weeds`, revisar o ajustar los nombres del catálogo si querés usar acentos/guiones especiales.
+5. En `settings`, confirmar que exista la fila:
+
+```text
+filtersEnabled | false
+```
+
+El switch de `/edicion` cambia ese valor automáticamente.
 
 ### 4. Probar Apps Script
 

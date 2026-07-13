@@ -12,7 +12,11 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isImageOpen, setIsImageOpen] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const selectedImage = point.images[selectedIndex];
+  const images = point.images.length > 0
+    ? [...point.images].sort((a, b) => a.daysFromBase - b.daysFromBase)
+    : [{ day: "0", daysFromBase: 0, imageUrl: point.thumbnailUrl, publicId: point.thumbnailPublicId }];
+  const selectedImage = images[Math.min(selectedIndex, images.length - 1)];
+  const selectedImageLabel = selectedImage.daysFromBase === 0 ? copy.basePhoto : `${copy.day} ${selectedImage.daysFromBase}`;
 
   useEffect(() => {
     closeButtonRef.current?.focus();
@@ -33,9 +37,9 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
         </button>
 
         <div className="point-modal-main">
-          <button className="point-modal-image" type="button" onClick={() => setIsImageOpen(true)} aria-label={`${copy.enlargeImage} ${point.title}, ${copy.day.toLowerCase()} ${selectedImage.day}`}>
-            <Image key={selectedImage.imageUrl} src={selectedImage.imageUrl} alt={`${point.title}, ${copy.day.toLowerCase()} ${selectedImage.day}`} fill sizes="(max-width: 700px) 90vw, 50vw" unoptimized priority />
-            <div className="point-image-badge">{copy.day} {selectedImage.day}</div>
+          <button className="point-modal-image" type="button" onClick={() => setIsImageOpen(true)} aria-label={`${copy.enlargeImage} ${point.title}, ${selectedImageLabel}`}>
+            <Image key={selectedImage.imageUrl} src={selectedImage.imageUrl} alt={`${point.title}, ${selectedImageLabel}`} fill sizes="(max-width: 700px) 90vw, 50vw" unoptimized priority />
+            <div className="point-image-badge">{selectedImageLabel}</div>
             <span className="point-image-expand" aria-hidden="true">
               <svg viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5" /></svg>
             </span>
@@ -45,16 +49,23 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
             <h2 id="point-modal-title">{point.title}</h2>
             <div className="point-modal-rule" />
             <p className="point-description">{point.description}</p>
+            <div className="point-detail-list">
+              {point.province && <span><strong>{copy.province}</strong>{point.province}</span>}
+              {point.locality && <span><strong>{copy.locality}</strong>{point.locality}</span>}
+              {point.advisor && <span><strong>{copy.advisor}</strong>{point.advisor}</span>}
+              {point.dose && <span><strong>{copy.dose}</strong>{point.dose}</span>}
+              {point.targetWeeds.length > 0 && <span><strong>{copy.targetWeeds}</strong>{point.targetWeeds.join(", ")}</span>}
+            </div>
             <div className="point-meta">
-              <span>{point.images.length}</span>
+              <span>{images.length}</span>
               <small>{copy.temporalRecords}</small>
             </div>
           </div>
         </div>
 
-        <TimelineSlider key={point.id} images={point.images} selectedIndex={selectedIndex} onChange={setSelectedIndex} />
+        <TimelineSlider key={point.id} images={images} selectedIndex={selectedIndex} onChange={setSelectedIndex} />
       </section>
-      {isImageOpen && <ImageLightbox imageUrl={selectedImage.imageUrl} alt={`${point.title}, ${copy.day.toLowerCase()} ${selectedImage.day}`} onClose={() => setIsImageOpen(false)} />}
+      {isImageOpen && <ImageLightbox imageUrl={selectedImage.imageUrl} alt={`${point.title}, ${selectedImageLabel}`} onClose={() => setIsImageOpen(false)} />}
     </div>
   );
 }

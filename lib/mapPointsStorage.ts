@@ -1,24 +1,65 @@
-import type { MapPoint } from "@/types/map";
+import type { MapCatalog, MapPoint, MapPointImage } from "@/types/map";
 
 const STORAGE_KEY = "argentina-map-points-v3";
+const CATALOG_STORAGE_KEY = "argentina-map-catalog-v1";
 export const MAP_POINTS_UPDATED_EVENT = "map-points-updated";
+export const MAP_CATALOG_UPDATED_EVENT = "map-catalog-updated";
 
 function canUseStorage() {
   return typeof window !== "undefined" && Boolean(window.localStorage);
 }
 
-function normalizePoint(point: MapPoint): MapPoint {
-  const images = Array.isArray(point.images) ? point.images.filter((image) => image.imageUrl) : [];
+function normalizeImage(image: Partial<MapPointImage>, index: number): MapPointImage | null {
+  if (!image?.imageUrl) return null;
+  const parsedDay = Number(image.daysFromBase ?? image.day ?? index);
+  const daysFromBase = Number.isFinite(parsedDay) && parsedDay >= 0 ? parsedDay : index;
   return {
-    ...point,
-    images: images.length > 0 || !point.thumbnailUrl
-      ? images
-      : [{ day: "1", imageUrl: point.thumbnailUrl }],
+    day: String(daysFromBase),
+    daysFromBase,
+    imageUrl: image.imageUrl,
+    publicId: image.publicId,
   };
 }
 
-function notifySubscribers() {
+function normalizeImages(point: MapPoint): MapPointImage[] {
+  const images = (Array.isArray(point.images) ? point.images : [])
+    .map(normalizeImage)
+    .filter((image): image is MapPointImage => image !== null)
+    .sort((a, b) => a.daysFromBase - b.daysFromBase);
+
+  if (!point.thumbnailUrl) return images;
+
+  const thumbnailIndex = images.findIndex((image) => image.imageUrl === point.thumbnailUrl);
+  if (thumbnailIndex >= 0) {
+    images[thumbnailIndex] = { ...images[thumbnailIndex], day: "0", daysFromBase: 0, publicId: images[thumbnailIndex].publicId || point.thumbnailPublicId };
+    return images.sort((a, b) => a.daysFromBase - b.daysFromBase);
+  }
+
+  return [
+    { day: "0", daysFromBase: 0, imageUrl: point.thumbnailUrl, publicId: point.thumbnailPublicId },
+    ...images,
+  ];
+}
+
+export function normalizePoint(point: MapPoint): MapPoint {
+  const images = normalizeImages(point);
+  return {
+    ...point,
+    targetWeeds: Array.isArray(point.targetWeeds) ? point.targetWeeds.filter(Boolean).map(String) : [],
+    province: point.province ? String(point.province) : "",
+    locality: point.locality ? String(point.locality) : "",
+    advisor: point.advisor ? String(point.advisor) : "",
+    dose: point.dose ? String(point.dose) : "",
+    images,
+  };
+}
+
+function notifyPointSubscribers() {
   window.dispatchEvent(new CustomEvent(MAP_POINTS_UPDATED_EVENT));
+}
+
+function notifyCatalogSubscribers() {
+  window.dispatchEvent(new CustomEvent(MAP_CATALOG_UPDATED_EVENT));
 }
 
 export function getMapPoints(): MapPoint[] {
@@ -45,7 +86,7 @@ export function saveMapPoints(points: MapPoint[]): MapPoint[] {
   const normalized = points.map(normalizePoint);
   if (!canUseStorage()) return normalized;
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
-  notifySubscribers();
+  notifyPointSubscribers();
   return normalized;
 }
 
@@ -59,4 +100,31 @@ export function updateMapPoint(point: MapPoint): MapPoint[] {
 
 export function deleteMapPoint(pointId: string): MapPoint[] {
   return saveMapPoints(getMapPoints().filter((point) => point.id !== pointId));
+}
+
+export function getMapCatalog(): MapCatalog {
+  if (!canUseStorage()) return { targetWeeds: [], filtersEnabled: false };
+
+  try {
+    const stored = window.localStorage.getItem(CATALOG_STORAGE_KEY);
+    if (!stored) return { targetWeeds: [], filtersEnabled: false };
+    const parsed = JSON.parse(stored) as Partial<MapCatalog>;
+    return {
+      targetWeeds: Array.isArray(parsed.targetWeeds) ? parsed.targetWeeds.filter(Boolean).map(String) : [],
+      filtersEnabled: Boolean(parsed.filtersEnabled),
+    };
+  } catch {
+    return { targetWeeds: [], filtersEnabled: false };
+  }
+}
+
+export function saveMapCatalog(catalog: Partial<MapCatalog>): MapCatalog {
+  const normalized = {
+    targetWeeds: Array.isArray(catalog.targetWeeds) ? catalog.targetWeeds.filter(Boolean).map(String) : [],
+    filtersEnabled: Boolean(catalog.filtersEnabled),
+  };
+  if (!canUseStorage()) return normalized;
+  window.localStorage.setItem(CATALOG_STORAGE_KEY, JSON.stringify(normalized));
+  notifyCatalogSubscribers();
+  return normalized;
 }
