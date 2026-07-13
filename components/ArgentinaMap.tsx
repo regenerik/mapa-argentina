@@ -1,16 +1,20 @@
 "use client";
 
-import { useRef, type MouseEvent, type PointerEvent } from "react";
+import { useCallback, useEffect, useRef, type MouseEvent, type PointerEvent } from "react";
 import { geoArea, geoCentroid, geoContains, geoMercator, geoPath, type GeoPermissibleObjects } from "d3-geo";
 import { TransformComponent, TransformWrapper, useTransformEffect, type ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 import provincesData from "@/data/argentina-provinces.json";
 import { useLanguage } from "@/components/LanguageProvider";
 import { MapControls } from "@/components/MapControls";
 import { MapPoint as MapPointMarker } from "@/components/MapPoint";
+import { useUIScale } from "@/components/UIScaleProvider";
 import type { MapMode, MapPoint, ProvinceLabel } from "@/types/map";
 
 const WIDTH = 800;
 const HEIGHT = 1040;
+const MIN_SCALE = 0.9;
+const MAX_SCALE = 7;
+const WHEEL_STEP = 0.22;
 
 type ProvinceFeature = {
   type: "Feature";
@@ -157,11 +161,14 @@ interface ArgentinaMapProps {
 
 export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selectedPointId }: ArgentinaMapProps) {
   const { copy } = useLanguage();
+  const { scale: uiScale } = useUIScale();
   const containerRef = useRef<HTMLDivElement>(null);
+  const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
+  const wheelStopTimer = useRef<number | null>(null);
   const pointerStart = useRef<[number, number] | null>(null);
   const pointerMoved = useRef(false);
 
-  function keepCountryVisible(ref: ReactZoomPanPinchRef) {
+  const keepCountryVisible = useCallback((ref: ReactZoomPanPinchRef) => {
     const country = containerRef.current?.querySelector<SVGGElement>(".province-layer");
     const viewport = containerRef.current?.querySelector<HTMLElement>(".map-transform-wrapper");
     if (!country || !viewport) return;
@@ -186,7 +193,7 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
         "easeOut",
       );
     }
-  }
+  }, []);
 
   function handlePointerDown(event: PointerEvent<SVGSVGElement>) {
     pointerStart.current = [event.clientX, event.clientY];
@@ -218,16 +225,60 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
     onMapSelect([Number(coordinates[0].toFixed(6)), Number(coordinates[1].toFixed(6))]);
   }
 
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || uiScale <= 1) return;
+
+    function handleScaledWheel(event: WheelEvent) {
+      // Let trackpad/browser pinch gestures continue through the library path.
+      if (event.ctrlKey) return;
+
+      const ref = transformRef.current;
+      const content = ref?.instance.contentComponent;
+      if (!ref || !content) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const currentScale = ref.state.scale;
+      const nextScale = Math.max(
+        MIN_SCALE,
+        Math.min(MAX_SCALE, currentScale + (event.deltaY < 0 ? WHEEL_STEP : -WHEEL_STEP)),
+      );
+      if (nextScale === currentScale) return;
+
+      const contentRect = content.getBoundingClientRect();
+      const mouseX = (event.clientX - contentRect.left) / (currentScale * uiScale);
+      const mouseY = (event.clientY - contentRect.top) / (currentScale * uiScale);
+      const scaleDifference = nextScale - currentScale;
+      const nextPositionX = ref.state.positionX - mouseX * scaleDifference;
+      const nextPositionY = ref.state.positionY - mouseY * scaleDifference;
+
+      ref.setTransform(nextPositionX, nextPositionY, nextScale, 0, "linear");
+
+      if (wheelStopTimer.current) window.clearTimeout(wheelStopTimer.current);
+      wheelStopTimer.current = window.setTimeout(() => keepCountryVisible(ref), 140);
+    }
+
+    container.addEventListener("wheel", handleScaledWheel, { capture: true, passive: false });
+    return () => {
+      container.removeEventListener("wheel", handleScaledWheel, { capture: true });
+      if (wheelStopTimer.current) window.clearTimeout(wheelStopTimer.current);
+    };
+  }, [keepCountryVisible, uiScale]);
+
   return (
     <div ref={containerRef} className="map-container" data-mode={mode} onContextMenu={(event) => event.preventDefault()}>
       <TransformWrapper
+        ref={transformRef}
         initialScale={1}
-        minScale={0.9}
-        maxScale={7}
+        minScale={MIN_SCALE}
+        maxScale={MAX_SCALE}
         centerOnInit
         limitToBounds={false}
         smooth={false}
-        wheel={{ step: 0.22 }}
+        wheel={{ step: WHEEL_STEP }}
         pinch={{ step: 5 }}
         doubleClick={{ mode: "zoomIn", step: 0.7 }}
         panning={{ velocityDisabled: false, allowRightClickPan: true }}

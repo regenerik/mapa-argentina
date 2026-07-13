@@ -37,7 +37,7 @@ export function UIScaleProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.style.setProperty("--ui-scale", String(scale));
-    document.documentElement.style.setProperty("--scaled-svh", "100svh");
+    document.documentElement.style.setProperty("--scaled-svh", `calc(100svh / ${scale})`);
     try {
       window.localStorage.setItem(STORAGE_KEY, String(scale));
     } catch {
