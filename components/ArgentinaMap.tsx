@@ -309,6 +309,7 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
         width: wrapper.clientWidth,
         height: wrapper.clientHeight,
         isRotated: true,
+        uiScale,
       });
       ref.setTransform(nextTransform.positionX, nextTransform.positionY, nextTransform.scale, 260, "easeOut");
     }, 120);
