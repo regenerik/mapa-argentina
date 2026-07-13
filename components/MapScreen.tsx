@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { ArgentinaMap } from "@/components/ArgentinaMap";
 import { BackButton } from "@/components/BackButton";
 import { FullscreenButton } from "@/components/FullscreenButton";
+import { KioskRotationButton } from "@/components/KioskRotationButton";
 import { KioskRotationProvider } from "@/components/KioskRotationProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import { MapFilterControls } from "@/components/MapFilterControls";
@@ -41,7 +42,10 @@ function MapViewerScreen() {
           <span className="status-dot" />
           <div><p>{copy.interactiveMap}</p><h1>{copy.productiveArgentina}</h1></div>
         </div>
-        <FullscreenButton />
+        <div className="map-header-actions">
+          <KioskRotationButton />
+          <FullscreenButton />
+        </div>
       </header>
 
       <section className="map-workspace" aria-label={copy.mapAria}>

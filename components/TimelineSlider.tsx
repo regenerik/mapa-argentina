@@ -2,6 +2,7 @@
 
 import { useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import type { MapPointImage } from "@/types/map";
+import { useKioskRotation } from "@/components/KioskRotationProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 
 interface TimelineSliderProps {
@@ -12,6 +13,7 @@ interface TimelineSliderProps {
 
 export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSliderProps) {
   const { copy } = useLanguage();
+  const { isRotated } = useKioskRotation();
   const sortedImages = images;
   const trackRef = useRef<HTMLDivElement>(null);
   const dragProgressRef = useRef<number | null>(null);
@@ -30,18 +32,21 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
     return Math.max(0, Math.min(index, lastIndex));
   }
 
-  function progressFromPosition(clientX: number) {
+  function progressFromPosition(clientX: number, clientY: number) {
     const rect = trackRef.current?.getBoundingClientRect();
-    if (!rect || rect.width === 0 || lastIndex === 0) return 0;
-    return Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100));
+    if (!rect || lastIndex === 0) return 0;
+    const trackLength = isRotated ? rect.height : rect.width;
+    if (trackLength === 0) return 0;
+    const pointerPosition = isRotated ? clientY - rect.top : clientX - rect.left;
+    return Math.max(0, Math.min(100, (pointerPosition / trackLength) * 100));
   }
 
   function nearestIndex(progress: number) {
     return lastIndex === 0 ? 0 : boundedIndex(Math.round((progress / 100) * lastIndex));
   }
 
-  function previewPosition(clientX: number) {
-    const nextProgress = progressFromPosition(clientX);
+  function previewPosition(clientX: number, clientY: number) {
+    const nextProgress = progressFromPosition(clientX, clientY);
     dragProgressRef.current = nextProgress;
     setDragProgress(nextProgress);
     const nextIndex = nearestIndex(nextProgress);
@@ -52,11 +57,11 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     setIsDragging(true);
-    previewPosition(event.clientX);
+    previewPosition(event.clientX, event.clientY);
   }
 
   function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
-    if (isDragging) previewPosition(event.clientX);
+    if (isDragging) previewPosition(event.clientX, event.clientY);
   }
 
   function finishDrag(event: PointerEvent<HTMLDivElement>) {

@@ -5,6 +5,7 @@ import { AdminAccessGate, ADMIN_TOKEN_SESSION_KEY } from "@/components/AdminAcce
 import { ArgentinaMap } from "@/components/ArgentinaMap";
 import { BackButton } from "@/components/BackButton";
 import { FullscreenButton } from "@/components/FullscreenButton";
+import { KioskRotationButton } from "@/components/KioskRotationButton";
 import { useLanguage } from "@/components/LanguageProvider";
 import { PointEditorPanel, type PhotoDraft, type PointDraft } from "@/components/PointEditorPanel";
 import { useMapPoints } from "@/hooks/useMapPoints";
@@ -298,7 +299,10 @@ export function MapEditorScreen() {
           <span className="status-dot" />
           <div><p>{copy.editMode}</p><h1>{copy.pointEditing}</h1></div>
         </div>
-        <FullscreenButton />
+        <div className="map-header-actions">
+          <KioskRotationButton />
+          <FullscreenButton />
+        </div>
       </header>
 
       {!isAccessReady ? (

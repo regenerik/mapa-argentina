@@ -6,6 +6,10 @@ import { useKioskRotation } from "@/components/KioskRotationProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import { useUIScale } from "@/components/UIScaleProvider";
 
+const MIN_LIGHTBOX_SCALE = 0.75;
+const MAX_LIGHTBOX_SCALE = 6;
+const ROTATED_WHEEL_STEP = 0.12;
+
 function LightboxControls() {
   const { zoomIn, zoomOut, resetTransform } = useControls();
   const { copy } = useLanguage();
@@ -27,6 +31,7 @@ export function ImageLightbox({ imageUrl, alt, onClose }: { imageUrl: string; al
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const lightboxRef = useRef<HTMLDivElement>(null);
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
+  const wheelStopTimer = useRef<number | null>(null);
   const rotatedPan = useRef<{
     pointerId: number;
     startClientX: number;
@@ -70,6 +75,51 @@ export function ImageLightbox({ imageUrl, alt, onClose }: { imageUrl: string; al
       );
     }
   }, [isRotated, uiScale]);
+
+  useEffect(() => {
+    const lightbox = lightboxRef.current;
+    if (!lightbox || !isRotated) return;
+
+    function handleWheel(event: WheelEvent) {
+      if (event.ctrlKey) return;
+
+      const ref = transformRef.current;
+      const content = ref?.instance.contentComponent;
+      if (!ref || !content) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const currentScale = ref.state.scale;
+      const nextScale = Math.max(
+        MIN_LIGHTBOX_SCALE,
+        Math.min(MAX_LIGHTBOX_SCALE, currentScale + (event.deltaY < 0 ? ROTATED_WHEEL_STEP : -ROTATED_WHEEL_STEP)),
+      );
+      if (nextScale === currentScale) return;
+
+      const contentRect = content.getBoundingClientRect();
+      const mouseX = (event.clientY - contentRect.top) / (currentScale * uiScale);
+      const mouseY = (contentRect.right - event.clientX) / (currentScale * uiScale);
+      const scaleDifference = nextScale - currentScale;
+      ref.setTransform(
+        ref.state.positionX - mouseX * scaleDifference,
+        ref.state.positionY - mouseY * scaleDifference,
+        nextScale,
+        0,
+        "linear",
+      );
+
+      if (wheelStopTimer.current) window.clearTimeout(wheelStopTimer.current);
+      wheelStopTimer.current = window.setTimeout(() => keepImageVisible(ref), 140);
+    }
+
+    lightbox.addEventListener("wheel", handleWheel, { capture: true, passive: false });
+    return () => {
+      lightbox.removeEventListener("wheel", handleWheel, { capture: true });
+      if (wheelStopTimer.current) window.clearTimeout(wheelStopTimer.current);
+    };
+  }, [isRotated, keepImageVisible, uiScale]);
 
   function handleRotatedPointerDown(event: PointerEvent<HTMLDivElement>) {
     if (!isRotated) return;
@@ -138,12 +188,12 @@ export function ImageLightbox({ imageUrl, alt, onClose }: { imageUrl: string; al
       <TransformWrapper
         ref={transformRef}
         initialScale={1}
-        minScale={0.75}
-        maxScale={6}
+        minScale={MIN_LIGHTBOX_SCALE}
+        maxScale={MAX_LIGHTBOX_SCALE}
         centerOnInit
         centerZoomedOut
         limitToBounds
-        wheel={{ step: 0.25 }}
+        wheel={{ disabled: isRotated, step: 0.25 }}
         pinch={{ step: 5 }}
         doubleClick={{ mode: "toggle", step: 1.2 }}
         panning={{ disabled: isRotated, velocityDisabled: false }}

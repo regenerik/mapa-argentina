@@ -143,6 +143,8 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .icon-button span { font-size: 12px; font-weight: 600; }
 .back-button { justify-self: start; }
 .fullscreen-button { justify-self: end; }
+.map-header-actions { display: flex; justify-self: end; gap: 10px; }
+.kiosk-rotation-stage.is-rotated .rotation-button { color: #e9fbff; background: rgba(34, 167, 214, .26); }
 
 .map-workspace { position: relative; min-height: 0; overflow: hidden; background: radial-gradient(circle at 52% 40%, #0d2940 0, #071725 48%, #040d17 100%); }
 .map-workspace::before { content: ""; position: absolute; inset: 0; z-index: 0; opacity: .18; background-image: radial-gradient(circle, #6eabc5 1px, transparent 1px); background-size: 28px 28px; mask-image: linear-gradient(to bottom, black, transparent 88%); }
@@ -178,7 +180,6 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .map-controls button:last-child { border-bottom: 0; }
 .map-controls button:hover, .map-controls button:focus-visible { color: white; background: #17415d; outline: none; }
 .map-controls svg { width: 21px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
-.kiosk-rotation-stage.is-rotated .rotation-control { color: #e9fbff; background: rgba(34, 167, 214, .26); }
 .map-filter-controls { position: absolute; z-index: 12; top: 24px; right: clamp(82px, 3vw + 66px, 98px); display: flex; flex-direction: column; gap: 10px; }
 .map-filter-controls button { position: relative; display: grid; width: 54px; height: 54px; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: #c9e2ec; background: rgba(7, 25, 39, .9); box-shadow: 0 12px 36px rgba(0, 5, 12, .34); cursor: pointer; backdrop-filter: blur(14px); }
 .map-filter-controls button:hover, .map-filter-controls button:focus-visible { color: white; border-color: rgba(93, 207, 240, .45); background: #17415d; outline: none; }
