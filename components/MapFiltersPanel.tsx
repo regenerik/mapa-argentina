@@ -44,48 +44,50 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onConfirm
         <strong id="filter-panel-title">{copy.resultsFound}: {resultCount}</strong>
       </div>
 
-      <section className={`filter-accordion${openSection === "weeds" ? " is-open" : ""}`}>
-        <button type="button" onClick={() => setOpenSection("weeds")} aria-expanded={openSection === "weeds"}>
-          <span>{copy.filterByWeed}</span>
-          <b>{draftFilters.targetWeeds.length || copy.all}</b>
-        </button>
-        {openSection === "weeds" && (
-          <div className="filter-options">
-            {targetWeeds.map((weed) => (
-              <label key={weed} className="filter-check">
-                <input
-                  type="checkbox"
-                  checked={draftFilters.targetWeeds.includes(weed)}
-                  onChange={() => setDraftFilters({ ...draftFilters, targetWeeds: toggle(draftFilters.targetWeeds, weed) })}
-                />
-                <span>{weed}</span>
-              </label>
-            ))}
-            {targetWeeds.length === 0 && <p>{copy.noTargetWeeds}</p>}
-          </div>
-        )}
-      </section>
+      <div className="filter-panel-body">
+        <section className={`filter-accordion${openSection === "weeds" ? " is-open" : ""}`}>
+          <button type="button" onClick={() => setOpenSection("weeds")} aria-expanded={openSection === "weeds"}>
+            <span>{copy.filterByWeed}</span>
+            <b>{draftFilters.targetWeeds.length || copy.all}</b>
+          </button>
+          {openSection === "weeds" && (
+            <div className="filter-options">
+              {targetWeeds.map((weed) => (
+                <label key={weed} className="filter-check">
+                  <input
+                    type="checkbox"
+                    checked={draftFilters.targetWeeds.includes(weed)}
+                    onChange={() => setDraftFilters({ ...draftFilters, targetWeeds: toggle(draftFilters.targetWeeds, weed) })}
+                  />
+                  <span>{weed}</span>
+                </label>
+              ))}
+              {targetWeeds.length === 0 && <p>{copy.noTargetWeeds}</p>}
+            </div>
+          )}
+        </section>
 
-      <section className={`filter-accordion${openSection === "provinces" ? " is-open" : ""}`}>
-        <button type="button" onClick={() => setOpenSection("provinces")} aria-expanded={openSection === "provinces"}>
-          <span>{copy.filterByProvince}</span>
-          <b>{draftFilters.provinces.length || copy.all}</b>
-        </button>
-        {openSection === "provinces" && (
-          <div className="filter-options">
-            {ARGENTINA_PROVINCES.map((province) => (
-              <label key={province} className="filter-check">
-                <input
-                  type="checkbox"
-                  checked={draftFilters.provinces.includes(province)}
-                  onChange={() => setDraftFilters({ ...draftFilters, provinces: toggle(draftFilters.provinces, province) })}
-                />
-                <span>{province}</span>
-              </label>
-            ))}
-          </div>
-        )}
-      </section>
+        <section className={`filter-accordion${openSection === "provinces" ? " is-open" : ""}`}>
+          <button type="button" onClick={() => setOpenSection("provinces")} aria-expanded={openSection === "provinces"}>
+            <span>{copy.filterByProvince}</span>
+            <b>{draftFilters.provinces.length || copy.all}</b>
+          </button>
+          {openSection === "provinces" && (
+            <div className="filter-options">
+              {ARGENTINA_PROVINCES.map((province) => (
+                <label key={province} className="filter-check">
+                  <input
+                    type="checkbox"
+                    checked={draftFilters.provinces.includes(province)}
+                    onChange={() => setDraftFilters({ ...draftFilters, provinces: toggle(draftFilters.provinces, province) })}
+                  />
+                  <span>{province}</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
 
       <div className="filter-panel-actions">
         <button type="button" onClick={onCancel}>{copy.cancel}</button>
