@@ -71,7 +71,7 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .home-shell {
   position: relative;
   display: grid;
-  min-height: var(--scaled-svh);
+  min-height: 100svh;
   place-items: center;
   overflow: hidden;
   padding: 48px 24px;
