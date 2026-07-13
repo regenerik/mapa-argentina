@@ -7,7 +7,7 @@ import { useLanguage } from "@/components/LanguageProvider";
 
 type ZoomAction = (step?: number, animationTime?: number, animationType?: "easeOut" | "linear") => void;
 const RESET_SCALE = 1.35;
-const ROTATED_RESET_SCALE = 2.85;
+const ROTATED_RESET_SCALE = 3.25;
 
 function HoldZoomButton({
   action,
@@ -92,7 +92,7 @@ export function MapControls() {
     const width = wrapper?.clientWidth || window.innerWidth;
     const height = wrapper?.clientHeight || window.innerHeight;
     const nextScale = isRotated ? ROTATED_RESET_SCALE : RESET_SCALE;
-    const rotatedVerticalCompensation = isRotated ? width * 0.055 : 0;
+    const rotatedVerticalCompensation = isRotated ? width * 0.115 : 0;
     setTransform(
       (width * (1 - nextScale)) / 2 - rotatedVerticalCompensation,
       (height * (1 - nextScale)) / 2,

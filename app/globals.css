@@ -144,6 +144,8 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .back-button { justify-self: start; }
 .fullscreen-button { justify-self: end; }
 .map-header-actions { position: absolute; top: 50%; right: clamp(14px, 3vw, 34px); display: flex; gap: 10px; transform: translateY(-50%); }
+.fullscreen-button span { display: none; }
+.fullscreen-button { width: 56px; padding: 0; }
 .kiosk-rotation-stage.is-rotated .rotation-button { color: #e9fbff; background: rgba(34, 167, 214, .26); }
 .kiosk-rotation-stage.is-rotated .rotation-button span { display: none; }
 .kiosk-rotation-stage.is-rotated .rotation-button { width: 56px; padding: 0; }
@@ -214,6 +216,29 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .filter-panel-actions button { flex: 1; min-height: 42px; border-radius: 12px; font-size: 11px; font-weight: 800; cursor: pointer; }
 .filter-panel-actions button:first-child { border: 1px solid rgba(139, 184, 203, .18); color: #9bb6c3; background: transparent; }
 .filter-panel-actions button:last-child { border: 1px solid rgba(82, 200, 231, .45); color: #e7fbff; background: linear-gradient(135deg, #19799b, #125570); }
+.kiosk-rotation-stage.is-rotated .map-filter-controls {
+  top: 86px;
+  right: auto;
+  left: 24px;
+  flex-direction: row;
+}
+.kiosk-rotation-stage.is-rotated .filter-panel {
+  top: 154px;
+  right: auto;
+  left: 24px;
+  width: min(430px, calc(var(--scaled-svh) - 48px));
+  max-height: calc(100vw / var(--ui-scale) - 190px);
+}
+.kiosk-rotation-stage.is-rotated .filter-options {
+  max-height: min(178px, calc(100vw / var(--ui-scale) - 360px));
+}
+.kiosk-rotation-stage.is-rotated .filter-panel-header strong {
+  font-size: 15px;
+}
+.kiosk-rotation-stage.is-rotated .filter-check {
+  padding: 7px 9px;
+  font-size: 10px;
+}
 .map-hint { position: absolute; z-index: 5; bottom: 22px; left: 50%; display: flex; align-items: center; gap: 9px; padding: 11px 16px; border: 1px solid rgba(113, 167, 191, .15); border-radius: 999px; color: #718fa1; background: rgba(4, 17, 28, .76); font-size: 11px; transform: translateX(-50%); backdrop-filter: blur(10px); pointer-events: none; white-space: nowrap; }
 .map-hint svg { width: 18px; fill: none; stroke: #72b8d1; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
 .edit-notice { position: absolute; z-index: 6; left: clamp(15px, 3vw, 32px); top: 24px; display: flex; max-width: 290px; flex-direction: column; padding: 15px 18px; border: 1px solid rgba(55, 181, 223, .25); border-radius: 15px; background: rgba(8, 32, 49, .9); box-shadow: 0 12px 38px rgba(0, 7, 15, .35); }
