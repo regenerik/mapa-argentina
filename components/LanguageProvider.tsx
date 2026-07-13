@@ -155,6 +155,9 @@ const spanish = {
   scrollInfoDown: "Ver mas informacion",
   interfaceScale: "Escala de pantalla",
   interfaceScaleValue: "Actual",
+  interfaceScaleNormal: "Recomendado para pantallas normales.",
+  interfaceScaleMedium: "Recomendado para pantallas medianas.",
+  interfaceScaleLarge: "Recomendado para pantallas grandes.",
   increaseInterfaceScale: "Aumentar escala de pantalla",
   decreaseInterfaceScale: "Reducir escala de pantalla",
 } as const;
@@ -312,6 +315,9 @@ const english: AppCopy = {
   scrollInfoDown: "Show more information",
   interfaceScale: "Screen scale",
   interfaceScaleValue: "Current",
+  interfaceScaleNormal: "Recommended for standard screens.",
+  interfaceScaleMedium: "Recommended for medium screens.",
+  interfaceScaleLarge: "Recommended for large screens.",
   increaseInterfaceScale: "Increase screen scale",
   decreaseInterfaceScale: "Decrease screen scale",
 };

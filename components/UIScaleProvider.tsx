@@ -55,9 +55,13 @@ export function UIScaleProvider({ children }: { children: ReactNode }) {
 
   return (
     <UIScaleContext.Provider value={value}>
-      <div className="ui-scale-root">{children}</div>
+      {children}
     </UIScaleContext.Provider>
   );
+}
+
+export function UIScaleRoot({ children }: { children: ReactNode }) {
+  return <div className="ui-scale-root">{children}</div>;
 }
 
 export function useUIScale() {

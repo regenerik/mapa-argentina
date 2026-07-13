@@ -124,6 +124,7 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .home-zoom-panel { display: flex; width: min(100%, 420px); align-items: center; justify-content: space-between; gap: 16px; margin: 22px auto 0; padding: 12px 14px; border: 1px solid rgba(132, 190, 217, .15); border-radius: 18px; color: #b8d0db; background: rgba(7, 25, 39, .72); box-shadow: 0 14px 40px rgba(0, 5, 12, .18); backdrop-filter: blur(12px); }
 .home-zoom-panel strong { display: block; color: #e4f7fc; font-size: 12px; }
 .home-zoom-panel small { display: block; margin-top: 3px; color: #6f8fa1; font-size: 10px; }
+.home-zoom-panel em { display: block; max-width: 230px; margin-top: 5px; color: #86a7b8; font-size: 10px; font-style: normal; line-height: 1.35; }
 .home-zoom-actions { display: flex; gap: 9px; }
 .home-zoom-actions button { display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid rgba(90, 197, 231, .28); border-radius: 50%; color: #cceef7; background: rgba(18, 60, 84, .72); cursor: pointer; box-shadow: 0 8px 22px rgba(0, 5, 12, .22); }
 .home-zoom-actions button:hover, .home-zoom-actions button:focus-visible { color: white; border-color: rgba(90, 197, 231, .58); background: #19506d; outline: none; }

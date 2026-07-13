@@ -23,6 +23,12 @@ function EditIcon() {
 export default function Home() {
   const { copy } = useLanguage();
   const { scale, canDecrease, canIncrease, decrease, increase } = useUIScale();
+  const scaleRecommendation = scale === 1
+    ? copy.interfaceScaleNormal
+    : scale === 1.15
+      ? copy.interfaceScaleMedium
+      : copy.interfaceScaleLarge;
+
   return (
     <main className="home-shell">
       <div className="home-glow home-glow-one" />
@@ -66,6 +72,7 @@ export default function Home() {
           <div>
             <strong>{copy.interfaceScale}</strong>
             <small>{copy.interfaceScaleValue} {Math.round(scale * 100)}%</small>
+            <em>{scaleRecommendation}</em>
           </div>
           <div className="home-zoom-actions">
             <button type="button" onClick={decrease} disabled={!canDecrease} aria-label={copy.decreaseInterfaceScale}>

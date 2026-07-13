@@ -11,6 +11,7 @@ import { MapFilterControls } from "@/components/MapFilterControls";
 import { filterMapPoints, hasActiveFilters, MapFiltersPanel } from "@/components/MapFiltersPanel";
 import { MapEditorScreen } from "@/components/MapEditorScreen";
 import { PointModal } from "@/components/PointModal";
+import { UIScaleRoot } from "@/components/UIScaleProvider";
 import { useMapPoints } from "@/hooks/useMapPoints";
 import type { MapFilters, MapMode, MapPoint } from "@/types/map";
 
@@ -100,8 +101,10 @@ function MapViewerScreen() {
 
 export function MapScreen({ mode }: { mode: MapMode }) {
   return (
-    <KioskRotationProvider>
-      {mode === "edit" ? <MapEditorScreen /> : <MapViewerScreen />}
-    </KioskRotationProvider>
+    <UIScaleRoot>
+      <KioskRotationProvider>
+        {mode === "edit" ? <MapEditorScreen /> : <MapViewerScreen />}
+      </KioskRotationProvider>
+    </UIScaleRoot>
   );
 }
