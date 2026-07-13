@@ -13,7 +13,7 @@ export function getMapResetTransform({
   uiScale?: number;
 }) {
   const scale = isRotated ? ROTATED_MAP_RESET_SCALE : MAP_RESET_SCALE;
-  const rotatedScaleOffset = isRotated ? Math.max(0, uiScale - 1) * width * 0.22 : 0;
+  const rotatedScaleOffset = isRotated ? Math.max(0, uiScale - 1) * width * 0.46 : 0;
 
   return {
     scale,
