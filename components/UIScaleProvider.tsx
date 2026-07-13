@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 const STORAGE_KEY = "mapa-argentina-ui-scale";
-const SCALE_VALUES = [1, 1.15, 1.3, 1.5] as const;
+const SCALE_VALUES = [1, 1.15, 1.3] as const;
 
 type UIScale = (typeof SCALE_VALUES)[number];
 
@@ -37,7 +37,7 @@ export function UIScaleProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     document.documentElement.style.setProperty("--ui-scale", String(scale));
-    document.documentElement.style.setProperty("--scaled-svh", `calc(100svh / ${scale})`);
+    document.documentElement.style.setProperty("--scaled-svh", "100svh");
     try {
       window.localStorage.setItem(STORAGE_KEY, String(scale));
     } catch {
