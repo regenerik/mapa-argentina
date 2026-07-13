@@ -37,7 +37,7 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
     if (!rect || lastIndex === 0) return 0;
     const trackLength = isRotated ? rect.height : rect.width;
     if (trackLength === 0) return 0;
-    const pointerPosition = isRotated ? clientY - rect.top : clientX - rect.left;
+    const pointerPosition = isRotated ? rect.bottom - clientY : clientX - rect.left;
     return Math.max(0, Math.min(100, (pointerPosition / trackLength) * 100));
   }
 

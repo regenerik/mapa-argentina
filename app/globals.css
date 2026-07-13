@@ -143,7 +143,7 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .icon-button span { font-size: 12px; font-weight: 600; }
 .back-button { justify-self: start; }
 .fullscreen-button { justify-self: end; }
-.map-header-actions { display: flex; justify-self: end; gap: 10px; }
+.map-header-actions { position: absolute; top: 50%; right: clamp(14px, 3vw, 34px); display: flex; gap: 10px; transform: translateY(-50%); }
 .kiosk-rotation-stage.is-rotated .rotation-button { color: #e9fbff; background: rgba(34, 167, 214, .26); }
 
 .map-workspace { position: relative; min-height: 0; overflow: hidden; background: radial-gradient(circle at 52% 40%, #0d2940 0, #071725 48%, #040d17 100%); }

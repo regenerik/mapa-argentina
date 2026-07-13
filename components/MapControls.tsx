@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useRef, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useRef, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { useControls } from "react-zoom-pan-pinch";
 import { useLanguage } from "@/components/LanguageProvider";
 
 type ZoomAction = (step?: number, animationTime?: number, animationType?: "easeOut" | "linear") => void;
+const RESET_SCALE = 1.35;
 
 function HoldZoomButton({
   action,
@@ -78,14 +79,29 @@ function HoldZoomButton({
 }
 
 export function MapControls() {
-  const { zoomIn, zoomOut, resetTransform } = useControls();
+  const { zoomIn, zoomOut, setTransform } = useControls();
   const { copy } = useLanguage();
+
+  function resetView(event: ReactMouseEvent<HTMLButtonElement>) {
+    const wrapper = event.currentTarget
+      .closest(".map-container")
+      ?.querySelector<HTMLElement>(".map-transform-wrapper");
+    const width = wrapper?.clientWidth || window.innerWidth;
+    const height = wrapper?.clientHeight || window.innerHeight;
+    setTransform(
+      (width * (1 - RESET_SCALE)) / 2,
+      (height * (1 - RESET_SCALE)) / 2,
+      RESET_SCALE,
+      260,
+      "easeOut",
+    );
+  }
 
   return (
     <div className="map-controls" aria-label={copy.mapControls}>
       <HoldZoomButton action={zoomIn} label={copy.zoomIn}>+</HoldZoomButton>
       <HoldZoomButton action={zoomOut} label={copy.zoomOut}>-</HoldZoomButton>
-      <button className="reset-control" type="button" onClick={() => resetTransform()} aria-label={copy.resetView}>
+      <button className="reset-control" type="button" onClick={resetView} aria-label={copy.resetView}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6" /></svg>
       </button>
     </div>
