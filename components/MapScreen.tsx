@@ -18,13 +18,18 @@ function MapViewerScreen() {
   const [selectedPoint, setSelectedPoint] = useState<MapPoint | null>(null);
   const [appliedFilters, setAppliedFilters] = useState<MapFilters>({ targetWeeds: [], provinces: [] });
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
   const closePoint = useCallback(() => setSelectedPoint(null), []);
   const visiblePoints = catalog.filtersEnabled ? filterMapPoints(points, appliedFilters) : points;
 
   function clearFilters() {
     if (!hasActiveFilters(appliedFilters)) return;
-    if (!window.confirm(copy.clearFiltersConfirm)) return;
+    setIsClearConfirmOpen(true);
+  }
+
+  function confirmClearFilters() {
     setAppliedFilters({ targetWeeds: [], provinces: [] });
+    setIsClearConfirmOpen(false);
   }
 
   return (
@@ -43,6 +48,21 @@ function MapViewerScreen() {
         {catalog.filtersEnabled && (
           <>
             <MapFilterControls filters={appliedFilters} onOpen={() => setIsFilterPanelOpen(true)} onClear={clearFilters} />
+            {isClearConfirmOpen && (
+              <div className="app-dialog-overlay" role="presentation" onPointerDown={(event) => {
+                if (event.target === event.currentTarget) setIsClearConfirmOpen(false);
+              }}>
+                <section className="app-dialog" role="dialog" aria-modal="true" aria-labelledby="clear-filters-title">
+                  <p>{copy.filters}</p>
+                  <h2 id="clear-filters-title">{copy.clearFiltersTitle}</h2>
+                  <span>{copy.clearFiltersConfirm}</span>
+                  <div className="app-dialog-actions">
+                    <button type="button" onClick={() => setIsClearConfirmOpen(false)}>{copy.cancel}</button>
+                    <button type="button" onClick={confirmClearFilters}>{copy.clearFilters}</button>
+                  </div>
+                </section>
+              </div>
+            )}
             {isFilterPanelOpen && (
               <MapFiltersPanel
                 points={points}

@@ -65,6 +65,7 @@ const spanish = {
   pointAdministration: "Administración de puntos",
   administration: "Administración",
   mapPointsTitle: "Puntos del mapa",
+  mapPointsAdminCopy: "Crear, editar y administrar ubicaciones",
   newPoint: "+ Nuevo",
   chooseLocation: "Elegí una ubicación",
   chooseLocationCopy: "Tocá una provincia en el mapa para crear un punto o seleccioná uno existente para editarlo.",
@@ -138,6 +139,7 @@ const spanish = {
   filters: "Filtros",
   openFilters: "Abrir filtros",
   clearFilters: "Limpiar filtros",
+  clearFiltersTitle: "Limpiar filtros aplicados",
   clearFiltersConfirm: "¿Limpiar todos los filtros aplicados?",
   resultsFound: "Resultados encontrados",
   filterByWeed: "Filtro por maleza target",
@@ -147,6 +149,10 @@ const spanish = {
   cancel: "Cancelar",
   scrollInfoUp: "Ver informacion anterior",
   scrollInfoDown: "Ver mas informacion",
+  interfaceScale: "Escala de pantalla",
+  interfaceScaleValue: "Actual",
+  increaseInterfaceScale: "Aumentar escala de pantalla",
+  decreaseInterfaceScale: "Reducir escala de pantalla",
 } as const;
 
 export type AppCopy = Record<keyof typeof spanish, string>;
@@ -212,6 +218,7 @@ const english: AppCopy = {
   pointAdministration: "Point administration",
   administration: "Administration",
   mapPointsTitle: "Map points",
+  mapPointsAdminCopy: "Create, edit, and manage locations",
   newPoint: "+ New",
   chooseLocation: "Choose a location",
   chooseLocationCopy: "Tap a province on the map to create a point or select an existing point to edit it.",
@@ -285,6 +292,7 @@ const english: AppCopy = {
   filters: "Filters",
   openFilters: "Open filters",
   clearFilters: "Clear filters",
+  clearFiltersTitle: "Clear applied filters",
   clearFiltersConfirm: "Clear all applied filters?",
   resultsFound: "Results found",
   filterByWeed: "Filter by target weed",
@@ -294,6 +302,10 @@ const english: AppCopy = {
   cancel: "Cancel",
   scrollInfoUp: "Show previous information",
   scrollInfoDown: "Show more information",
+  interfaceScale: "Screen scale",
+  interfaceScaleValue: "Current",
+  increaseInterfaceScale: "Increase screen scale",
+  decreaseInterfaceScale: "Decrease screen scale",
 };
 
 const STORAGE_KEY = "mapa-argentina-language";

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { LanguageSwitch, useLanguage } from "@/components/LanguageProvider";
+import { useUIScale } from "@/components/UIScaleProvider";
 
 function MapIcon() {
   return (
@@ -21,6 +22,7 @@ function EditIcon() {
 
 export default function Home() {
   const { copy } = useLanguage();
+  const { scale, canDecrease, canIncrease, decrease, increase } = useUIScale();
   return (
     <main className="home-shell">
       <div className="home-glow home-glow-one" />
@@ -59,6 +61,21 @@ export default function Home() {
             <span className="card-arrow" aria-hidden="true">→</span>
           </Link>
         </nav>
+
+        <div className="home-zoom-panel" aria-label={copy.interfaceScale}>
+          <div>
+            <strong>{copy.interfaceScale}</strong>
+            <small>{copy.interfaceScaleValue} {Math.round(scale * 100)}%</small>
+          </div>
+          <div className="home-zoom-actions">
+            <button type="button" onClick={decrease} disabled={!canDecrease} aria-label={copy.decreaseInterfaceScale}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14" /></svg>
+            </button>
+            <button type="button" onClick={increase} disabled={!canIncrease} aria-label={copy.increaseInterfaceScale}>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+            </button>
+          </div>
+        </div>
       </section>
 
       <p className="home-footer">{copy.homeFooter}</p>

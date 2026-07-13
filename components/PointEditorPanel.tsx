@@ -149,24 +149,31 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
   return (
     <aside className="editor-panel" aria-label={copy.pointAdministration}>
       <div className="editor-panel-header">
-        <div><span>{copy.administration}</span><h2>{copy.mapPointsTitle}</h2></div>
-        <button className="editor-new-button" type="button" onClick={onNew}>{copy.newPoint}</button>
-      </div>
-
-      <div className="editor-switch-row">
-        <div>
-          <strong>{copy.filtersFeature}</strong>
-          <small>{copy.filtersFeatureCopy}</small>
+        <div className="editor-admin-title"><span>{copy.administration}</span></div>
+        <div className="editor-admin-options">
+          <div className="editor-admin-option">
+            <div>
+              <strong>{copy.mapPointsTitle}</strong>
+              <small>{copy.mapPointsAdminCopy}</small>
+            </div>
+            <button className="editor-new-button" type="button" onClick={onNew}>{copy.newPoint}</button>
+          </div>
+          <div className="editor-admin-option">
+            <div>
+              <strong>{copy.filtersFeature}</strong>
+              <small>{copy.filtersFeatureCopy}</small>
+            </div>
+            <button
+              className={`editor-switch${filtersEnabled ? " is-active" : ""}`}
+              type="button"
+              role="switch"
+              aria-checked={filtersEnabled}
+              onClick={() => onFiltersEnabledChange(!filtersEnabled)}
+            >
+              <span />
+            </button>
+          </div>
         </div>
-        <button
-          className={`editor-switch${filtersEnabled ? " is-active" : ""}`}
-          type="button"
-          role="switch"
-          aria-checked={filtersEnabled}
-          onClick={() => onFiltersEnabledChange(!filtersEnabled)}
-        >
-          <span />
-        </button>
       </div>
 
       {!draft && message && <div className="editor-message" role="status">{message}</div>}

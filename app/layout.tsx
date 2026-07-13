@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { HydrationMarker } from "@/components/HydrationMarker";
 import { LanguageProvider } from "@/components/LanguageProvider";
+import { UIScaleProvider } from "@/components/UIScaleProvider";
 import "./globals.css";
 
 const hydrationRecoveryScript = `
@@ -40,7 +41,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         <script dangerouslySetInnerHTML={{ __html: hydrationRecoveryScript }} />
         <HydrationMarker />
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>
+          <UIScaleProvider>{children}</UIScaleProvider>
+        </LanguageProvider>
       </body>
     </html>
   );
