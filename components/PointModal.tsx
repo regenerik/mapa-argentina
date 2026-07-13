@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { TimelineSlider } from "@/components/TimelineSlider";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -11,7 +11,9 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
   const { copy } = useLanguage();
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isImageOpen, setIsImageOpen] = useState(false);
+  const [scrollState, setScrollState] = useState({ canScrollUp: false, canScrollDown: false });
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const copyScrollRef = useRef<HTMLDivElement>(null);
   const images = point.images.length > 0
     ? [...point.images].sort((a, b) => a.daysFromBase - b.daysFromBase)
     : [{ day: "0", daysFromBase: 0, imageUrl: point.thumbnailUrl, publicId: point.thumbnailPublicId }];
@@ -26,6 +28,33 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
     window.addEventListener("keydown", handleEscape);
     return () => window.removeEventListener("keydown", handleEscape);
   }, [isImageOpen, onClose]);
+
+  const updateScrollState = useCallback(() => {
+    const element = copyScrollRef.current;
+    if (!element) return;
+    const canScroll = element.scrollHeight > element.clientHeight + 2;
+    setScrollState({
+      canScrollUp: canScroll && element.scrollTop > 4,
+      canScrollDown: canScroll && element.scrollTop + element.clientHeight < element.scrollHeight - 4,
+    });
+  }, []);
+
+  useEffect(() => {
+    updateScrollState();
+    const element = copyScrollRef.current;
+    if (!element) return;
+    const resizeObserver = new ResizeObserver(updateScrollState);
+    resizeObserver.observe(element);
+    resizeObserver.observe(document.body);
+    return () => resizeObserver.disconnect();
+  }, [point, selectedIndex, updateScrollState]);
+
+  function scrollCopy(direction: "up" | "down") {
+    copyScrollRef.current?.scrollBy({
+      top: direction === "up" ? -180 : 180,
+      behavior: "smooth",
+    });
+  }
 
   return (
     <div className="point-modal-overlay" onPointerDown={(event) => {
@@ -45,21 +74,33 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
             </span>
           </button>
           <div className="point-modal-copy">
-            <p>{copy.tracking}</p>
-            <h2 id="point-modal-title">{point.title}</h2>
-            <div className="point-modal-rule" />
-            <p className="point-description">{point.description}</p>
-            <div className="point-detail-list">
-              {point.province && <span><strong>{copy.province}</strong>{point.province}</span>}
-              {point.locality && <span><strong>{copy.locality}</strong>{point.locality}</span>}
-              {point.advisor && <span><strong>{copy.advisor}</strong>{point.advisor}</span>}
-              {point.dose && <span><strong>{copy.dose}</strong>{point.dose}</span>}
-              {point.targetWeeds.length > 0 && <span><strong>{copy.targetWeeds}</strong>{point.targetWeeds.join(", ")}</span>}
+            <div ref={copyScrollRef} className="point-modal-copy-scroll" onScroll={updateScrollState}>
+              <p>{copy.tracking}</p>
+              <h2 id="point-modal-title">{point.title}</h2>
+              <div className="point-modal-rule" />
+              <p className="point-description">{point.description}</p>
+              <div className="point-detail-list">
+                {point.province && <span><strong>{copy.province}</strong>{point.province}</span>}
+                {point.locality && <span><strong>{copy.locality}</strong>{point.locality}</span>}
+                {point.advisor && <span><strong>{copy.advisorShort}</strong>{point.advisor}</span>}
+                {point.dose && <span><strong>{copy.dose}</strong>{point.dose}</span>}
+                {point.targetWeeds.length > 0 && <span><strong>{copy.targetWeeds}</strong>{point.targetWeeds.join(", ")}</span>}
+              </div>
+              <div className="point-meta">
+                <span>{images.length}</span>
+                <small>{copy.temporalRecords}</small>
+              </div>
             </div>
-            <div className="point-meta">
-              <span>{images.length}</span>
-              <small>{copy.temporalRecords}</small>
-            </div>
+            {scrollState.canScrollUp && (
+              <button className="point-copy-scroll-button is-up" type="button" onClick={() => scrollCopy("up")} aria-label={copy.scrollInfoUp}>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 14 6-6 6 6" /></svg>
+              </button>
+            )}
+            {scrollState.canScrollDown && (
+              <button className="point-copy-scroll-button is-down" type="button" onClick={() => scrollCopy("down")} aria-label={copy.scrollInfoDown}>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 10 6 6 6-6" /></svg>
+              </button>
+            )}
           </div>
         </div>
 

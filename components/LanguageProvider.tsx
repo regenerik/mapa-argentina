@@ -125,6 +125,7 @@ const spanish = {
   locality: "Localidad",
   localityPlaceholder: "Ej. Pergamino",
   advisor: "Distribuidor/Asesor",
+  advisorShort: "Dist/Asesor",
   advisorPlaceholder: "Nombre o empresa",
   dose: "Dosis",
   dosePlaceholder: "Ej. 500 cc/ha",
@@ -144,6 +145,8 @@ const spanish = {
   all: "Todas",
   confirm: "Confirmar",
   cancel: "Cancelar",
+  scrollInfoUp: "Ver informacion anterior",
+  scrollInfoDown: "Ver mas informacion",
 } as const;
 
 export type AppCopy = Record<keyof typeof spanish, string>;
@@ -269,6 +272,7 @@ const english: AppCopy = {
   locality: "Locality",
   localityPlaceholder: "E.g. Pergamino",
   advisor: "Distributor/Advisor",
+  advisorShort: "Dist/Advisor",
   advisorPlaceholder: "Name or company",
   dose: "Dose",
   dosePlaceholder: "E.g. 500 cc/ha",
@@ -288,6 +292,8 @@ const english: AppCopy = {
   all: "All",
   confirm: "Confirm",
   cancel: "Cancel",
+  scrollInfoUp: "Show previous information",
+  scrollInfoDown: "Show more information",
 };
 
 const STORAGE_KEY = "mapa-argentina-language";

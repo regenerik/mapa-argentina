@@ -313,26 +313,36 @@ a { color: inherit; text-decoration: none; }
 .point-modal-close:hover, .point-modal-close:focus-visible { color: white; border-color: rgba(93, 207, 240, .7); background: #12354c; outline: none; }
 .point-modal-close svg { width: 21px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 1.8; }
 
-.point-modal-main { display: grid; min-height: 0; grid-template-columns: minmax(0, 1.35fr) minmax(270px, .65fr); }
-.point-modal-image { position: relative; min-height: 0; overflow: hidden; padding: 0; border: 0; color: inherit; background: #0b2535; cursor: zoom-in; }
-.point-modal-image::after { content: ""; position: absolute; inset: 0; box-shadow: inset -50px 0 80px rgba(6, 22, 34, .22), inset 0 -40px 70px rgba(3, 14, 23, .25); pointer-events: none; }
-.point-modal-image img { object-fit: cover; animation: image-reveal .25s ease-out both; }
-.point-image-badge { position: absolute; z-index: 2; bottom: 20px; left: 22px; padding: 9px 13px; border: 1px solid rgba(197, 235, 246, .25); border-radius: 999px; color: #e9f8fc; background: rgba(4, 22, 33, .72); font-size: 12px; font-weight: 700; backdrop-filter: blur(10px); }
-.point-image-expand { position: absolute; z-index: 2; right: 18px; bottom: 18px; display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid rgba(197, 235, 246, .25); border-radius: 50%; color: #e9f8fc; background: rgba(4, 22, 33, .72); backdrop-filter: blur(10px); }
+.point-modal-main { display: grid; min-height: 0; grid-template-columns: minmax(0, 1.28fr) minmax(310px, .72fr); }
+.point-modal-image { position: relative; min-height: 0; overflow: hidden; padding: 0; border: 0; color: inherit; background: #0b2535; cursor: zoom-in; isolation: isolate; }
+.point-modal-image::after { content: ""; position: absolute; inset: 0; z-index: 1; box-shadow: inset -50px 0 80px rgba(6, 22, 34, .22), inset 0 -72px 90px rgba(3, 14, 23, .48); pointer-events: none; }
+.point-modal-image img { z-index: 0; object-fit: cover; animation: image-reveal .25s ease-out both; }
+.point-image-badge { position: absolute; z-index: 4; bottom: clamp(18px, 3.2vh, 34px); left: clamp(18px, 2.4vw, 30px); padding: 9px 13px; border: 1px solid rgba(197, 235, 246, .25); border-radius: 999px; color: #e9f8fc; background: rgba(4, 22, 33, .78); font-size: 12px; font-weight: 700; backdrop-filter: blur(10px); box-shadow: 0 10px 28px rgba(0, 5, 12, .34); }
+.point-image-expand { position: absolute; z-index: 4; right: clamp(18px, 2.2vw, 30px); bottom: clamp(16px, 3vh, 32px); display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid rgba(197, 235, 246, .25); border-radius: 50%; color: #e9f8fc; background: rgba(4, 22, 33, .78); box-shadow: 0 10px 28px rgba(0, 5, 12, .34); backdrop-filter: blur(10px); }
 .point-image-expand svg { width: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
 .point-modal-image:focus-visible { outline: 3px solid rgba(92, 208, 239, .55); outline-offset: -3px; }
 
-.point-modal-copy { display: flex; min-width: 0; flex-direction: column; justify-content: center; padding: clamp(28px, 4vw, 58px); background: linear-gradient(145deg, #0c2435, #071724); }
-.point-modal-copy > p:first-child { margin: 0 0 10px; color: #53c2e6; font-size: 10px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
+.point-modal-copy { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: linear-gradient(145deg, #0c2435, #071724); }
+.point-modal-copy::before, .point-modal-copy::after { content: ""; position: absolute; left: 0; right: 0; z-index: 2; height: 34px; pointer-events: none; }
+.point-modal-copy::before { top: 0; background: linear-gradient(#0c2435, rgba(12, 36, 53, 0)); }
+.point-modal-copy::after { bottom: 0; background: linear-gradient(rgba(7, 23, 36, 0), #071724); }
+.point-modal-copy-scroll { height: 100%; overflow-x: hidden; overflow-y: auto; padding: clamp(28px, 3.6vw, 54px); scrollbar-width: none; -ms-overflow-style: none; }
+.point-modal-copy-scroll::-webkit-scrollbar { width: 0; height: 0; }
+.point-modal-copy-scroll > p:first-child { margin: 0 0 10px; color: #53c2e6; font-size: 10px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; }
 .point-modal-copy h2 { margin: 0; font-size: clamp(28px, 3vw, 48px); letter-spacing: -.045em; line-height: 1.05; }
 .point-modal-rule { width: 42px; height: 2px; margin: 22px 0; background: #39afd4; box-shadow: 0 0 12px rgba(57, 175, 212, .5); }
 .point-description { margin: 0; color: #9db5c2; font-size: clamp(13px, 1.25vw, 16px); line-height: 1.65; }
-.point-detail-list { display: flex; max-height: 145px; flex-direction: column; gap: 8px; overflow-y: auto; margin: 18px 0 0; padding-right: 4px; scrollbar-color: #2a5b72 transparent; }
-.point-detail-list span { display: grid; grid-template-columns: minmax(92px, .45fr) 1fr; gap: 10px; color: #b7cfd8; font-size: 11px; line-height: 1.35; }
-.point-detail-list strong { color: #5ec9e8; font-size: 9px; letter-spacing: .12em; text-transform: uppercase; }
+.point-detail-list { display: flex; flex-direction: column; gap: 8px; margin: 18px 0 0; padding-right: 2px; }
+.point-detail-list span { display: grid; grid-template-columns: minmax(76px, .35fr) minmax(0, 1fr); gap: 12px; color: #b7cfd8; font-size: 11px; line-height: 1.35; }
+.point-detail-list strong { color: #5ec9e8; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; overflow-wrap: anywhere; }
 .point-meta { display: flex; align-items: baseline; gap: 8px; margin-top: 26px; color: #dff5fb; }
 .point-meta span { font-size: 22px; font-weight: 800; }
 .point-meta small { color: #69899a; font-size: 11px; }
+.point-copy-scroll-button { position: absolute; z-index: 4; left: 50%; display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid rgba(111, 204, 232, .28); border-radius: 50%; color: #c9f4ff; background: rgba(8, 34, 51, .86); box-shadow: 0 10px 26px rgba(0, 4, 10, .42); cursor: pointer; transform: translateX(-50%); backdrop-filter: blur(10px); }
+.point-copy-scroll-button:hover, .point-copy-scroll-button:focus-visible { color: white; border-color: rgba(111, 204, 232, .58); background: #123b55; outline: none; }
+.point-copy-scroll-button.is-up { top: 12px; }
+.point-copy-scroll-button.is-down { bottom: 12px; }
+.point-copy-scroll-button svg { width: 18px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
 
 .timeline { position: relative; z-index: 3; padding: 18px clamp(32px, 5vw, 72px) 20px; border-top: 1px solid rgba(119, 182, 207, .14); background: #061522; }
 .timeline-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
@@ -395,11 +405,12 @@ a { color: inherit; text-decoration: none; }
   .point-modal { width: 100%; height: min(80svh, 760px); min-height: 0; border-radius: 22px; }
   .point-modal-main { grid-template-columns: 1fr; grid-template-rows: minmax(210px, 1.15fr) minmax(170px, .85fr); }
   .point-modal-image::after { box-shadow: inset 0 -45px 65px rgba(3, 14, 23, .28); }
-  .point-modal-copy { justify-content: flex-start; padding: 24px 26px; }
+  .point-modal-copy-scroll { padding: 24px 26px 32px; }
   .point-modal-copy h2 { font-size: 28px; }
   .point-modal-rule { margin: 14px 0; }
   .point-description { display: -webkit-box; overflow: hidden; font-size: 13px; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
-  .point-meta { display: none; }
+  .point-detail-list span { grid-template-columns: minmax(70px, .34fr) minmax(0, 1fr); }
+  .point-meta { margin-top: 18px; }
   .timeline { padding: 16px 26px 18px; }
   .timeline-heading { margin-bottom: 14px; }
 }
@@ -424,11 +435,13 @@ a { color: inherit; text-decoration: none; }
   .point-modal-overlay { padding: 12px; }
   .point-modal { width: min(88vw, 1040px); height: calc(100svh - 24px); min-height: 0; border-radius: 20px; }
   .point-modal-main { grid-template-columns: minmax(0, 1.25fr) minmax(250px, .75fr); grid-template-rows: minmax(0, 1fr); }
-  .point-modal-copy { justify-content: flex-start; padding: 24px 30px; }
+  .point-modal-copy-scroll { padding: 24px 30px 34px; }
   .point-modal-copy h2 { font-size: 28px; }
   .point-modal-rule { margin: 14px 0; }
   .point-description { display: -webkit-box; overflow: hidden; font-size: 12px; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
-  .point-meta { display: none; }
+  .point-detail-list { margin-top: 14px; gap: 7px; }
+  .point-detail-list span { grid-template-columns: minmax(72px, .34fr) minmax(0, 1fr); font-size: 10px; }
+  .point-meta { margin-top: 18px; }
   .timeline { padding-top: 13px; padding-bottom: 15px; }
   .timeline-heading { margin-bottom: 10px; }
 }
