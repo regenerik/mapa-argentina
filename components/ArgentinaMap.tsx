@@ -9,6 +9,7 @@ import { useLanguage } from "@/components/LanguageProvider";
 import { MapControls } from "@/components/MapControls";
 import { MapPoint as MapPointMarker } from "@/components/MapPoint";
 import { useUIScale } from "@/components/UIScaleProvider";
+import { getMapResetTransform } from "@/lib/mapViewTransform";
 import type { MapMode, MapPoint, ProvinceLabel } from "@/types/map";
 
 const WIDTH = 800;
@@ -296,6 +297,24 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
     const ref = transformRef.current;
     if (ref) keepCountryVisible(ref);
   }
+
+  useEffect(() => {
+    if (!isRotated) return;
+
+    const resetTimer = window.setTimeout(() => {
+      const ref = transformRef.current;
+      const wrapper = containerRef.current?.querySelector<HTMLElement>(".map-transform-wrapper");
+      if (!ref || !wrapper) return;
+      const nextTransform = getMapResetTransform({
+        width: wrapper.clientWidth,
+        height: wrapper.clientHeight,
+        isRotated: true,
+      });
+      ref.setTransform(nextTransform.positionX, nextTransform.positionY, nextTransform.scale, 260, "easeOut");
+    }, 120);
+
+    return () => window.clearTimeout(resetTimer);
+  }, [isRotated, uiScale]);
 
   useEffect(() => {
     const container = containerRef.current;

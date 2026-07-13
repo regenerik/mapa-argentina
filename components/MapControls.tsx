@@ -4,10 +4,9 @@ import { useEffect, useRef, type MouseEvent as ReactMouseEvent, type PointerEven
 import { useControls } from "react-zoom-pan-pinch";
 import { useKioskRotation } from "@/components/KioskRotationProvider";
 import { useLanguage } from "@/components/LanguageProvider";
+import { getMapResetTransform } from "@/lib/mapViewTransform";
 
 type ZoomAction = (step?: number, animationTime?: number, animationType?: "easeOut" | "linear") => void;
-const RESET_SCALE = 1.35;
-const ROTATED_RESET_SCALE = 3.25;
 
 function HoldZoomButton({
   action,
@@ -91,12 +90,11 @@ export function MapControls() {
       ?.querySelector<HTMLElement>(".map-transform-wrapper");
     const width = wrapper?.clientWidth || window.innerWidth;
     const height = wrapper?.clientHeight || window.innerHeight;
-    const nextScale = isRotated ? ROTATED_RESET_SCALE : RESET_SCALE;
-    const rotatedVerticalCompensation = isRotated ? width * 0.115 : 0;
+    const nextTransform = getMapResetTransform({ width, height, isRotated });
     setTransform(
-      (width * (1 - nextScale)) / 2 - rotatedVerticalCompensation,
-      (height * (1 - nextScale)) / 2,
-      nextScale,
+      nextTransform.positionX,
+      nextTransform.positionY,
+      nextTransform.scale,
       260,
       "easeOut",
     );
