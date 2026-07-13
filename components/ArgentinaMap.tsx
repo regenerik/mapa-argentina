@@ -169,6 +169,14 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
   const wheelStopTimer = useRef<number | null>(null);
   const pointerStart = useRef<[number, number] | null>(null);
   const pointerMoved = useRef(false);
+  const rotatedPan = useRef<{
+    pointerId: number;
+    startClientX: number;
+    startClientY: number;
+    startPositionX: number;
+    startPositionY: number;
+    isDragging: boolean;
+  } | null>(null);
 
   const keepCountryVisible = useCallback((ref: ReactZoomPanPinchRef) => {
     const country = containerRef.current?.querySelector<SVGGElement>(".province-layer");
@@ -187,15 +195,17 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
     if (countryRect.top > viewportRect.bottom - minimumVisible) correctionY = viewportRect.bottom - minimumVisible - countryRect.top;
 
     if (correctionX || correctionY) {
+      const positionCorrectionX = isRotated ? -correctionY / uiScale : correctionX;
+      const positionCorrectionY = isRotated ? correctionX / uiScale : correctionY;
       ref.setTransform(
-        ref.state.positionX + correctionX,
-        ref.state.positionY + correctionY,
+        ref.state.positionX + positionCorrectionX,
+        ref.state.positionY + positionCorrectionY,
         ref.state.scale,
         180,
         "easeOut",
       );
     }
-  }, []);
+  }, [isRotated, uiScale]);
 
   function handlePointerDown(event: PointerEvent<SVGSVGElement>) {
     pointerStart.current = [event.clientX, event.clientY];
@@ -229,6 +239,62 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
     const coordinates = projection.invert?.([svgX, svgY]);
     if (!coordinates || !geoContains(mapGeometry, coordinates)) return;
     onMapSelect([Number(coordinates[0].toFixed(6)), Number(coordinates[1].toFixed(6))]);
+  }
+
+  function handleRotatedPointerDown(event: PointerEvent<HTMLDivElement>) {
+    if (!isRotated) return;
+    if (event.pointerType === "mouse" && event.button !== 0 && event.button !== 2) return;
+    if (event.target instanceof Element && event.target.closest("button, a, input, textarea, select")) return;
+
+    const ref = transformRef.current;
+    if (!ref) return;
+
+    rotatedPan.current = {
+      pointerId: event.pointerId,
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      startPositionX: ref.state.positionX,
+      startPositionY: ref.state.positionY,
+      isDragging: false,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function handleRotatedPointerMove(event: PointerEvent<HTMLDivElement>) {
+    const pan = rotatedPan.current;
+    const ref = transformRef.current;
+    if (!isRotated || !pan || !ref || pan.pointerId !== event.pointerId) return;
+
+    const deltaX = event.clientX - pan.startClientX;
+    const deltaY = event.clientY - pan.startClientY;
+    if (!pan.isDragging && Math.hypot(deltaX, deltaY) > 4) {
+      pan.isDragging = true;
+      pointerMoved.current = true;
+    }
+    if (!pan.isDragging) return;
+
+    event.preventDefault();
+    const localDeltaX = -deltaY / uiScale;
+    const localDeltaY = deltaX / uiScale;
+    ref.setTransform(
+      pan.startPositionX + localDeltaX,
+      pan.startPositionY + localDeltaY,
+      ref.state.scale,
+      0,
+      "linear",
+    );
+  }
+
+  function handleRotatedPointerEnd(event: PointerEvent<HTMLDivElement>) {
+    const pan = rotatedPan.current;
+    if (!pan || pan.pointerId !== event.pointerId) return;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    rotatedPan.current = null;
+    const ref = transformRef.current;
+    if (ref) keepCountryVisible(ref);
   }
 
   useEffect(() => {
@@ -279,7 +345,16 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
   }, [isRotated, keepCountryVisible, uiScale]);
 
   return (
-    <div ref={containerRef} className="map-container" data-mode={mode} onContextMenu={(event) => event.preventDefault()}>
+    <div
+      ref={containerRef}
+      className="map-container"
+      data-mode={mode}
+      onContextMenu={(event) => event.preventDefault()}
+      onPointerDown={handleRotatedPointerDown}
+      onPointerMove={handleRotatedPointerMove}
+      onPointerUp={handleRotatedPointerEnd}
+      onPointerCancel={handleRotatedPointerEnd}
+    >
       <TransformWrapper
         ref={transformRef}
         initialScale={1}
@@ -291,7 +366,7 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
         wheel={{ step: WHEEL_STEP }}
         pinch={{ step: 5 }}
         doubleClick={{ mode: "zoomIn", step: 0.7 }}
-        panning={{ velocityDisabled: false, allowRightClickPan: true }}
+        panning={{ disabled: isRotated, velocityDisabled: false, allowRightClickPan: true }}
         onPanningStop={keepCountryVisible}
         onZoomStop={keepCountryVisible}
         onPinchStop={keepCountryVisible}

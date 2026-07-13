@@ -439,6 +439,29 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .lightbox-controls button:hover, .lightbox-controls button:focus-visible { color: white; background: #17415d; outline: none; }
 .lightbox-controls svg { width: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
 
+.kiosk-rotation-stage.is-rotated .point-modal-overlay {
+  padding: 14px;
+}
+
+.kiosk-rotation-stage.is-rotated .point-modal {
+  width: min(calc(var(--scaled-svh) - 28px), 1040px);
+  height: min(calc(100vw / var(--ui-scale) - 28px), 1320px);
+  min-height: 0;
+}
+
+.kiosk-rotation-stage.is-rotated .image-lightbox {
+  inset: auto;
+  top: 0;
+  left: 0;
+  width: var(--scaled-svh);
+  height: calc(100vw / var(--ui-scale));
+}
+
+.kiosk-rotation-stage.is-rotated .image-lightbox-content img {
+  max-width: min(calc(var(--scaled-svh) - 72px), 1600px);
+  max-height: min(calc(100vw / var(--ui-scale) - 72px), 1600px);
+}
+
 @keyframes modal-fade-in { from { opacity: 0; } }
 @keyframes modal-rise-in { from { opacity: 0; transform: translateY(12px) scale(.98); } }
 @keyframes image-reveal { from { opacity: .45; transform: scale(1.015); } }
