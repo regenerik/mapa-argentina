@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { ArgentinaMap } from "@/components/ArgentinaMap";
 import { BackButton } from "@/components/BackButton";
 import { FullscreenButton } from "@/components/FullscreenButton";
+import { KioskRotationProvider } from "@/components/KioskRotationProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import { MapFilterControls } from "@/components/MapFilterControls";
 import { filterMapPoints, hasActiveFilters, MapFiltersPanel } from "@/components/MapFiltersPanel";
@@ -94,5 +95,9 @@ function MapViewerScreen() {
 }
 
 export function MapScreen({ mode }: { mode: MapMode }) {
-  return mode === "edit" ? <MapEditorScreen /> : <MapViewerScreen />;
+  return (
+    <KioskRotationProvider>
+      {mode === "edit" ? <MapEditorScreen /> : <MapViewerScreen />}
+    </KioskRotationProvider>
+  );
 }

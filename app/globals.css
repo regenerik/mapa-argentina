@@ -33,6 +33,32 @@ a { color: inherit; text-decoration: none; }
   zoom: var(--ui-scale);
 }
 
+.kiosk-rotation-stage {
+  min-height: var(--scaled-svh);
+}
+
+.kiosk-rotation-stage.is-rotated {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 300;
+  width: var(--scaled-svh);
+  height: calc(100vw / var(--ui-scale));
+  overflow: hidden;
+  background: var(--bg-deep);
+  transform: rotate(-90deg) translateX(-100%);
+  transform-origin: top left;
+}
+
+.kiosk-rotation-stage.is-rotated .map-screen {
+  width: 100%;
+  height: 100%;
+}
+
+body:has(.kiosk-rotation-stage.is-rotated) {
+  overflow: hidden;
+}
+
 @supports not (zoom: 1) {
   .ui-scale-root {
     width: calc(100% / var(--ui-scale));
@@ -152,6 +178,7 @@ a { color: inherit; text-decoration: none; }
 .map-controls button:last-child { border-bottom: 0; }
 .map-controls button:hover, .map-controls button:focus-visible { color: white; background: #17415d; outline: none; }
 .map-controls svg { width: 21px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
+.kiosk-rotation-stage.is-rotated .rotation-control { color: #e9fbff; background: rgba(34, 167, 214, .26); }
 .map-filter-controls { position: absolute; z-index: 12; top: 24px; right: clamp(82px, 3vw + 66px, 98px); display: flex; flex-direction: column; gap: 10px; }
 .map-filter-controls button { position: relative; display: grid; width: 54px; height: 54px; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: #c9e2ec; background: rgba(7, 25, 39, .9); box-shadow: 0 12px 36px rgba(0, 5, 12, .34); cursor: pointer; backdrop-filter: blur(14px); }
 .map-filter-controls button:hover, .map-filter-controls button:focus-visible { color: white; border-color: rgba(93, 207, 240, .45); background: #17415d; outline: none; }

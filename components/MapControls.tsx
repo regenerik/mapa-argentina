@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type PointerEvent as ReactPointerEvent } from "react";
 import { useControls } from "react-zoom-pan-pinch";
+import { useKioskRotation } from "@/components/KioskRotationProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 
 type ZoomAction = (step?: number, animationTime?: number, animationType?: "easeOut" | "linear") => void;
@@ -79,14 +80,24 @@ function HoldZoomButton({
 
 export function MapControls() {
   const { zoomIn, zoomOut, resetTransform } = useControls();
+  const { isRotated, toggleRotation } = useKioskRotation();
   const { copy } = useLanguage();
 
   return (
     <div className="map-controls" aria-label={copy.mapControls}>
       <HoldZoomButton action={zoomIn} label={copy.zoomIn}>+</HoldZoomButton>
-      <HoldZoomButton action={zoomOut} label={copy.zoomOut}>−</HoldZoomButton>
+      <HoldZoomButton action={zoomOut} label={copy.zoomOut}>-</HoldZoomButton>
       <button className="reset-control" type="button" onClick={() => resetTransform()} aria-label={copy.resetView}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6" /></svg>
+      </button>
+      <button className="rotation-control" type="button" onClick={toggleRotation} aria-label={isRotated ? copy.restoreRotation : copy.rotateInterface}>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          {isRotated ? (
+            <path d="M19 7a8 8 0 1 0 1.7 8.7M19 7v5h-5" />
+          ) : (
+            <path d="M5 7a8 8 0 1 1-1.7 8.7M5 7v5h5" />
+          )}
+        </svg>
       </button>
     </div>
   );

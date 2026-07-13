@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, type MouseEvent, type PointerEvent } fr
 import { geoArea, geoCentroid, geoContains, geoMercator, geoPath, type GeoPermissibleObjects } from "d3-geo";
 import { TransformComponent, TransformWrapper, useTransformEffect, type ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 import provincesData from "@/data/argentina-provinces.json";
+import { useKioskRotation } from "@/components/KioskRotationProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import { MapControls } from "@/components/MapControls";
 import { MapPoint as MapPointMarker } from "@/components/MapPoint";
@@ -162,6 +163,7 @@ interface ArgentinaMapProps {
 export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selectedPointId }: ArgentinaMapProps) {
   const { copy } = useLanguage();
   const { scale: uiScale } = useUIScale();
+  const { isRotated } = useKioskRotation();
   const containerRef = useRef<HTMLDivElement>(null);
   const transformRef = useRef<ReactZoomPanPinchRef | null>(null);
   const wheelStopTimer = useRef<number | null>(null);
@@ -215,11 +217,15 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
     const rect = event.currentTarget.getBoundingClientRect();
     const viewBox = event.currentTarget.viewBox.baseVal;
     if (!rect.width || !rect.height || !viewBox.width || !viewBox.height) return;
-    const renderedScale = Math.min(rect.width / viewBox.width, rect.height / viewBox.height);
-    const contentLeft = rect.left + (rect.width - viewBox.width * renderedScale) / 2;
-    const contentTop = rect.top + (rect.height - viewBox.height * renderedScale) / 2;
-    const svgX = viewBox.x + (event.clientX - contentLeft) / renderedScale;
-    const svgY = viewBox.y + (event.clientY - contentTop) / renderedScale;
+    const renderedWidth = isRotated ? rect.height : rect.width;
+    const renderedHeight = isRotated ? rect.width : rect.height;
+    const pointerX = isRotated ? event.clientY - rect.top : event.clientX - rect.left;
+    const pointerY = isRotated ? rect.right - event.clientX : event.clientY - rect.top;
+    const renderedScale = Math.min(renderedWidth / viewBox.width, renderedHeight / viewBox.height);
+    const contentLeft = (renderedWidth - viewBox.width * renderedScale) / 2;
+    const contentTop = (renderedHeight - viewBox.height * renderedScale) / 2;
+    const svgX = viewBox.x + (pointerX - contentLeft) / renderedScale;
+    const svgY = viewBox.y + (pointerY - contentTop) / renderedScale;
     const coordinates = projection.invert?.([svgX, svgY]);
     if (!coordinates || !geoContains(mapGeometry, coordinates)) return;
     onMapSelect([Number(coordinates[0].toFixed(6)), Number(coordinates[1].toFixed(6))]);
@@ -227,7 +233,7 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || uiScale <= 1) return;
+    if (!container || (uiScale <= 1 && !isRotated)) return;
 
     function handleScaledWheel(event: WheelEvent) {
       // Let trackpad/browser pinch gestures continue through the library path.
@@ -249,8 +255,12 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
       if (nextScale === currentScale) return;
 
       const contentRect = content.getBoundingClientRect();
-      const mouseX = (event.clientX - contentRect.left) / (currentScale * uiScale);
-      const mouseY = (event.clientY - contentRect.top) / (currentScale * uiScale);
+      const mouseX = isRotated
+        ? (event.clientY - contentRect.top) / (currentScale * uiScale)
+        : (event.clientX - contentRect.left) / (currentScale * uiScale);
+      const mouseY = isRotated
+        ? (contentRect.right - event.clientX) / (currentScale * uiScale)
+        : (event.clientY - contentRect.top) / (currentScale * uiScale);
       const scaleDifference = nextScale - currentScale;
       const nextPositionX = ref.state.positionX - mouseX * scaleDifference;
       const nextPositionY = ref.state.positionY - mouseY * scaleDifference;
@@ -266,7 +276,7 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
       container.removeEventListener("wheel", handleScaledWheel, { capture: true });
       if (wheelStopTimer.current) window.clearTimeout(wheelStopTimer.current);
     };
-  }, [keepCountryVisible, uiScale]);
+  }, [isRotated, keepCountryVisible, uiScale]);
 
   return (
     <div ref={containerRef} className="map-container" data-mode={mode} onContextMenu={(event) => event.preventDefault()}>
