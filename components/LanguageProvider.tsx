@@ -28,7 +28,7 @@ const spanish = {
   viewPoint: "Ver",
   back: "Volver",
   backHome: "Volver al inicio",
-  fullscreen: "Pantalla completa",
+  fullscreen: "P.Completa",
   fullscreenAria: "Ver en pantalla completa",
   restore: "Restaurar",
   restoreAria: "Restaurar pantalla",
