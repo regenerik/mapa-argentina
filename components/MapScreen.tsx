@@ -41,7 +41,11 @@ function MapViewerScreen() {
         <BackButton />
         <div className="map-title">
           <span className="status-dot" />
-          <div><p>{copy.interactiveMap}</p><h1>{copy.productiveArgentina}</h1></div>
+          <div>
+            <p>{copy.interactiveMap}</p>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="map-title-brand" src="/brand/sumitomo-logo-compact-neg.png" alt="Sumitomo Chemical" draggable={false} />
+          </div>
         </div>
         <div className="map-header-actions">
           <KioskRotationButton />

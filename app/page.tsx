@@ -33,10 +33,13 @@ export default function Home() {
     <main className="home-shell">
       <div className="home-glow home-glow-one" />
       <div className="home-glow home-glow-two" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="home-brand-logo" src="/brand/sumitomo-logo-horizontal-neg.png" alt="Sumitomo Chemical" draggable={false} />
       <LanguageSwitch />
 
       <section className="home-content">
-        <div className="brand-mark" aria-hidden="true"><span /></div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="brand-mark brand-symbol" src="/brand/sumitomo-symbol-neg.png" alt="" aria-hidden="true" draggable={false} />
         <p className="eyebrow">{copy.homeEyebrow}</p>
         <div className="home-title-wrap">
           {/* The source diagram is preserved exactly; CSS blends away its white background. */}
