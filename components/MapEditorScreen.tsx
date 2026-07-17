@@ -297,7 +297,12 @@ export function MapEditorScreen() {
         <BackButton />
         <div className="map-title">
           <span className="status-dot" />
-          <div><p>{copy.editMode}</p><h1>{copy.pointEditing}</h1></div>
+          <div>
+            <p>{copy.editMode}</p>
+            <h1>{copy.pointEditing}</h1>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="map-title-logo" src="/brand/sumitomo-logo-neg.png" alt="Sumitomo Chemical" draggable={false} />
+          </div>
         </div>
         <div className="map-header-actions">
           <KioskRotationButton />
@@ -312,6 +317,10 @@ export function MapEditorScreen() {
       ) : (
         <div className="editor-layout">
           <section className="map-workspace editor-map" aria-label={copy.editableMapAria}>
+            <div className="map-sello-watermark" aria-hidden="true">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand/sello-contundencia.png" alt="" draggable={false} />
+            </div>
             <ArgentinaMap
               mode="edit"
               points={displayedPoints}

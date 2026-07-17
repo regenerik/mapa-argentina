@@ -33,6 +33,8 @@ export default function Home() {
     <main className="home-shell">
       <div className="home-glow home-glow-one" />
       <div className="home-glow home-glow-two" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="home-brand-logo" src="/brand/sumitomo-logo-neg.png" alt="Sumitomo Chemical" draggable={false} />
       <LanguageSwitch />
 
       <section className="home-content">
@@ -47,6 +49,11 @@ export default function Home() {
         <p className="home-lead">
           {copy.homeLead}
         </p>
+        <div className="home-sello" aria-hidden="true">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/sello-contundencia.png" alt="" draggable={false} />
+          <span>Sello<br />contundencia</span>
+        </div>
 
         <nav className="home-actions" aria-label={copy.mainNavigation}>
           <Link className="home-card home-card-primary" href="/mapa">
