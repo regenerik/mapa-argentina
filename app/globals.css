@@ -151,7 +151,7 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .kiosk-rotation-stage.is-rotated .rotation-button { color: #e9fbff; background: rgba(34, 167, 214, .26); }
 .kiosk-rotation-stage.is-rotated .rotation-button span { display: none; }
 .kiosk-rotation-stage.is-rotated .rotation-button { width: 56px; padding: 0; }
-.kiosk-rotation-stage.is-rotated .map-corner-signature { top: 0; right: 0; bottom: auto; width: clamp(200px, 20vw, 300px); max-width: 32vw; opacity: .94; }
+.kiosk-rotation-stage.is-rotated .map-corner-signature { top: auto; right: 0; bottom: 0; left: auto; width: clamp(200px, 20vw, 300px); max-width: 32vw; opacity: .94; }
 
 .map-workspace { position: relative; min-height: 0; overflow: hidden; background: radial-gradient(circle at 52% 40%, #0d2940 0, #071725 48%, #040d17 100%); }
 .map-workspace::before { content: ""; position: absolute; inset: 0; z-index: 0; opacity: .18; background-image: radial-gradient(circle, #6eabc5 1px, transparent 1px); background-size: 28px 28px; mask-image: linear-gradient(to bottom, black, transparent 88%); }
