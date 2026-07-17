@@ -56,8 +56,7 @@ function MapViewerScreen() {
 
       <section className="map-workspace" aria-label={copy.mapAria}>
         <div className="map-sello-watermark" aria-hidden="true">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/sello-contundencia.png" alt="" draggable={false} />
+          <span>Sello contundencia</span>
         </div>
         <ArgentinaMap mode="view" points={visiblePoints} onPointSelect={setSelectedPoint} />
         {catalog.filtersEnabled && (

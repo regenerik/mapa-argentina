@@ -318,8 +318,7 @@ export function MapEditorScreen() {
         <div className="editor-layout">
           <section className="map-workspace editor-map" aria-label={copy.editableMapAria}>
             <div className="map-sello-watermark" aria-hidden="true">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/brand/sello-contundencia.png" alt="" draggable={false} />
+              <span>Sello contundencia</span>
             </div>
             <ArgentinaMap
               mode="edit"

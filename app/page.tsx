@@ -38,7 +38,8 @@ export default function Home() {
       <LanguageSwitch />
 
       <section className="home-content">
-        <div className="brand-mark" aria-hidden="true"><span /></div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="brand-mark-logo" src="/brand/sumitomo-logo-neg.png" alt="Sumitomo Chemical" draggable={false} />
         <p className="eyebrow">{copy.homeEyebrow}</p>
         <div className="home-title-wrap">
           {/* The source diagram is preserved exactly; CSS blends away its white background. */}
@@ -50,8 +51,6 @@ export default function Home() {
           {copy.homeLead}
         </p>
         <div className="home-sello" aria-hidden="true">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/sello-contundencia.png" alt="" draggable={false} />
           <span>Sello<br />contundencia</span>
         </div>
 
