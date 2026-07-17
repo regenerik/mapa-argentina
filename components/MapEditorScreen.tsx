@@ -314,6 +314,8 @@ export function MapEditorScreen() {
           <section className="map-workspace editor-map" aria-label={copy.editableMapAria}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className="map-corner-signature" src="/brand/sumitomo-corner-signature.png" alt="" aria-hidden="true" draggable={false} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="map-division-signature" src="/brand/agrosolution-division.png" alt="" aria-hidden="true" draggable={false} />
             <ArgentinaMap
               mode="edit"
               points={displayedPoints}
