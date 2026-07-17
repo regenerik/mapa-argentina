@@ -406,11 +406,12 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
             <desc id="map-svg-description">{copy.mapDescription}</desc>
             <defs>
               <linearGradient id="province-fill" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stopColor="#1687b7" />
-                <stop offset="1" stopColor="#075678" />
+                <stop offset="0" stopColor="#263946" />
+                <stop offset=".55" stopColor="#172a33" />
+                <stop offset="1" stopColor="#0f1f27" />
               </linearGradient>
               <pattern id="map-grid" width="56" height="56" patternUnits="userSpaceOnUse">
-                <path d="M56 0H0V56" fill="none" stroke="#5ea8c8" strokeOpacity=".07" strokeWidth="1" />
+                <path d="M56 0H0V56" fill="none" stroke="#d2dabc" strokeOpacity=".035" strokeWidth="1" />
               </pattern>
             </defs>
 
