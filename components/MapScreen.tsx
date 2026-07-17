@@ -41,12 +41,7 @@ function MapViewerScreen() {
         <BackButton />
         <div className="map-title">
           <span className="status-dot" />
-          <div>
-            <p>{copy.interactiveMap}</p>
-            <h1>{copy.productiveArgentina}</h1>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="map-title-logo" src="/brand/sumitomo-logo-neg.png" alt="Sumitomo Chemical" draggable={false} />
-          </div>
+          <div><p>{copy.interactiveMap}</p><h1>{copy.productiveArgentina}</h1></div>
         </div>
         <div className="map-header-actions">
           <KioskRotationButton />
@@ -55,10 +50,6 @@ function MapViewerScreen() {
       </header>
 
       <section className="map-workspace" aria-label={copy.mapAria}>
-        <div className="map-sello-watermark" aria-hidden="true">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/sello-contundencia.png" alt="" draggable={false} />
-        </div>
         <ArgentinaMap mode="view" points={visiblePoints} onPointSelect={setSelectedPoint} />
         {catalog.filtersEnabled && (
           <>
