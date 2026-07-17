@@ -312,6 +312,8 @@ export function MapEditorScreen() {
       ) : (
         <div className="editor-layout">
           <section className="map-workspace editor-map" aria-label={copy.editableMapAria}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="map-corner-signature" src="/brand/sumitomo-corner-signature.png" alt="" aria-hidden="true" draggable={false} />
             <ArgentinaMap
               mode="edit"
               points={displayedPoints}

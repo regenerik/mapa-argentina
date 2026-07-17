@@ -151,9 +151,11 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .kiosk-rotation-stage.is-rotated .rotation-button { color: #e9fbff; background: rgba(34, 167, 214, .26); }
 .kiosk-rotation-stage.is-rotated .rotation-button span { display: none; }
 .kiosk-rotation-stage.is-rotated .rotation-button { width: 56px; padding: 0; }
+.kiosk-rotation-stage.is-rotated .map-corner-signature { right: 18px; bottom: 18px; width: clamp(170px, 17vw, 250px); max-width: 28vw; opacity: .86; }
 
 .map-workspace { position: relative; min-height: 0; overflow: hidden; background: radial-gradient(circle at 52% 40%, #0d2940 0, #071725 48%, #040d17 100%); }
 .map-workspace::before { content: ""; position: absolute; inset: 0; z-index: 0; opacity: .18; background-image: radial-gradient(circle, #6eabc5 1px, transparent 1px); background-size: 28px 28px; mask-image: linear-gradient(to bottom, black, transparent 88%); }
+.map-corner-signature { position: absolute; z-index: 2; right: clamp(12px, 2.4vw, 34px); bottom: clamp(10px, 2.2vw, 30px); width: clamp(190px, 19vw, 315px); max-width: 34vw; height: auto; opacity: .9; pointer-events: none; user-select: none; -webkit-user-drag: none; }
 .map-points-loading { position: absolute; z-index: 11; top: 50%; left: 50%; display: flex; min-width: 180px; align-items: center; justify-content: center; gap: 11px; padding: 14px 18px; border: 1px solid rgba(99, 193, 224, .24); border-radius: 14px; color: #ccebf5; background: rgba(5, 24, 38, .9); box-shadow: 0 14px 38px rgba(0, 5, 12, .35); font-size: 11px; transform: translate(-50%, -50%); backdrop-filter: blur(14px); pointer-events: none; }
 .map-loading-spinner, .button-spinner { flex: 0 0 auto; width: 20px; height: 20px; border: 3px solid rgba(219, 247, 255, .2); border-top-color: #6ed5f0; border-radius: 50%; animation: upload-spin .75s linear infinite; }
 .map-container { position: absolute; inset: 0; z-index: 1; touch-action: none; }

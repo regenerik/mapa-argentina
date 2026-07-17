@@ -54,6 +54,8 @@ function MapViewerScreen() {
       </header>
 
       <section className="map-workspace" aria-label={copy.mapAria}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="map-corner-signature" src="/brand/sumitomo-corner-signature.png" alt="" aria-hidden="true" draggable={false} />
         <ArgentinaMap mode="view" points={visiblePoints} onPointSelect={setSelectedPoint} />
         {catalog.filtersEnabled && (
           <>
