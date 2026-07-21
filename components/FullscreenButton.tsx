@@ -56,7 +56,7 @@ export function FullscreenButton() {
   return (
     <button className="icon-button fullscreen-button" type="button" onClick={toggleFullscreen} aria-label={isFullscreen ? copy.restoreAria : copy.fullscreenAria}>
       <svg viewBox="0 0 24 24" aria-hidden="true">
-        {isFullscreen ? <path d="M9 3v6H3m12-6v6h6M9 21v-6H3m12 6v-6h6" /> : <path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5" />}
+        {isFullscreen ? <path d="m9 9-5-5m0 0v6m0-6h6m5 11 5 5m0 0v-6m0 6h-6" /> : <path d="m4 4 6 6M4 4v6M4 4h6m10 16-6-6m6 6v-6m0 6h-6" />}
       </svg>
       <span>{isFullscreen ? copy.restore : copy.fullscreen}</span>
     </button>
