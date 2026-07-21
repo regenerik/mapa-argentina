@@ -107,7 +107,7 @@ export function MapControls() {
       <HoldZoomButton action={zoomIn} label={copy.zoomIn}>+</HoldZoomButton>
       <HoldZoomButton action={zoomOut} label={copy.zoomOut}>-</HoldZoomButton>
       <button className="reset-control" type="button" onClick={resetView} aria-label={copy.resetView}>
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6M4 4v4.6h4.6" /></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5" /></svg>
       </button>
     </div>
   );
