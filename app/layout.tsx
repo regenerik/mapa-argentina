@@ -23,7 +23,7 @@ const hydrationRecoveryScript = `
 `;
 
 export const metadata: Metadata = {
-  title: "Eficiencia Empera | Argentina",
+  title: "Mapa Contundencia Empera®",
   description: "Mapa interactivo de la actividad agroindustrial argentina.",
 };
 

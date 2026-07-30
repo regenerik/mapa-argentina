@@ -68,8 +68,6 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
         <div className="point-modal-main">
           <button className="point-modal-image" type="button" onClick={() => setIsImageOpen(true)} aria-label={`${copy.enlargeImage} ${point.title}, ${selectedImageLabel}`}>
             <Image key={selectedImage.imageUrl} src={selectedImage.imageUrl} alt={`${point.title}, ${selectedImageLabel}`} fill sizes="(max-width: 700px) 90vw, 50vw" unoptimized priority />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="point-image-seal" src="/brand/sello-final.png" alt="" aria-hidden="true" draggable={false} />
             <div className="point-image-badge">{selectedImageLabel}</div>
             <span className="point-image-expand" aria-hidden="true">
               <svg viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5" /></svg>

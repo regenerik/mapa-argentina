@@ -296,7 +296,6 @@ export function MapEditorScreen() {
       <header className="map-header">
         <BackButton />
         <div className="map-title">
-          <span className="status-dot" />
           <div><p>{copy.editMode}</p><h1>{copy.pointEditing}</h1></div>
         </div>
         <div className="map-header-actions">
@@ -313,9 +312,7 @@ export function MapEditorScreen() {
         <div className="editor-layout">
           <section className="map-workspace editor-map" aria-label={copy.editableMapAria}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="map-corner-signature" src="/brand/sumitomo-corner-signature.png" alt="" aria-hidden="true" draggable={false} />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="map-division-signature" src="/brand/agrosolution-division.png" alt="" aria-hidden="true" draggable={false} />
+            <img className="map-workspace-brand" src="/brand/sumitomo-logo-horizontal-neg.png" alt="Sumitomo Chemical" draggable={false} />
             <ArgentinaMap
               mode="edit"
               points={displayedPoints}

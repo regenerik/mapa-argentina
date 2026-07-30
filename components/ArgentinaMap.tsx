@@ -74,6 +74,34 @@ function projectCoordinates(coordinates: [number, number]) {
   return [Number(position[0].toFixed(3)), Number(position[1].toFixed(3))] as const;
 }
 
+const malvinasIslands: [number, number][][] = [
+  [
+    [-61.35, -51.08],
+    [-60.72, -51.32],
+    [-60.92, -51.7],
+    [-60.25, -52.02],
+    [-60.78, -52.36],
+    [-61.36, -52.06],
+    [-61.66, -51.54],
+  ],
+  [
+    [-59.72, -51.1],
+    [-58.96, -51.34],
+    [-58.7, -51.8],
+    [-57.82, -51.96],
+    [-58.36, -52.35],
+    [-59.08, -52.25],
+    [-59.64, -52.0],
+    [-59.96, -51.54],
+  ],
+];
+
+function polygonPath(coordinates: [number, number][]) {
+  const points = coordinates.map(projectCoordinates).filter((point): point is readonly [number, number] => Boolean(point));
+  if (points.length === 0) return "";
+  return `M${points.map(([x, y]) => `${x} ${y}`).join("L")}Z`;
+}
+
 const labelOverrides: Record<string, Partial<ProvinceLabel>> = {
   "Buenos Aires": { coordinates: [-60.4, -36.4] },
   Cordoba: { name: "Córdoba" },
@@ -149,6 +177,9 @@ function AdaptiveLabelLayer() {
         <circle cx={cabaPosition?.[0]} cy={cabaPosition?.[1]} r="4" />
         <text x={(cabaPosition?.[0] ?? 0) + 12} y={(cabaPosition?.[1] ?? 0) + 4} data-label-size="9">CABA</text>
       </g>
+      <text x={projectCoordinates([-59.3, -52.78])?.[0] ?? 0} y={projectCoordinates([-59.3, -52.78])?.[1] ?? 0} data-label-size="8">
+        Is. Malvinas
+      </text>
     </g>
   );
 }
@@ -406,21 +437,26 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
             <desc id="map-svg-description">{copy.mapDescription}</desc>
             <defs>
               <linearGradient id="province-fill" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stopColor="#263946" />
-                <stop offset=".55" stopColor="#172a33" />
-                <stop offset="1" stopColor="#0f1f27" />
+                <stop offset="0" stopColor="#886942" />
+                <stop offset=".62" stopColor="#5a3c28" />
+                <stop offset="1" stopColor="#412919" />
               </linearGradient>
               <pattern id="map-grid" width="56" height="56" patternUnits="userSpaceOnUse">
-                <path d="M56 0H0V56" fill="none" stroke="#d2dabc" strokeOpacity=".035" strokeWidth="1" />
+                <path d="M56 0H0V56" fill="none" stroke="#fefefe" strokeOpacity=".028" strokeWidth="1" />
               </pattern>
             </defs>
 
             <rect width={WIDTH} height={HEIGHT} fill="url(#map-grid)" />
-            <text className="ocean-label" x="680" y="610" transform="rotate(90 680 610)">{copy.ocean}</text>
 
             <g className="province-layer">
               {provinces.map((feature) => (
                 <path key={feature.properties.name} d={pathGenerator(feature as unknown as GeoPermissibleObjects) ?? undefined} data-province={feature.properties.name} />
+              ))}
+            </g>
+
+            <g className="malvinas-layer" aria-hidden="true">
+              {malvinasIslands.map((island, index) => (
+                <path key={index} d={polygonPath(island)} />
               ))}
             </g>
 

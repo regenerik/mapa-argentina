@@ -40,11 +40,10 @@ function MapViewerScreen() {
       <header className="map-header">
         <BackButton />
         <div className="map-title">
-          <span className="status-dot" />
           <div>
             <p>{copy.interactiveMap}</p>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="map-title-brand" src="/brand/sumitomo-logo-compact-neg.png" alt="Sumitomo Chemical" draggable={false} />
+            <img className="map-title-brand map-title-brand-empera" src="/brand/empera-logo-blanco.png" alt="Empera" draggable={false} />
           </div>
         </div>
         <div className="map-header-actions">
@@ -55,9 +54,7 @@ function MapViewerScreen() {
 
       <section className="map-workspace" aria-label={copy.mapAria}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="map-corner-signature" src="/brand/sumitomo-corner-signature.png" alt="" aria-hidden="true" draggable={false} />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="map-division-signature" src="/brand/agrosolution-division.png" alt="" aria-hidden="true" draggable={false} />
+        <img className="map-workspace-brand" src="/brand/sumitomo-logo-horizontal-neg.png" alt="Sumitomo Chemical" draggable={false} />
         <ArgentinaMap mode="view" points={visiblePoints} onPointSelect={setSelectedPoint} />
         {catalog.filtersEnabled && (
           <>
