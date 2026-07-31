@@ -129,17 +129,17 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .language-switch button.is-active { color: #fefefe; background: #886942; box-shadow: 0 7px 18px rgba(136, 105, 66, .36); }
 
 .home-content { position: relative; width: min(100%, 980px); text-align: center; z-index: 1; }
-.brand-mark { display: block; width: clamp(220px, 20vw, 320px); height: auto; margin: 0 auto 12px; object-fit: contain; opacity: .9; filter: drop-shadow(0 12px 28px rgba(0, 0, 0, .32)); pointer-events: none; user-select: none; -webkit-user-drag: none; }
+.brand-mark { display: block; width: clamp(300px, 27vw, 440px); height: auto; margin: 0 auto 6px; object-fit: contain; opacity: .9; filter: drop-shadow(0 12px 28px rgba(0, 0, 0, .32)); pointer-events: none; user-select: none; -webkit-user-drag: none; }
 .eyebrow { margin: 0 0 16px; color: #fefefe; font-size: 13px; font-weight: 900; letter-spacing: .34em; text-transform: uppercase; text-shadow: 0 2px 12px rgba(0, 0, 0, .42); }
 .home-title-wrap { position: relative; isolation: isolate; }
 .home-molecule { display: none; }
 .home-title-wrap::before, .home-title-wrap::after { content: ""; position: absolute; left: 50%; z-index: 0; width: min(360px, 42vw); height: 1px; background: linear-gradient(90deg, transparent, rgba(254, 254, 254, .36), transparent); transform: translateX(-50%); }
-.home-title-wrap::before { top: -12px; }
-.home-title-wrap::after { bottom: -18px; }
-.home-content h1 { margin: 0; font-family: Pusia, Inter, "Segoe UI", Arial, sans-serif; font-size: clamp(42px, 6.5vw, 84px); font-weight: 800; letter-spacing: -.055em; line-height: .9; text-shadow: 0 12px 28px rgba(0, 0, 0, .46); }
+.home-title-wrap::before { top: -10px; }
+.home-title-wrap::after { bottom: -14px; }
+.home-content h1 { margin: 0; font-family: Pusia, Inter, "Segoe UI", Arial, sans-serif; font-size: clamp(34px, 5.3vw, 68px); font-weight: 800; letter-spacing: -.055em; line-height: .9; text-shadow: 0 12px 28px rgba(0, 0, 0, .46); }
 .home-title-wrap h1 { position: relative; z-index: 1; }
 .home-content h1 span { color: #96704b; }
-.home-lead { max-width: 620px; margin: 28px auto 36px; color: rgba(255, 255, 255, .88); font-size: clamp(16px, 1.8vw, 20px); line-height: 1.52; text-shadow: 0 5px 18px rgba(0, 0, 0, .45); }
+.home-lead { max-width: 620px; margin: 24px auto 32px; color: rgba(255, 255, 255, .88); font-size: clamp(16px, 1.8vw, 20px); line-height: 1.52; text-shadow: 0 5px 18px rgba(0, 0, 0, .45); }
 
 .home-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
 .home-card { display: flex; align-items: center; min-height: 106px; padding: 20px 24px; border: 1px solid rgba(150, 112, 75, .46); border-radius: 22px; background: linear-gradient(135deg, rgba(65, 41, 25, .76), rgba(15, 9, 5, .64)); box-shadow: 0 24px 70px rgba(0, 0, 0, .34), inset 0 1px rgba(255, 255, 255, .08); text-align: left; transition: transform .2s ease, border-color .2s ease, background .2s ease; touch-action: manipulation; backdrop-filter: blur(16px); }
@@ -554,7 +554,8 @@ body:has(.kiosk-rotation-stage.is-rotated) {
   .home-shell { align-items: start; padding-top: 54px; }
   .home-brand-logo { top: 18px; left: 18px; width: 122px; }
   .home-actions { grid-template-columns: 1fr; }
-  .home-content h1 { font-size: clamp(38px, 13vw, 60px); }
+  .brand-mark { width: clamp(190px, 52vw, 270px); margin-bottom: 6px; }
+  .home-content h1 { font-size: clamp(32px, 10.5vw, 50px); }
   .home-molecule { width: min(172vw, 820px); opacity: .065; mask-image: radial-gradient(ellipse at center, black 32%, transparent 74%); -webkit-mask-image: radial-gradient(ellipse at center, black 32%, transparent 74%); }
   .home-lead { margin: 22px auto 30px; }
   .home-card { min-height: 96px; }
@@ -608,8 +609,9 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 
 @media (max-height: 680px) {
   .home-shell { padding-top: 28px; }
-  .brand-mark { width: clamp(112px, 18vh, 150px); margin-bottom: 8px; }
-  .home-lead { margin: 18px auto 26px; }
+  .brand-mark { width: clamp(150px, 24vh, 210px); margin-bottom: 4px; }
+  .home-content h1 { font-size: clamp(30px, 5vw, 56px); }
+  .home-lead { margin: 16px auto 22px; }
   .home-card { min-height: 88px; }
   .point-modal-overlay { padding: 12px; }
   .point-modal { width: min(88vw, 1040px); height: calc(var(--scaled-svh) - 24px); min-height: 0; border-radius: 20px; }
