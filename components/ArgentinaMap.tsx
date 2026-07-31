@@ -127,41 +127,7 @@ function MapPointLayer({ points, onPointSelect, selectedPointId }: { points: Map
 }
 
 function AdaptiveLabelLayer() {
-  const layerRef = useRef<SVGGElement>(null);
-  const cabaPosition = projectCoordinates([-58.44, -34.61]);
-
-  useTransformEffect(({ state }) => {
-    // Labels grow only slightly with the map, remaining useful at every zoom level.
-    const compensatedScale = 1 / Math.pow(state.scale, 0.78);
-    layerRef.current?.querySelectorAll<SVGTextElement>("[data-label-size]").forEach((label) => {
-      const baseSize = Number(label.dataset.labelSize || 11);
-      label.style.fontSize = `${baseSize * compensatedScale}px`;
-      label.style.strokeWidth = `${3 * compensatedScale}px`;
-    });
-  });
-
-  return (
-    <g ref={layerRef} className="label-layer" aria-hidden="true">
-      {provinces.map((feature) => {
-        const label = getLabel(feature);
-        const position = projectCoordinates(label.coordinates);
-        if (!position) return null;
-        const [offsetX = 0, offsetY = 0] = label.offset ?? [];
-        return (
-          <text key={feature.properties.name} x={position[0] + offsetX} y={position[1] + offsetY} data-label-size="15.5">
-            {label.shortName ?? label.name}
-          </text>
-        );
-      })}
-      <g className="caba-label">
-        <circle cx={cabaPosition?.[0]} cy={cabaPosition?.[1]} r="4" />
-        <text x={(cabaPosition?.[0] ?? 0) + 12} y={(cabaPosition?.[1] ?? 0) + 4} data-label-size="12.7">CABA</text>
-      </g>
-      <text x={projectCoordinates([-59.3, -52.78])?.[0] ?? 0} y={(projectCoordinates([-59.3, -52.78])?.[1] ?? 0) + 24} data-label-size="12.1">
-        Is. Malvinas
-      </text>
-    </g>
-  );
+  return null;
 }
 
 interface ArgentinaMapProps {
