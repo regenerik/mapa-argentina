@@ -39,7 +39,7 @@ export default function Home() {
 
       <section className="home-content">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="brand-mark brand-symbol" src="/brand/sello-final.png" alt="" aria-hidden="true" draggable={false} />
+        <img className="brand-mark brand-symbol" src="/brand/sello-final_all_white.png" alt="" aria-hidden="true" draggable={false} />
         <p className="eyebrow">{copy.homeEyebrow}</p>
         <div className="home-title-wrap">
           {/* The source diagram is preserved exactly; CSS blends away its white background. */}

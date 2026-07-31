@@ -207,7 +207,7 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .province-layer, .province-layer path { shape-rendering: geometricPrecision; }
 .province-layer path, .malvinas-layer path { fill: url(#province-fill); stroke: #fefefe; stroke-width: 1.25; vector-effect: non-scaling-stroke; -webkit-tap-highlight-color: transparent; }
 .malvinas-layer path { stroke-width: 1; }
-.label-layer text { fill: #fefefe; font-family: Pusia, Inter, "Segoe UI", Arial, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: -.02em; paint-order: normal; pointer-events: none; stroke: none; text-anchor: middle; }
+.label-layer text { fill: #fefefe; font-family: Pusia, Inter, "Segoe UI", Arial, sans-serif; font-size: 15px; font-weight: 400; letter-spacing: -.02em; paint-order: normal; pointer-events: none; stroke: none; text-anchor: middle; }
 .caba-label circle { fill: #fefefe; stroke: #fefefe; stroke-width: 2; }
 .caba-label text { font-size: 12.7px; text-anchor: start; }
 .map-point-anchor { outline: none; }
