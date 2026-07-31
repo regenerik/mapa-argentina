@@ -76,70 +76,97 @@ function projectCoordinates(coordinates: [number, number]) {
 
 const malvinasIslands: [number, number][][] = [
   [
-    [-61.86, -51.2],
-    [-61.45, -51.06],
-    [-60.96, -51.18],
-    [-60.72, -51.38],
-    [-60.3, -51.5],
-    [-60.58, -51.68],
-    [-60.28, -51.86],
-    [-60.62, -52.03],
-    [-60.94, -51.96],
-    [-61.2, -52.2],
-    [-61.48, -52.08],
-    [-61.7, -51.84],
-    [-61.62, -51.58],
-    [-61.88, -51.38],
+    [-61.98, -51.18],
+    [-61.62, -51.02],
+    [-61.27, -51.1],
+    [-60.98, -51.2],
+    [-60.88, -51.38],
+    [-60.63, -51.5],
+    [-60.32, -51.61],
+    [-60.62, -51.72],
+    [-60.42, -51.84],
+    [-60.7, -51.95],
+    [-60.5, -52.08],
+    [-60.8, -52.15],
+    [-61.03, -52.04],
+    [-61.28, -52.3],
+    [-61.53, -52.2],
+    [-61.72, -51.98],
+    [-61.92, -51.88],
+    [-61.84, -51.62],
+    [-61.96, -51.42],
   ],
   [
-    [-60.16, -51.22],
-    [-59.82, -51.06],
-    [-59.36, -51.15],
-    [-59.08, -51.33],
-    [-58.62, -51.37],
-    [-58.4, -51.58],
-    [-57.82, -51.66],
-    [-58.18, -51.86],
-    [-57.86, -52.04],
-    [-58.28, -52.18],
-    [-58.62, -52.08],
-    [-58.94, -52.28],
-    [-59.28, -52.1],
-    [-59.64, -51.94],
-    [-59.96, -51.78],
-    [-59.74, -51.58],
-    [-60.02, -51.42],
+    [-60.28, -51.16],
+    [-59.92, -51.03],
+    [-59.58, -51.1],
+    [-59.34, -51.22],
+    [-59.0, -51.25],
+    [-58.7, -51.32],
+    [-58.48, -51.48],
+    [-58.16, -51.5],
+    [-57.82, -51.64],
+    [-58.14, -51.78],
+    [-57.92, -51.94],
+    [-58.18, -52.05],
+    [-57.92, -52.16],
+    [-58.3, -52.24],
+    [-58.58, -52.12],
+    [-58.86, -52.28],
+    [-59.12, -52.12],
+    [-59.38, -52.24],
+    [-59.58, -52.02],
+    [-59.86, -51.9],
+    [-60.08, -51.72],
+    [-59.86, -51.56],
+    [-60.12, -51.38],
   ],
   [
-    [-60.68, -52.28],
-    [-60.46, -52.34],
-    [-60.54, -52.48],
-    [-60.76, -52.43],
+    [-60.74, -52.33],
+    [-60.5, -52.38],
+    [-60.56, -52.54],
+    [-60.84, -52.48],
   ],
   [
-    [-59.36, -52.32],
-    [-59.12, -52.38],
-    [-59.22, -52.54],
-    [-59.48, -52.48],
+    [-59.34, -52.34],
+    [-59.08, -52.4],
+    [-59.16, -52.58],
+    [-59.46, -52.52],
   ],
   [
-    [-57.88, -51.3],
-    [-57.64, -51.38],
-    [-57.82, -51.5],
-    [-58.06, -51.42],
+    [-57.86, -51.27],
+    [-57.6, -51.36],
+    [-57.78, -51.5],
+    [-58.08, -51.42],
   ],
   [
     [-59.98, -50.88],
-    [-59.68, -50.94],
-    [-59.78, -51.04],
-    [-60.08, -50.98],
+    [-59.66, -50.94],
+    [-59.78, -51.06],
+    [-60.12, -50.98],
   ],
 ];
 
-function polygonPath(coordinates: [number, number][]) {
+function malvinasPath(coordinates: [number, number][]) {
   const points = coordinates.map(projectCoordinates).filter((point): point is readonly [number, number] => Boolean(point));
   if (points.length === 0) return "";
-  return `M${points.map(([x, y]) => `${x} ${y}`).join("L")}Z`;
+  if (points.length < 5) {
+    return `M${points.map(([x, y]) => `${x} ${y}`).join("L")}Z`;
+  }
+
+  const midpoint = (first: readonly [number, number], second: readonly [number, number]) =>
+    [Number(((first[0] + second[0]) / 2).toFixed(3)), Number(((first[1] + second[1]) / 2).toFixed(3))] as const;
+  const firstMidpoint = midpoint(points[points.length - 1], points[0]);
+
+  return [
+    `M${firstMidpoint[0]} ${firstMidpoint[1]}`,
+    ...points.map((point, index) => {
+      const next = points[(index + 1) % points.length];
+      const nextMidpoint = midpoint(point, next);
+      return `Q${point[0]} ${point[1]} ${nextMidpoint[0]} ${nextMidpoint[1]}`;
+    }),
+    "Z",
+  ].join("");
 }
 
 const labelOverrides: Record<string, Partial<ProvinceLabel>> = {
@@ -496,7 +523,7 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
 
             <g className="malvinas-layer" aria-hidden="true">
               {malvinasIslands.map((island, index) => (
-                <path key={index} d={polygonPath(island)} />
+                <path key={index} d={malvinasPath(island)} />
               ))}
             </g>
 
