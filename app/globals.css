@@ -231,10 +231,10 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .map-controls button:hover, .map-controls button:focus-visible { color: white; background: rgba(83, 98, 44, .6); outline: none; }
 .map-controls svg { width: 21px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
 .map-filter-controls { position: absolute; z-index: 12; top: 24px; right: clamp(82px, 3vw + 66px, 98px); display: flex; flex-direction: column; gap: 10px; }
-.map-filter-controls button { position: relative; display: grid; width: 54px; height: 54px; place-items: center; border: 1px solid rgba(255, 255, 255, .14); border-radius: 50%; color: #eef5eb; background: rgba(18, 23, 20, .74); box-shadow: 0 12px 36px rgba(0, 0, 0, .34); cursor: pointer; backdrop-filter: blur(14px); }
-.map-filter-controls button:hover, .map-filter-controls button:focus-visible { color: white; border-color: rgba(202, 219, 113, .45); background: rgba(83, 98, 44, .6); outline: none; }
+.map-filter-controls button { position: relative; display: grid; width: 54px; height: 54px; place-items: center; border: 1px solid rgba(254, 254, 254, .16); border-radius: 50%; color: #fefefe; background: rgba(28, 17, 10, .78); box-shadow: 0 12px 36px rgba(0, 0, 0, .34); cursor: pointer; backdrop-filter: blur(14px); }
+.map-filter-controls button:hover, .map-filter-controls button:focus-visible { color: white; border-color: rgba(150, 112, 75, .72); background: rgba(65, 41, 25, .82); outline: none; }
 .map-filter-controls svg { width: 22px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.9; }
-.map-filter-controls button > span { position: absolute; top: 9px; right: 9px; width: 11px; height: 11px; border: 2px solid #082235; border-radius: 50%; background: #5ee6a8; box-shadow: 0 0 12px rgba(94, 230, 168, .8); }
+.map-filter-controls button > span { position: absolute; top: 9px; right: 9px; width: 11px; height: 11px; border: 2px solid #1c110a; border-radius: 50%; background: #96704b; box-shadow: 0 0 12px rgba(150, 112, 75, .82); }
 .app-dialog-overlay { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 18px; background: rgba(1, 8, 15, .58); backdrop-filter: blur(10px); animation: modal-fade-in .18s ease-out both; }
 .app-dialog { width: min(420px, 100%); padding: 24px; border: 1px solid rgba(107, 196, 226, .3); border-radius: 24px; background: linear-gradient(145deg, rgba(12, 36, 53, .97), rgba(5, 18, 29, .97)); box-shadow: 0 28px 86px rgba(0, 5, 12, .58), inset 0 1px rgba(255, 255, 255, .04); animation: modal-rise-in .22s cubic-bezier(.2, .8, .2, 1) both; }
 .app-dialog > p { margin: 0 0 8px; color: #53c2e6; font-size: 9px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
@@ -245,23 +245,34 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .app-dialog-actions button:first-child { border: 1px solid rgba(139, 184, 203, .18); color: #9bb6c3; background: transparent; }
 .app-dialog-actions button:last-child { border: 1px solid rgba(82, 200, 231, .52); color: #e7fbff; background: linear-gradient(135deg, #19799b, #125570); box-shadow: 0 10px 26px rgba(25, 121, 155, .24); }
 .app-dialog-actions button:hover, .app-dialog-actions button:focus-visible { color: white; border-color: rgba(92, 208, 239, .62); outline: none; }
-.filter-panel { position: absolute; z-index: 30; top: 18px; right: clamp(132px, 3vw + 116px, 150px); display: flex; width: min(486px, calc(100vw - 28px)); max-height: min(548px, calc(var(--scaled-svh) - 104px)); flex-direction: column; overflow: hidden; border: 1px solid rgba(106, 191, 221, .24); border-radius: 22px; background: rgba(6, 21, 34, .96); box-shadow: 0 28px 80px rgba(0, 5, 12, .52); backdrop-filter: blur(18px); }
-.filter-panel-header { flex: 0 0 auto; padding: 16px 18px 12px; border-bottom: 1px solid rgba(121, 186, 211, .14); }
-.filter-panel-header span { display: block; margin-bottom: 5px; color: #4dbbde; font-size: 9px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
-.filter-panel-header strong { color: #effbff; font-size: 17px; }
-.filter-panel-body { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #3f8da8 transparent; }
-.filter-accordion { border-bottom: 1px solid rgba(121, 186, 211, .12); }
-.filter-accordion > button { display: flex; width: 100%; min-height: 48px; align-items: center; justify-content: space-between; gap: 16px; padding: 0 18px; border: 0; color: #d9eef5; background: transparent; font-size: 12px; font-weight: 800; cursor: pointer; }
-.filter-accordion > button b { min-width: 38px; padding: 5px 9px; border-radius: 999px; color: #8fe1f5; background: rgba(70, 181, 216, .12); font-size: 10px; text-align: center; }
-.filter-accordion.is-open > button { background: rgba(35, 109, 139, .18); }
-.filter-options { display: flex; max-height: min(214px, calc(var(--scaled-svh) - 310px)); flex-direction: column; gap: 7px; overflow-y: auto; padding: 0 16px 12px; scrollbar-width: thin; scrollbar-color: #3f8da8 transparent; }
-.filter-options p { margin: 0; color: #82a1af; font-size: 12px; line-height: 1.45; }
-.filter-check { display: grid; grid-template-columns: 18px 1fr; align-items: flex-start; gap: 9px; padding: 8px 10px; border: 1px solid rgba(121, 186, 211, .1); border-radius: 12px; color: #bdd5de; background: rgba(12, 42, 61, .46); font-size: 11px; line-height: 1.28; cursor: pointer; }
-.filter-check input { margin-top: 1px; accent-color: #4fc9e9; }
-.filter-panel-actions { flex: 0 0 auto; display: flex; gap: 10px; padding: 12px 18px 16px; border-top: 1px solid rgba(121, 186, 211, .13); background: rgba(5, 18, 29, .96); box-shadow: 0 -12px 28px rgba(0, 5, 12, .22); }
-.filter-panel-actions button { flex: 1; min-height: 42px; border-radius: 12px; font-size: 11px; font-weight: 800; cursor: pointer; }
-.filter-panel-actions button:first-child { border: 1px solid rgba(139, 184, 203, .18); color: #9bb6c3; background: transparent; }
-.filter-panel-actions button:last-child { border: 1px solid rgba(82, 200, 231, .45); color: #e7fbff; background: linear-gradient(135deg, #19799b, #125570); }
+.filter-panel { position: absolute; z-index: 30; top: 18px; right: clamp(132px, 3vw + 116px, 150px); display: flex; width: min(300px, calc(100vw - 28px)); max-height: min(548px, calc(var(--scaled-svh) - 104px)); flex-direction: column; overflow: hidden; border: 1px solid rgba(150, 112, 75, .42); border-radius: 20px; background: rgba(24, 15, 9, .96); box-shadow: 0 28px 80px rgba(0, 5, 12, .52); backdrop-filter: blur(18px); }
+.filter-panel-header { position: relative; flex: 0 0 auto; padding: 14px 46px 12px 16px; border-bottom: 1px solid rgba(150, 112, 75, .26); }
+.filter-panel-header span { display: block; margin-bottom: 5px; color: #cba57f; font-size: 9px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+.filter-panel-header strong { color: #fefefe; font-size: 16px; letter-spacing: -.025em; }
+.filter-panel-close { position: absolute; top: 10px; right: 10px; display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid rgba(254, 254, 254, .14); border-radius: 50%; color: #fefefe; background: rgba(65, 41, 25, .42); cursor: pointer; }
+.filter-panel-close:hover, .filter-panel-close:focus-visible { border-color: rgba(254, 254, 254, .42); background: rgba(136, 105, 66, .58); outline: none; }
+.filter-panel-close svg { width: 16px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
+.filter-panel-body { flex: 1 1 auto; min-height: 0; overflow-x: hidden; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #96704b transparent; }
+.filter-accordion { border-bottom: 1px solid rgba(150, 112, 75, .2); }
+.filter-accordion > button { display: flex; width: 100%; min-height: 46px; align-items: center; justify-content: space-between; gap: 12px; padding: 0 16px; border: 0; color: #fefefe; background: transparent; font-size: 12px; font-weight: 900; cursor: pointer; }
+.filter-accordion > button span { text-align: left; }
+.filter-accordion > button b { min-width: 34px; padding: 5px 8px; border-radius: 999px; color: #fefefe; background: rgba(150, 112, 75, .28); font-size: 10px; text-align: center; }
+.filter-accordion.is-open > button { background: rgba(136, 105, 66, .2); }
+.filter-section-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; padding: 10px 14px 9px; }
+.filter-section-actions button { min-height: 32px; padding: 0 8px; border: 1px solid rgba(150, 112, 75, .3); border-radius: 999px; color: #fefefe; background: rgba(65, 41, 25, .62); font-size: 9px; font-weight: 900; cursor: pointer; }
+.filter-section-actions button:first-child { background: rgba(136, 105, 66, .46); }
+.filter-section-actions button:disabled { cursor: default; opacity: .42; }
+.filter-options { display: flex; max-height: min(206px, calc(var(--scaled-svh) - 328px)); flex-direction: column; gap: 7px; overflow-y: auto; padding: 0 14px 12px; scrollbar-width: thin; scrollbar-color: #96704b transparent; }
+.filter-options p { margin: 0; color: rgba(254, 254, 254, .68); font-size: 11px; line-height: 1.45; }
+.filter-check { display: grid; grid-template-columns: 18px minmax(0, 1fr); align-items: flex-start; gap: 9px; padding: 8px 9px; border: 1px solid rgba(150, 112, 75, .24); border-radius: 12px; color: #fefefe; background: rgba(65, 41, 25, .45); font-size: 11px; line-height: 1.28; cursor: pointer; }
+.filter-check input { margin-top: 2px; accent-color: #96704b; }
+.filter-check-text { display: flex; min-width: 0; flex-direction: column; gap: 2px; }
+.filter-check-text span { color: #fefefe; font-weight: 800; }
+.filter-check-text em { color: rgba(254, 254, 254, .7); font-size: 10px; font-style: italic; font-weight: 500; line-height: 1.24; }
+.filter-panel-actions { flex: 0 0 auto; display: flex; gap: 9px; padding: 12px 14px 14px; border-top: 1px solid rgba(150, 112, 75, .24); background: rgba(18, 11, 7, .96); box-shadow: 0 -12px 28px rgba(0, 5, 12, .22); }
+.filter-panel-actions button { flex: 1; min-height: 40px; border-radius: 12px; font-size: 11px; font-weight: 900; cursor: pointer; }
+.filter-panel-actions button:first-child { border: 1px solid rgba(254, 254, 254, .16); color: rgba(254, 254, 254, .76); background: transparent; }
+.filter-panel-actions button:last-child { border: 1px solid rgba(150, 112, 75, .68); color: #fefefe; background: linear-gradient(135deg, #886942, #412919); }
 .kiosk-rotation-stage.is-rotated .map-filter-controls {
   top: 86px;
   right: auto;
@@ -272,17 +283,17 @@ body:has(.kiosk-rotation-stage.is-rotated) {
   top: 154px;
   right: auto;
   left: 24px;
-  width: min(430px, calc(var(--scaled-svh) - 48px));
+  width: min(300px, calc(var(--scaled-svh) - 48px));
   max-height: calc(100vw / var(--ui-scale) - 190px);
 }
 .kiosk-rotation-stage.is-rotated .filter-options {
-  max-height: min(178px, calc(100vw / var(--ui-scale) - 360px));
+  max-height: min(176px, calc(100vw / var(--ui-scale) - 384px));
 }
 .kiosk-rotation-stage.is-rotated .filter-panel-header strong {
-  font-size: 15px;
+  font-size: 14px;
 }
 .kiosk-rotation-stage.is-rotated .filter-check {
-  padding: 7px 9px;
+  padding: 7px 8px;
   font-size: 10px;
 }
 .map-hint { position: absolute; z-index: 5; bottom: 22px; left: 50%; display: flex; align-items: center; gap: 9px; padding: 11px 16px; border: 1px solid rgba(113, 167, 191, .15); border-radius: 999px; color: #718fa1; background: rgba(4, 17, 28, .76); font-size: 11px; transform: translateX(-50%); backdrop-filter: blur(10px); pointer-events: none; white-space: nowrap; }
@@ -576,8 +587,8 @@ body:has(.kiosk-rotation-stage.is-rotated) {
   .map-controls button { width: 48px; height: 48px; }
   .map-filter-controls { top: 12px; right: 72px; gap: 8px; }
   .map-filter-controls button { width: 48px; height: 48px; }
-  .filter-panel { top: 72px; right: 12px; width: min(460px, calc(100vw - 24px)); max-height: calc(var(--scaled-svh) - 146px); }
-  .filter-options { max-height: min(190px, calc(var(--scaled-svh) - 320px)); }
+  .filter-panel { top: 72px; right: 12px; width: min(300px, calc(100vw - 24px)); max-height: calc(var(--scaled-svh) - 146px); }
+  .filter-options { max-height: min(180px, calc(var(--scaled-svh) - 336px)); }
   .edit-notice { top: 12px; left: 12px; max-width: 220px; }
   .map-hint { bottom: 12px; }
   .point-modal-overlay { padding: 12px; }

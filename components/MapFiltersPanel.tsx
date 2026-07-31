@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ARGENTINA_PROVINCES } from "@/data/province-options";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { MapFilters, MapPoint } from "@/types/map";
@@ -15,6 +15,14 @@ interface MapFiltersPanelProps {
 
 function toggle(values: string[], value: string) {
   return values.includes(value) ? values.filter((current) => current !== value) : [...values, value];
+}
+
+function splitWeedLabel(weed: string) {
+  const [commonName, ...scientificNameParts] = weed.split(" - ");
+  return {
+    commonName: commonName.trim(),
+    scientificName: scientificNameParts.join(" - ").trim(),
+  };
 }
 
 function pointMatches(point: MapPoint, filters: MapFilters) {
@@ -37,11 +45,20 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onConfirm
   const [openSection, setOpenSection] = useState<"weeds" | "provinces">("weeds");
   const resultCount = useMemo(() => filterMapPoints(points, draftFilters).length, [draftFilters, points]);
 
+  useEffect(() => {
+    setDraftFilters(appliedFilters);
+  }, [appliedFilters]);
+
   return (
-    <div className="filter-panel" role="dialog" aria-modal="true" aria-labelledby="filter-panel-title">
+    <div className="filter-panel" role="dialog" aria-modal="false" aria-labelledby="filter-panel-title">
       <div className="filter-panel-header">
         <span>{copy.filters}</span>
         <strong id="filter-panel-title">{copy.resultsFound}: {resultCount}</strong>
+        <button type="button" className="filter-panel-close" onClick={onCancel} aria-label={copy.closeFilters}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
       </div>
 
       <div className="filter-panel-body">
@@ -51,19 +68,39 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onConfirm
             <b>{draftFilters.targetWeeds.length || copy.all}</b>
           </button>
           {openSection === "weeds" && (
-            <div className="filter-options">
-              {targetWeeds.map((weed) => (
-                <label key={weed} className="filter-check">
-                  <input
-                    type="checkbox"
-                    checked={draftFilters.targetWeeds.includes(weed)}
-                    onChange={() => setDraftFilters({ ...draftFilters, targetWeeds: toggle(draftFilters.targetWeeds, weed) })}
-                  />
-                  <span>{weed}</span>
-                </label>
-              ))}
-              {targetWeeds.length === 0 && <p>{copy.noTargetWeeds}</p>}
-            </div>
+            <>
+              <div className="filter-section-actions">
+                <button type="button" onClick={() => setDraftFilters({ ...draftFilters, targetWeeds: [] })}>
+                  {copy.selectAll}
+                </button>
+                <button
+                  type="button"
+                  disabled={draftFilters.targetWeeds.length === 0}
+                  onClick={() => setDraftFilters({ ...draftFilters, targetWeeds: [] })}
+                >
+                  {copy.clearFilter}
+                </button>
+              </div>
+              <div className="filter-options">
+                {targetWeeds.map((weed) => {
+                  const { commonName, scientificName } = splitWeedLabel(weed);
+                  return (
+                    <label key={weed} className="filter-check">
+                      <input
+                        type="checkbox"
+                        checked={draftFilters.targetWeeds.includes(weed)}
+                        onChange={() => setDraftFilters({ ...draftFilters, targetWeeds: toggle(draftFilters.targetWeeds, weed) })}
+                      />
+                      <span className="filter-check-text">
+                        <span>{commonName}</span>
+                        {scientificName && <em>{scientificName}</em>}
+                      </span>
+                    </label>
+                  );
+                })}
+                {targetWeeds.length === 0 && <p>{copy.noTargetWeeds}</p>}
+              </div>
+            </>
           )}
         </section>
 
@@ -73,18 +110,34 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onConfirm
             <b>{draftFilters.provinces.length || copy.all}</b>
           </button>
           {openSection === "provinces" && (
-            <div className="filter-options">
-              {ARGENTINA_PROVINCES.map((province) => (
-                <label key={province} className="filter-check">
-                  <input
-                    type="checkbox"
-                    checked={draftFilters.provinces.includes(province)}
-                    onChange={() => setDraftFilters({ ...draftFilters, provinces: toggle(draftFilters.provinces, province) })}
-                  />
-                  <span>{province}</span>
-                </label>
-              ))}
-            </div>
+            <>
+              <div className="filter-section-actions">
+                <button type="button" onClick={() => setDraftFilters({ ...draftFilters, provinces: [] })}>
+                  {copy.selectAll}
+                </button>
+                <button
+                  type="button"
+                  disabled={draftFilters.provinces.length === 0}
+                  onClick={() => setDraftFilters({ ...draftFilters, provinces: [] })}
+                >
+                  {copy.clearFilter}
+                </button>
+              </div>
+              <div className="filter-options">
+                {ARGENTINA_PROVINCES.map((province) => (
+                  <label key={province} className="filter-check">
+                    <input
+                      type="checkbox"
+                      checked={draftFilters.provinces.includes(province)}
+                      onChange={() => setDraftFilters({ ...draftFilters, provinces: toggle(draftFilters.provinces, province) })}
+                    />
+                    <span className="filter-check-text">
+                      <span>{province}</span>
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </>
           )}
         </section>
       </div>

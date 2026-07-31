@@ -20,7 +20,7 @@ function MapViewerScreen() {
   const { points, catalog, isHydrated } = useMapPoints();
   const [selectedPoint, setSelectedPoint] = useState<MapPoint | null>(null);
   const [appliedFilters, setAppliedFilters] = useState<MapFilters>({ targetWeeds: [], provinces: [] });
-  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(false);
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(true);
   const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
   const closePoint = useCallback(() => setSelectedPoint(null), []);
   const visiblePoints = catalog.filtersEnabled ? filterMapPoints(points, appliedFilters) : points;
@@ -82,7 +82,6 @@ function MapViewerScreen() {
                 onCancel={() => setIsFilterPanelOpen(false)}
                 onConfirm={(filters) => {
                   setAppliedFilters(filters);
-                  setIsFilterPanelOpen(false);
                 }}
               />
             )}
