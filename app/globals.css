@@ -215,7 +215,7 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .map-point-base { fill: #061724; stroke: rgba(174, 232, 248, .55); stroke-width: 1; }
 .map-point-ring { fill: none; stroke: #d7f6ff; stroke-width: 1.1; vector-effect: non-scaling-stroke; }
 .map-point-anchor image { pointer-events: none; }
-.map-point-anchor text { fill: #fff; font-family: Pusia, Inter, "Segoe UI", Arial, sans-serif; font-size: 12px; font-weight: 700; letter-spacing: -.02em; paint-order: stroke; pointer-events: none; stroke: #06121d; stroke-width: 4px; text-anchor: middle; }
+.map-point-anchor text { fill: #fff; font-family: Pusia, Inter, "Segoe UI", Arial, sans-serif; font-size: 17px; font-weight: 700; letter-spacing: -.02em; pointer-events: none; stroke: none; text-anchor: middle; }
 .map-point-anchor.is-interactive { cursor: pointer; }
 .map-point-anchor.is-interactive .map-point-scale { transition: filter .18s ease; }
 .map-point-anchor.is-interactive:hover .map-point-scale,
