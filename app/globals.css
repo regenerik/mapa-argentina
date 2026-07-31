@@ -225,10 +225,10 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .map-point-anchor.is-draft .map-point-base { fill: #12364b; stroke-dasharray: 5 4; }
 .argentina-map.is-editable .province-layer path { cursor: crosshair; }
 
-.map-controls { position: absolute; z-index: 12; right: clamp(15px, 3vw, 32px); top: 24px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(255, 255, 255, .14); border-radius: 16px; background: rgba(18, 23, 20, .74); box-shadow: 0 16px 42px rgba(0, 0, 0, .34); backdrop-filter: blur(14px); }
-.map-controls button { display: grid; width: 54px; height: 54px; place-items: center; border: 0; border-bottom: 1px solid var(--line); color: #c9e2ec; background: transparent; font-size: 25px; cursor: pointer; touch-action: none; user-select: none; }
+.map-controls { position: absolute; z-index: 12; right: clamp(15px, 3vw, 32px); top: 24px; display: flex; flex-direction: column; overflow: hidden; border: 1px solid rgba(150, 112, 75, .48); border-radius: 16px; background: rgba(28, 17, 10, .78); box-shadow: 0 16px 42px rgba(0, 0, 0, .34); backdrop-filter: blur(14px); }
+.map-controls button { display: grid; width: 54px; height: 54px; place-items: center; border: 0; border-bottom: 1px solid rgba(150, 112, 75, .28); color: #fefefe; background: transparent; font-size: 25px; cursor: pointer; touch-action: none; user-select: none; }
 .map-controls button:last-child { border-bottom: 0; }
-.map-controls button:hover, .map-controls button:focus-visible { color: white; background: rgba(83, 98, 44, .6); outline: none; }
+.map-controls button:hover, .map-controls button:focus-visible { color: white; background: rgba(136, 105, 66, .48); outline: none; }
 .map-controls svg { width: 21px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
 .map-filter-controls { position: absolute; z-index: 12; top: 24px; right: clamp(82px, 3vw + 66px, 98px); display: flex; flex-direction: column; gap: 10px; }
 .map-filter-controls button { position: relative; display: grid; width: 54px; height: 54px; place-items: center; border: 1px solid rgba(254, 254, 254, .16); border-radius: 50%; color: #fefefe; background: rgba(28, 17, 10, .78); box-shadow: 0 12px 36px rgba(0, 0, 0, .34); cursor: pointer; backdrop-filter: blur(14px); }
@@ -292,8 +292,8 @@ body:has(.kiosk-rotation-stage.is-rotated) {
   padding: 7px 8px;
   font-size: 10px;
 }
-.map-hint { position: absolute; z-index: 5; bottom: 22px; left: 50%; display: flex; align-items: center; gap: 9px; padding: 11px 16px; border: 1px solid rgba(113, 167, 191, .15); border-radius: 999px; color: #718fa1; background: rgba(4, 17, 28, .76); font-size: 11px; transform: translateX(-50%); backdrop-filter: blur(10px); pointer-events: none; white-space: nowrap; }
-.map-hint svg { width: 18px; fill: none; stroke: #72b8d1; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
+.map-hint { position: absolute; z-index: 5; bottom: 22px; left: 50%; display: flex; align-items: center; gap: 9px; padding: 11px 16px; border: 1px solid rgba(150, 112, 75, .42); border-radius: 999px; color: rgba(254, 254, 254, .78); background: rgba(28, 17, 10, .74); font-size: 11px; transform: translateX(-50%); backdrop-filter: blur(10px); pointer-events: none; white-space: nowrap; }
+.map-hint svg { width: 18px; fill: none; stroke: #cba57f; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.5; }
 .edit-notice { position: absolute; z-index: 6; left: clamp(15px, 3vw, 32px); top: 24px; display: flex; max-width: 290px; flex-direction: column; padding: 15px 18px; border: 1px solid rgba(55, 181, 223, .25); border-radius: 15px; background: rgba(8, 32, 49, .9); box-shadow: 0 12px 38px rgba(0, 7, 15, .35); }
 .edit-notice span { color: var(--accent-bright); font-size: 9px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
 .edit-notice strong { margin-top: 5px; color: #b8cfda; font-size: 12px; font-weight: 500; line-height: 1.4; }
