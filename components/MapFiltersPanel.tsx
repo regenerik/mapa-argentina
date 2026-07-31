@@ -13,13 +13,30 @@ interface MapFiltersPanelProps {
   onCancel: () => void;
 }
 
+const NO_FILTER_SELECTION = "__NO_FILTER_SELECTION__";
+
+function isNoFilterSelection(values: string[]) {
+  return values.includes(NO_FILTER_SELECTION);
+}
+
 function toggle(values: string[], value: string, allValues: readonly string[]) {
-  const activeValues = values.length === 0 ? allValues : values;
+  const activeValues = isNoFilterSelection(values) ? [] : values.length === 0 ? allValues : values;
   const nextValues = activeValues.includes(value)
     ? activeValues.filter((current) => current !== value)
     : [...activeValues, value];
 
+  if (nextValues.length === 0) return [NO_FILTER_SELECTION];
   return nextValues.length === allValues.length ? [] : nextValues;
+}
+
+function isOptionChecked(values: string[], value: string) {
+  if (isNoFilterSelection(values)) return false;
+  return values.length === 0 || values.includes(value);
+}
+
+function getSectionSummary(values: string[], allLabel: string) {
+  if (isNoFilterSelection(values)) return 0;
+  return values.length || allLabel;
 }
 
 function splitWeedLabel(weed: string) {
@@ -31,8 +48,10 @@ function splitWeedLabel(weed: string) {
 }
 
 function pointMatches(point: MapPoint, filters: MapFilters) {
-  const weedMatch = filters.targetWeeds.length === 0 || point.targetWeeds.some((weed) => filters.targetWeeds.includes(weed));
-  const provinceMatch = filters.provinces.length === 0 || filters.provinces.includes(point.province);
+  const weedMatch = !isNoFilterSelection(filters.targetWeeds)
+    && (filters.targetWeeds.length === 0 || point.targetWeeds.some((weed) => filters.targetWeeds.includes(weed)));
+  const provinceMatch = !isNoFilterSelection(filters.provinces)
+    && (filters.provinces.length === 0 || filters.provinces.includes(point.province));
   return weedMatch && provinceMatch;
 }
 
@@ -75,7 +94,7 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onChange,
         <section className={`filter-accordion${openSection === "weeds" ? " is-open" : ""}`}>
           <button type="button" onClick={() => setOpenSection("weeds")} aria-expanded={openSection === "weeds"}>
             <span>{copy.filterByWeed}</span>
-            <b>{draftFilters.targetWeeds.length || copy.all}</b>
+            <b>{getSectionSummary(draftFilters.targetWeeds, copy.all)}</b>
           </button>
           {openSection === "weeds" && (
             <>
@@ -85,8 +104,8 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onChange,
                 </button>
                 <button
                   type="button"
-                  disabled={draftFilters.targetWeeds.length === 0}
-                  onClick={() => applyFilters({ ...draftFilters, targetWeeds: [] })}
+                  disabled={isNoFilterSelection(draftFilters.targetWeeds)}
+                  onClick={() => applyFilters({ ...draftFilters, targetWeeds: [NO_FILTER_SELECTION] })}
                 >
                   {copy.clearFilter}
                 </button>
@@ -98,7 +117,7 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onChange,
                     <label key={weed} className="filter-check">
                       <input
                         type="checkbox"
-                        checked={draftFilters.targetWeeds.length === 0 || draftFilters.targetWeeds.includes(weed)}
+                        checked={isOptionChecked(draftFilters.targetWeeds, weed)}
                         onChange={() => applyFilters({ ...draftFilters, targetWeeds: toggle(draftFilters.targetWeeds, weed, targetWeeds) })}
                       />
                       <span className="filter-check-text">
@@ -117,7 +136,7 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onChange,
         <section className={`filter-accordion${openSection === "provinces" ? " is-open" : ""}`}>
           <button type="button" onClick={() => setOpenSection("provinces")} aria-expanded={openSection === "provinces"}>
             <span>{copy.filterByProvince}</span>
-            <b>{draftFilters.provinces.length || copy.all}</b>
+            <b>{getSectionSummary(draftFilters.provinces, copy.all)}</b>
           </button>
           {openSection === "provinces" && (
             <>
@@ -127,8 +146,8 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onChange,
                 </button>
                 <button
                   type="button"
-                  disabled={draftFilters.provinces.length === 0}
-                  onClick={() => applyFilters({ ...draftFilters, provinces: [] })}
+                  disabled={isNoFilterSelection(draftFilters.provinces)}
+                  onClick={() => applyFilters({ ...draftFilters, provinces: [NO_FILTER_SELECTION] })}
                 >
                   {copy.clearFilter}
                 </button>
@@ -138,7 +157,7 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onChange,
                   <label key={province} className="filter-check">
                     <input
                       type="checkbox"
-                      checked={draftFilters.provinces.length === 0 || draftFilters.provinces.includes(province)}
+                      checked={isOptionChecked(draftFilters.provinces, province)}
                       onChange={() => applyFilters({ ...draftFilters, provinces: toggle(draftFilters.provinces, province, ARGENTINA_PROVINCES) })}
                     />
                     <span className="filter-check-text">
