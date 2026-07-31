@@ -159,7 +159,7 @@ function AdaptiveLabelLayer() {
         <circle cx={cabaPosition?.[0]} cy={cabaPosition?.[1]} r="4" />
         <text x={(cabaPosition?.[0] ?? 0) + 12} y={(cabaPosition?.[1] ?? 0) + 4} data-label-size="11">CABA</text>
       </g>
-      <text x={projectCoordinates([-59.3, -52.78])?.[0] ?? 0} y={projectCoordinates([-59.3, -52.78])?.[1] ?? 0} data-label-size="10.5">
+      <text x={projectCoordinates([-59.3, -52.78])?.[0] ?? 0} y={(projectCoordinates([-59.3, -52.78])?.[1] ?? 0) + 18} data-label-size="10.5">
         Is. Malvinas
       </text>
     </g>
@@ -436,7 +436,7 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
               ))}
             </g>
 
-            <g className="malvinas-layer" aria-hidden="true">
+            <g className="malvinas-layer" transform="translate(306.7 610.1) scale(3.35) translate(-306.7 -610.1)" aria-hidden="true">
               {malvinasSvgPaths.map((path, index) => (
                 <path key={index} d={path} />
               ))}
