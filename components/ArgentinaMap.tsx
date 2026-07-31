@@ -76,23 +76,57 @@ function projectCoordinates(coordinates: [number, number]) {
 
 const malvinasIslands: [number, number][][] = [
   [
-    [-61.35, -51.08],
-    [-60.72, -51.32],
-    [-60.92, -51.7],
-    [-60.25, -52.02],
-    [-60.78, -52.36],
-    [-61.36, -52.06],
-    [-61.66, -51.54],
+    [-61.62, -51.08],
+    [-61.2, -51.02],
+    [-60.88, -51.15],
+    [-60.58, -51.28],
+    [-60.42, -51.5],
+    [-60.1, -51.63],
+    [-60.38, -51.83],
+    [-60.1, -52.05],
+    [-60.45, -52.2],
+    [-60.8, -52.13],
+    [-61.08, -52.32],
+    [-61.42, -52.18],
+    [-61.7, -51.88],
+    [-61.62, -51.6],
+    [-61.9, -51.36],
   ],
   [
-    [-59.72, -51.1],
-    [-58.96, -51.34],
-    [-58.7, -51.8],
-    [-57.82, -51.96],
-    [-58.36, -52.35],
-    [-59.08, -52.25],
-    [-59.64, -52.0],
-    [-59.96, -51.54],
+    [-59.84, -51.04],
+    [-59.38, -51.1],
+    [-59.06, -51.26],
+    [-58.58, -51.31],
+    [-58.34, -51.54],
+    [-57.78, -51.68],
+    [-58.04, -51.87],
+    [-57.76, -52.06],
+    [-58.18, -52.22],
+    [-58.56, -52.11],
+    [-58.92, -52.29],
+    [-59.28, -52.14],
+    [-59.58, -51.96],
+    [-59.98, -51.82],
+    [-59.78, -51.58],
+    [-60.06, -51.34],
+  ],
+  [
+    [-60.3, -52.34],
+    [-60.12, -52.38],
+    [-60.18, -52.5],
+    [-60.38, -52.47],
+  ],
+  [
+    [-59.15, -52.37],
+    [-58.96, -52.42],
+    [-59.05, -52.53],
+    [-59.25, -52.48],
+  ],
+  [
+    [-57.74, -51.42],
+    [-57.54, -51.48],
+    [-57.68, -51.58],
+    [-57.88, -51.52],
   ],
 ];
 
@@ -168,16 +202,16 @@ function AdaptiveLabelLayer() {
         if (!position) return null;
         const [offsetX = 0, offsetY = 0] = label.offset ?? [];
         return (
-          <text key={feature.properties.name} x={position[0] + offsetX} y={position[1] + offsetY} data-label-size="11">
+          <text key={feature.properties.name} x={position[0] + offsetX} y={position[1] + offsetY} data-label-size="13.5">
             {label.shortName ?? label.name}
           </text>
         );
       })}
       <g className="caba-label">
         <circle cx={cabaPosition?.[0]} cy={cabaPosition?.[1]} r="4" />
-        <text x={(cabaPosition?.[0] ?? 0) + 12} y={(cabaPosition?.[1] ?? 0) + 4} data-label-size="9">CABA</text>
+        <text x={(cabaPosition?.[0] ?? 0) + 12} y={(cabaPosition?.[1] ?? 0) + 4} data-label-size="11">CABA</text>
       </g>
-      <text x={projectCoordinates([-59.3, -52.78])?.[0] ?? 0} y={projectCoordinates([-59.3, -52.78])?.[1] ?? 0} data-label-size="8">
+      <text x={projectCoordinates([-59.3, -52.78])?.[0] ?? 0} y={projectCoordinates([-59.3, -52.78])?.[1] ?? 0} data-label-size="10.5">
         Is. Malvinas
       </text>
     </g>
