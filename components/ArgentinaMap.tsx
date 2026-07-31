@@ -148,16 +148,16 @@ function AdaptiveLabelLayer() {
         if (!position) return null;
         const [offsetX = 0, offsetY = 0] = label.offset ?? [];
         return (
-          <text key={feature.properties.name} x={position[0] + offsetX} y={position[1] + offsetY} data-label-size="13.5">
+          <text key={feature.properties.name} x={position[0] + offsetX} y={position[1] + offsetY} data-label-size="15.5">
             {label.shortName ?? label.name}
           </text>
         );
       })}
       <g className="caba-label">
         <circle cx={cabaPosition?.[0]} cy={cabaPosition?.[1]} r="4" />
-        <text x={(cabaPosition?.[0] ?? 0) + 12} y={(cabaPosition?.[1] ?? 0) + 4} data-label-size="11">CABA</text>
+        <text x={(cabaPosition?.[0] ?? 0) + 12} y={(cabaPosition?.[1] ?? 0) + 4} data-label-size="12.7">CABA</text>
       </g>
-      <text x={projectCoordinates([-59.3, -52.78])?.[0] ?? 0} y={(projectCoordinates([-59.3, -52.78])?.[1] ?? 0) + 24} data-label-size="10.5">
+      <text x={projectCoordinates([-59.3, -52.78])?.[0] ?? 0} y={(projectCoordinates([-59.3, -52.78])?.[1] ?? 0) + 24} data-label-size="12.1">
         Is. Malvinas
       </text>
     </g>
