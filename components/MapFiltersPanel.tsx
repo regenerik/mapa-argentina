@@ -9,12 +9,17 @@ interface MapFiltersPanelProps {
   points: MapPoint[];
   targetWeeds: string[];
   appliedFilters: MapFilters;
-  onConfirm: (filters: MapFilters) => void;
+  onChange: (filters: MapFilters) => void;
   onCancel: () => void;
 }
 
-function toggle(values: string[], value: string) {
-  return values.includes(value) ? values.filter((current) => current !== value) : [...values, value];
+function toggle(values: string[], value: string, allValues: readonly string[]) {
+  const activeValues = values.length === 0 ? allValues : values;
+  const nextValues = activeValues.includes(value)
+    ? activeValues.filter((current) => current !== value)
+    : [...activeValues, value];
+
+  return nextValues.length === allValues.length ? [] : nextValues;
 }
 
 function splitWeedLabel(weed: string) {
@@ -39,7 +44,7 @@ export function hasActiveFilters(filters: MapFilters) {
   return filters.targetWeeds.length > 0 || filters.provinces.length > 0;
 }
 
-export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onConfirm, onCancel }: MapFiltersPanelProps) {
+export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onChange, onCancel }: MapFiltersPanelProps) {
   const { copy } = useLanguage();
   const [draftFilters, setDraftFilters] = useState<MapFilters>(appliedFilters);
   const [openSection, setOpenSection] = useState<"weeds" | "provinces">("weeds");
@@ -48,6 +53,11 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onConfirm
   useEffect(() => {
     setDraftFilters(appliedFilters);
   }, [appliedFilters]);
+
+  function applyFilters(filters: MapFilters) {
+    setDraftFilters(filters);
+    onChange(filters);
+  }
 
   return (
     <div className="filter-panel" role="dialog" aria-modal="false" aria-labelledby="filter-panel-title">
@@ -70,13 +80,13 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onConfirm
           {openSection === "weeds" && (
             <>
               <div className="filter-section-actions">
-                <button type="button" onClick={() => setDraftFilters({ ...draftFilters, targetWeeds: [] })}>
+                <button type="button" onClick={() => applyFilters({ ...draftFilters, targetWeeds: [] })}>
                   {copy.selectAll}
                 </button>
                 <button
                   type="button"
                   disabled={draftFilters.targetWeeds.length === 0}
-                  onClick={() => setDraftFilters({ ...draftFilters, targetWeeds: [] })}
+                  onClick={() => applyFilters({ ...draftFilters, targetWeeds: [] })}
                 >
                   {copy.clearFilter}
                 </button>
@@ -88,8 +98,8 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onConfirm
                     <label key={weed} className="filter-check">
                       <input
                         type="checkbox"
-                        checked={draftFilters.targetWeeds.includes(weed)}
-                        onChange={() => setDraftFilters({ ...draftFilters, targetWeeds: toggle(draftFilters.targetWeeds, weed) })}
+                        checked={draftFilters.targetWeeds.length === 0 || draftFilters.targetWeeds.includes(weed)}
+                        onChange={() => applyFilters({ ...draftFilters, targetWeeds: toggle(draftFilters.targetWeeds, weed, targetWeeds) })}
                       />
                       <span className="filter-check-text">
                         <span>{commonName}</span>
@@ -112,13 +122,13 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onConfirm
           {openSection === "provinces" && (
             <>
               <div className="filter-section-actions">
-                <button type="button" onClick={() => setDraftFilters({ ...draftFilters, provinces: [] })}>
+                <button type="button" onClick={() => applyFilters({ ...draftFilters, provinces: [] })}>
                   {copy.selectAll}
                 </button>
                 <button
                   type="button"
                   disabled={draftFilters.provinces.length === 0}
-                  onClick={() => setDraftFilters({ ...draftFilters, provinces: [] })}
+                  onClick={() => applyFilters({ ...draftFilters, provinces: [] })}
                 >
                   {copy.clearFilter}
                 </button>
@@ -128,8 +138,8 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onConfirm
                   <label key={province} className="filter-check">
                     <input
                       type="checkbox"
-                      checked={draftFilters.provinces.includes(province)}
-                      onChange={() => setDraftFilters({ ...draftFilters, provinces: toggle(draftFilters.provinces, province) })}
+                      checked={draftFilters.provinces.length === 0 || draftFilters.provinces.includes(province)}
+                      onChange={() => applyFilters({ ...draftFilters, provinces: toggle(draftFilters.provinces, province, ARGENTINA_PROVINCES) })}
                     />
                     <span className="filter-check-text">
                       <span>{province}</span>
@@ -140,11 +150,6 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onConfirm
             </>
           )}
         </section>
-      </div>
-
-      <div className="filter-panel-actions">
-        <button type="button" onClick={onCancel}>{copy.cancel}</button>
-        <button type="button" onClick={() => onConfirm(draftFilters)}>{copy.confirm}</button>
       </div>
     </div>
   );

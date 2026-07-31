@@ -80,7 +80,7 @@ function MapViewerScreen() {
                 targetWeeds={catalog.targetWeeds}
                 appliedFilters={appliedFilters}
                 onCancel={() => setIsFilterPanelOpen(false)}
-                onConfirm={(filters) => {
+                onChange={(filters) => {
                   setAppliedFilters(filters);
                 }}
               />
