@@ -74,15 +74,13 @@ function projectCoordinates(coordinates: [number, number]) {
   return [Number(position[0].toFixed(3)), Number(position[1].toFixed(3))] as const;
 }
 
-const malvinasSvgPaths = [
-  "M0 17C3 11 9 7 16 9C20 6 28 8 31 13C38 13 42 18 40 24C45 27 42 33 36 32C33 36 28 38 24 34C20 42 10 41 8 32C2 29 -1 23 3 19C1 18 0 18 0 17Z",
-  "M47 15C51 7 60 6 64 12C70 8 79 12 81 20C89 19 96 25 92 32C99 36 94 45 86 42C82 48 73 49 69 42C65 46 58 50 54 43C50 38 43 40 41 46C35 43 36 35 42 32C36 28 39 20 47 15Z",
-  "M48 0C55 -2 62 1 65 7C58 11 49 8 46 3C46 2 47 1 48 0Z",
-  "M92 9C98 6 104 9 107 14C103 20 94 19 90 13C90 11 91 10 92 9Z",
-  "M-18 39C-13 33 -5 35 -3 42C-8 48 -17 47 -21 42C-22 41 -21 40 -18 39Z",
-  "M28 52C34 48 41 50 43 56C38 61 29 61 25 56C25 54 26 53 28 52Z",
-  "M57 59C63 55 71 57 74 63C69 70 59 70 54 64C54 62 55 60 57 59Z",
-];
+const malvinasImage = {
+  height: 70,
+  href: "/brand/malvinas-silhouette.png",
+  width: 128,
+  x: 432,
+  y: 812,
+};
 
 const labelOverrides: Record<string, Partial<ProvinceLabel>> = {
   "Buenos Aires": { coordinates: [-60.4, -36.4] },
@@ -436,10 +434,8 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
               ))}
             </g>
 
-            <g className="malvinas-layer" transform="translate(382 818) scale(1.08)" aria-hidden="true">
-              {malvinasSvgPaths.map((path, index) => (
-                <path key={index} d={path} />
-              ))}
+            <g className="malvinas-layer" aria-hidden="true">
+              <image href={malvinasImage.href} xlinkHref={malvinasImage.href} x={malvinasImage.x} y={malvinasImage.y} width={malvinasImage.width} height={malvinasImage.height} preserveAspectRatio="xMidYMid meet" />
             </g>
 
             <AdaptiveLabelLayer />
