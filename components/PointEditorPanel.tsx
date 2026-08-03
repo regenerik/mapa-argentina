@@ -262,7 +262,7 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
 
           <label className="editor-field">
             <span>{copy.dose}</span>
-            <input value={draft.dose} onChange={(event) => onDraftChange({ ...draft, dose: event.target.value })} placeholder={copy.dosePlaceholder} maxLength={90} />
+            <input value={draft.dose} onChange={(event) => onDraftChange({ ...draft, dose: event.target.value })} placeholder={copy.dosePlaceholder} />
           </label>
 
           <fieldset className="photo-uploads">
