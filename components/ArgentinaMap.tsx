@@ -15,7 +15,7 @@ import type { MapMode, MapPoint, ProvinceLabel } from "@/types/map";
 const WIDTH = 800;
 const HEIGHT = 1040;
 const MIN_SCALE = 0.9;
-const MAX_SCALE = 7;
+const MAX_SCALE = 10;
 const WHEEL_STEP = 0.22;
 
 type ProvinceFeature = {
