@@ -25,7 +25,7 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
   const selectedImage = sortedImages[Math.min(selectedIndex, lastIndex)];
 
   function imageLabel(daysFromBase: number) {
-    return daysFromBase === 0 ? copy.basePhoto : `${copy.day} ${daysFromBase}`;
+    return `${copy.day} ${daysFromBase}`;
   }
 
   function imageTitle(image: MapPointImage) {

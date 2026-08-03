@@ -18,7 +18,7 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
     ? [...point.images].sort((a, b) => a.daysFromBase - b.daysFromBase)
     : [{ day: "0", daysFromBase: 0, title: "", imageUrl: point.thumbnailUrl, publicId: point.thumbnailPublicId, isBase: true }];
   const selectedImage = images[Math.min(selectedIndex, images.length - 1)];
-  const selectedImageDayLabel = selectedImage.daysFromBase === 0 ? copy.basePhoto : `${copy.day} ${selectedImage.daysFromBase}`;
+  const selectedImageDayLabel = `${copy.day} ${selectedImage.daysFromBase}`;
   const selectedImageLabel = selectedImage.title?.trim() || selectedImageDayLabel;
 
   useEffect(() => {
