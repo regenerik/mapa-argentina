@@ -106,14 +106,33 @@ function getLabel(feature: ProvinceFeature): ProvinceLabel {
 
 function MapPointLayer({ points, onPointSelect, selectedPointId }: { points: MapPoint[]; onPointSelect?: (point: MapPoint) => void; selectedPointId?: string }) {
   const layerRef = useRef<SVGGElement>(null);
+  const currentScaleRef = useRef(1);
   const { copy } = useLanguage();
+  const syncPointVisuals = useCallback((scale: number) => {
+    const compensatedScale = 1 / Math.pow(scale, 0.82);
+    const strokeScale = 1 / Math.pow(scale, 0.18);
 
-  useTransformEffect(({ state }) => {
-    const compensatedScale = 1 / Math.pow(state.scale, 0.82);
     layerRef.current?.querySelectorAll<SVGGElement>(".map-point-scale").forEach((marker) => {
       marker.setAttribute("transform", `scale(${compensatedScale})`);
+
+      const anchor = marker.closest<SVGGElement>(".map-point-anchor");
+      const base = marker.querySelector<SVGCircleElement>(".map-point-base");
+      const ring = marker.querySelector<SVGCircleElement>(".map-point-ring");
+      const isSelected = anchor?.classList.contains("is-selected");
+
+      if (base) base.style.strokeWidth = `${1 * strokeScale}px`;
+      if (ring) ring.style.strokeWidth = `${(isSelected ? 1.75 : 1.1) * strokeScale}px`;
     });
+  }, []);
+
+  useTransformEffect(({ state }) => {
+    currentScaleRef.current = state.scale;
+    syncPointVisuals(state.scale);
   });
+
+  useEffect(() => {
+    syncPointVisuals(currentScaleRef.current);
+  }, [points, selectedPointId, syncPointVisuals]);
 
   return (
     <g ref={layerRef} className="map-points" aria-label={copy.mapPoints}>
