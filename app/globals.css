@@ -312,7 +312,7 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .admin-access-card > button:disabled { opacity: .55; cursor: wait; }
 .admin-access-card > small { margin-top: 15px; color: #547384; font-size: 9px; }
 .admin-access-error { margin-top: 12px; padding: 10px; border: 1px solid rgba(225, 107, 107, .25); border-radius: 10px; color: #efaaaa; background: rgba(111, 35, 43, .18); font-size: 10px; }
-.admin-access-loading { display: flex; align-items: center; justify-content: center; gap: 10px; color: #91acb9; background: #061522; font-size: 11px; }
+.admin-access-loading { display: flex; align-items: center; justify-content: center; gap: 10px; color: #fefefe; background: rgba(28, 17, 10, .9); font-size: 11px; }
 .editor-map { min-width: 0; }
 .editor-map-hint.is-active { color: #d8f7ff; border-color: rgba(74, 201, 236, .48); background: rgba(11, 58, 79, .9); box-shadow: 0 0 24px rgba(42, 174, 211, .18); }
 .editor-panel { position: relative; z-index: 15; min-width: 0; overflow-x: hidden; overflow-y: auto; border-left: 1px solid rgba(121, 186, 211, .16); background: linear-gradient(180deg, #091c2b, #06131f); scrollbar-color: #24485d transparent; }
@@ -382,8 +382,8 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .upload-actions button { color: #d08f8f; background: transparent; }
 .upload-control input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .upload-error { margin: 0; color: #ef9999; font-size: 9px; line-height: 1.4; }
-.upload-spinner { width: 24px; height: 24px; border: 3px solid rgba(219, 247, 255, .25); border-top-color: #d9f8ff; border-radius: 50%; animation: upload-spin .75s linear infinite; }
-.upload-preview.has-image .upload-spinner { background: rgba(3, 15, 22, .25); }
+.upload-spinner { width: 24px; height: 24px; border: 3px solid rgba(150, 112, 75, .3); border-top-color: #fefefe; border-radius: 50%; animation: upload-spin .75s linear infinite; }
+.upload-preview.has-image .upload-spinner { background: rgba(28, 17, 10, .28); }
 
 .photo-uploads { margin: 0; padding: 17px 0 0; border: 0; border-top: 1px solid rgba(121, 186, 211, .12); }
 .photo-uploads legend { width: 100%; margin-bottom: 13px; color: #b5cbd4; font-size: 11px; font-weight: 700; }
@@ -405,9 +405,9 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .editor-form-actions { position: sticky; bottom: -22px; z-index: 3; display: flex; flex-direction: column; gap: 10px; margin: 4px -22px -22px; padding: 16px 22px 18px; border-top: 1px solid rgba(121, 186, 211, .14); background: rgba(6, 19, 31, .96); backdrop-filter: blur(14px); }
 .editor-form-actions button { min-height: 44px; border-radius: 11px; font-size: 11px; font-weight: 800; cursor: pointer; }
 .editor-buttons-row { display: flex; gap: 9px; }
-.editor-save-button { display: inline-flex; flex: 1; align-items: center; justify-content: center; gap: 9px; border: 1px solid rgba(82, 200, 231, .45); color: #e7fbff; background: linear-gradient(135deg, #19799b, #125570); }
-.editor-save-button .button-spinner { width: 17px; height: 17px; border-width: 2px; border-top-color: #e7fbff; }
-.editor-save-button:disabled { color: #587584; border-color: rgba(111, 160, 180, .12); background: #0d2737; cursor: not-allowed; }
+.editor-save-button { display: inline-flex; flex: 1; align-items: center; justify-content: center; gap: 9px; border: 1px solid rgba(150, 112, 75, .68); color: #fefefe; background: linear-gradient(135deg, #886942, #412919); }
+.editor-save-button .button-spinner { width: 17px; height: 17px; border-color: rgba(150, 112, 75, .3); border-width: 2px; border-top-color: #fefefe; }
+.editor-save-button:disabled { color: rgba(254, 254, 254, .58); border-color: rgba(150, 112, 75, .2); background: rgba(28, 17, 10, .74); cursor: not-allowed; }
 .editor-delete-button { padding: 0 15px; border: 1px solid rgba(221, 104, 104, .28); color: #e69b9b; background: rgba(113, 35, 42, .18); }
 .editor-delete-button:disabled { opacity: .5; cursor: not-allowed; }
 .editor-save-feedback { margin: 0; text-align: center; line-height: 1.45; }
@@ -479,7 +479,7 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .point-modal-copy-scroll > p:first-child { margin: 0 0 10px; color: #96704b; font-size: 10px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
 .point-modal-copy h2 { margin: 0; font-size: clamp(28px, 3vw, 48px); letter-spacing: -.045em; line-height: 1.05; }
 .point-modal-rule { width: 42px; height: 2px; margin: 22px 0; background: #96704b; box-shadow: 0 0 12px rgba(150, 112, 75, .42); }
-.point-description { margin: 0; color: rgba(254, 254, 254, .86); font-size: clamp(13px, 1.25vw, 16px); line-height: 1.65; }
+.point-description { margin: 0; color: rgba(254, 254, 254, .86); font-size: clamp(13px, 1.25vw, 16px); line-height: 1.65; overflow-wrap: anywhere; white-space: pre-line; }
 .point-detail-list { display: flex; flex-direction: column; gap: 8px; margin: 18px 0 0; padding-right: 2px; }
 .point-detail-list span { display: grid; grid-template-columns: minmax(76px, .35fr) minmax(0, 1fr); gap: 12px; color: rgba(254, 254, 254, .82); font-size: 11px; line-height: 1.35; }
 .point-detail-list strong { color: #96704b; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; overflow-wrap: anywhere; }

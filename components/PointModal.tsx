@@ -86,10 +86,6 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
                 {point.dose && <span><strong>{copy.dose}</strong>{point.dose}</span>}
                 {point.targetWeeds.length > 0 && <span><strong>{copy.targetWeeds}</strong>{point.targetWeeds.join(", ")}</span>}
               </div>
-              <div className="point-meta">
-                <span>{images.length}</span>
-                <small>{copy.temporalRecords}</small>
-              </div>
             </div>
             {scrollState.canScrollUp && (
               <button className="point-copy-scroll-button is-up" type="button" onClick={() => scrollCopy("up")} aria-label={copy.scrollInfoUp}>
