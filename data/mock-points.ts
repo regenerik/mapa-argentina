@@ -40,7 +40,9 @@ function createPoint(
   const images = days.map((daysFromBase) => ({
     day: String(daysFromBase),
     daysFromBase,
+    title: daysFromBase === 0 ? "Foto inicial" : `Dia ${daysFromBase}`,
     imageUrl: makeAgroPlaceholder(point.title, daysFromBase, colors),
+    isBase: daysFromBase === days[0],
   }));
   return { ...point, thumbnailUrl: images[0].imageUrl, images };
 }

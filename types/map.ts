@@ -5,8 +5,10 @@ export type TimelineDay = string;
 export interface MapPointImage {
   day: TimelineDay;
   daysFromBase: number;
+  title?: string;
   imageUrl: string;
   publicId?: string;
+  isBase?: boolean;
 }
 
 export interface MapPoint {

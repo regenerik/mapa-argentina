@@ -16,8 +16,10 @@ function normalizeImage(image: Partial<MapPointImage>, index: number): MapPointI
   return {
     day: String(daysFromBase),
     daysFromBase,
+    title: image.title ? String(image.title) : "",
     imageUrl: image.imageUrl,
     publicId: image.publicId,
+    isBase: Boolean(image.isBase),
   };
 }
 
@@ -31,12 +33,12 @@ function normalizeImages(point: MapPoint): MapPointImage[] {
 
   const thumbnailIndex = images.findIndex((image) => image.imageUrl === point.thumbnailUrl);
   if (thumbnailIndex >= 0) {
-    images[thumbnailIndex] = { ...images[thumbnailIndex], day: "0", daysFromBase: 0, publicId: images[thumbnailIndex].publicId || point.thumbnailPublicId };
+    images[thumbnailIndex] = { ...images[thumbnailIndex], publicId: images[thumbnailIndex].publicId || point.thumbnailPublicId, isBase: true };
     return images.sort((a, b) => a.daysFromBase - b.daysFromBase);
   }
 
   return [
-    { day: "0", daysFromBase: 0, imageUrl: point.thumbnailUrl, publicId: point.thumbnailPublicId },
+    { day: "0", daysFromBase: 0, title: "", imageUrl: point.thumbnailUrl, publicId: point.thumbnailPublicId, isBase: true },
     ...images,
   ];
 }

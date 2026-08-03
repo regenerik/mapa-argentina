@@ -28,6 +28,10 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
     return daysFromBase === 0 ? copy.basePhoto : `${copy.day} ${daysFromBase}`;
   }
 
+  function imageTitle(image: MapPointImage) {
+    return image.title?.trim() || imageLabel(image.daysFromBase);
+  }
+
   function boundedIndex(index: number) {
     return Math.max(0, Math.min(index, lastIndex));
   }
@@ -98,7 +102,7 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
     <div className="timeline" aria-label={copy.temporalEvolution}>
       <div className="timeline-heading">
         <span>{copy.fieldEfficiency}</span>
-        <strong>{imageLabel(selectedImage.daysFromBase)}</strong>
+        <strong>{imageTitle(selectedImage)}</strong>
       </div>
       <div
         ref={trackRef}
@@ -112,7 +116,12 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
         <div className="timeline-progress" style={{ width: `${visualProgress}%` }} />
         {sortedImages.map((image, index) => {
           const left = lastIndex === 0 ? 0 : (index / lastIndex) * 100;
-          return <span key={`${image.daysFromBase}-${image.imageUrl}`} className={`timeline-mark${index <= selectedIndex ? " is-past" : ""}`} style={{ left: `${left}%` }} aria-hidden="true" />;
+          return (
+            <span key={`${image.daysFromBase}-${image.imageUrl}`} className="timeline-step" style={{ left: `${left}%` }} aria-hidden="true">
+              <span className={`timeline-mark${index <= selectedIndex ? " is-past" : ""}`} />
+              <span className="timeline-mark-label">{imageLabel(image.daysFromBase)}</span>
+            </span>
+          );
         })}
         <button
           className="timeline-handle"
@@ -122,14 +131,10 @@ export function TimelineSlider({ images, selectedIndex, onChange }: TimelineSlid
           aria-valuemin={0}
           aria-valuemax={lastIndex}
           aria-valuenow={selectedIndex}
-          aria-valuetext={imageLabel(selectedImage.daysFromBase)}
+          aria-valuetext={`${imageTitle(selectedImage)} - ${imageLabel(selectedImage.daysFromBase)}`}
           onKeyDown={handleKeyDown}
           style={{ left: `${visualProgress}%` }}
         />
-      </div>
-      <div className="timeline-endpoints" aria-hidden="true">
-        <span>{imageLabel(sortedImages[0].daysFromBase)}</span>
-        {sortedImages.length > 1 && <span>{imageLabel(sortedImages[lastIndex].daysFromBase)}</span>}
       </div>
     </div>
   );

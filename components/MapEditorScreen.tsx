@@ -14,7 +14,7 @@ import { removeMapPoint, updateFiltersEnabled, upsertMapPoint, verifyAdminToken 
 import type { MapPoint, MapPointImage } from "@/types/map";
 
 function newPhoto(isBase = false): PhotoDraft {
-  return { id: `photo-${crypto.randomUUID()}`, imageUrl: "", publicId: undefined, daysFromBase: isBase ? "0" : "", isBase };
+  return { id: `photo-${crypto.randomUUID()}`, title: "", imageUrl: "", publicId: undefined, daysFromBase: isBase ? "0" : "", isBase };
 }
 
 function basePhotos(): PhotoDraft[] {
@@ -39,17 +39,29 @@ function emptyDraft(): PointDraft {
 }
 
 function pointToDraft(point: MapPoint): PointDraft {
-  const sortedImages = [...point.images].sort((a, b) => a.daysFromBase - b.daysFromBase);
-  const photos = sortedImages.length > 0
-    ? sortedImages.map((image, index) => ({
+  const pointImages = [...point.images];
+  const baseIndex = pointImages.findIndex((image) => image.isBase || image.imageUrl === point.thumbnailUrl);
+  const baseImage = pointImages[baseIndex >= 0 ? baseIndex : 0];
+  const orderedImages = baseImage
+    ? [
+      baseImage,
+      ...pointImages
+        .filter((image) => image !== baseImage)
+        .sort((a, b) => a.daysFromBase - b.daysFromBase),
+    ]
+    : [];
+  const photos = orderedImages.length > 0
+    ? orderedImages.map((image, index) => ({
       id: `photo-${point.id}-${index}-${image.daysFromBase}`,
+      title: image.title || "",
       imageUrl: image.imageUrl,
       publicId: image.publicId || getCloudinaryPublicId(image.imageUrl) || undefined,
       daysFromBase: String(image.daysFromBase),
-      isBase: index === 0,
+      isBase: Boolean(image.isBase) || image.imageUrl === point.thumbnailUrl || index === 0,
     }))
     : [{
       id: `photo-${point.id}-base`,
+      title: "",
       imageUrl: point.thumbnailUrl,
       publicId: point.thumbnailPublicId || getCloudinaryPublicId(point.thumbnailUrl) || undefined,
       daysFromBase: "0",
@@ -74,33 +86,31 @@ function pointToDraft(point: MapPoint): PointDraft {
 
 function draftToPoint(draft: PointDraft): MapPoint {
   const photos = draft.photos
-    .map((photo, index) => ({
-      ...photo,
-      daysFromBase: index === 0 ? "0" : photo.daysFromBase,
-    }))
     .filter((photo) => photo.imageUrl);
 
   const images = photos
-    .map((photo): MapPointImage => {
+    .map((photo, index): MapPointImage => {
       const daysFromBase = Math.max(0, Math.round(Number(photo.daysFromBase) || 0));
       return {
         day: String(daysFromBase),
         daysFromBase,
+        title: photo.title.trim(),
         imageUrl: photo.imageUrl,
         publicId: photo.publicId,
+        isBase: index === 0,
       };
     })
     .sort((a, b) => a.daysFromBase - b.daysFromBase);
 
-  const baseImage = images[0];
+  const basePhoto = photos[0];
 
   return {
     id: draft.id || `point-${crypto.randomUUID()}`,
     title: draft.title.trim(),
     description: draft.description.trim(),
     coordinates: draft.coordinates!,
-    thumbnailUrl: baseImage.imageUrl,
-    thumbnailPublicId: baseImage.publicId,
+    thumbnailUrl: basePhoto.imageUrl,
+    thumbnailPublicId: basePhoto.publicId,
     images,
     targetWeeds: draft.targetWeeds,
     province: draft.province,
@@ -181,7 +191,7 @@ export function MapEditorScreen() {
       thumbnailUrl: draft.thumbnailUrl,
       thumbnailPublicId: draft.thumbnailPublicId,
       images: draft.thumbnailUrl
-        ? [{ day: "0", daysFromBase: 0, imageUrl: draft.thumbnailUrl, publicId: draft.thumbnailPublicId }]
+        ? [{ day: "0", daysFromBase: 0, title: "", imageUrl: draft.thumbnailUrl, publicId: draft.thumbnailPublicId, isBase: true }]
         : [],
       targetWeeds: draft.targetWeeds,
       province: draft.province,

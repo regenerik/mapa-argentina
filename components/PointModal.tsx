@@ -16,9 +16,10 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
   const copyScrollRef = useRef<HTMLDivElement>(null);
   const images = point.images.length > 0
     ? [...point.images].sort((a, b) => a.daysFromBase - b.daysFromBase)
-    : [{ day: "0", daysFromBase: 0, imageUrl: point.thumbnailUrl, publicId: point.thumbnailPublicId }];
+    : [{ day: "0", daysFromBase: 0, title: "", imageUrl: point.thumbnailUrl, publicId: point.thumbnailPublicId, isBase: true }];
   const selectedImage = images[Math.min(selectedIndex, images.length - 1)];
-  const selectedImageLabel = selectedImage.daysFromBase === 0 ? copy.basePhoto : `${copy.day} ${selectedImage.daysFromBase}`;
+  const selectedImageDayLabel = selectedImage.daysFromBase === 0 ? copy.basePhoto : `${copy.day} ${selectedImage.daysFromBase}`;
+  const selectedImageLabel = selectedImage.title?.trim() || selectedImageDayLabel;
 
   useEffect(() => {
     closeButtonRef.current?.focus();

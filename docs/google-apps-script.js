@@ -159,8 +159,10 @@ function normalizeImage(image, index) {
   return {
     day: String(daysFromBase),
     daysFromBase: daysFromBase,
+    title: image.title ? String(image.title) : "",
     imageUrl: String(image.imageUrl || ""),
     publicId: image.publicId ? String(image.publicId) : undefined,
+    isBase: Boolean(image.isBase),
   };
 }
 

@@ -70,19 +70,22 @@ key | value
   {
     "day": "0",
     "daysFromBase": 0,
+    "title": "Foto inicial",
     "imageUrl": "https://res.cloudinary.com/...",
-    "publicId": "carpeta/archivo"
+    "publicId": "carpeta/archivo",
+    "isBase": true
   },
   {
     "day": "15",
     "daysFromBase": 15,
+    "title": "Control a campo",
     "imageUrl": "https://res.cloudinary.com/...",
     "publicId": "carpeta/archivo"
   }
 ]
 ```
 
-La primera imagen es la foto base y se guarda también como `thumbnailUrl`. Las fotos siguientes usan `daysFromBase` para indicar cuántos días pasaron desde la foto base.
+Nota compatible: la primera imagen del formulario se guarda tambien como `thumbnailUrl` para usarla como miniatura del punto. Cada foto puede tener `title` y `daysFromBase`, incluida la primera. Los puntos anteriores a este cambio siguen funcionando aunque no tengan `title` o `isBase`.
 
 ### 2. Configurar propiedades privadas
 

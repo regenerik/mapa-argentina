@@ -9,6 +9,7 @@ import type { MapPoint } from "@/types/map";
 
 export interface PhotoDraft {
   id: string;
+  title: string;
   imageUrl: string;
   publicId?: string;
   daysFromBase: string;
@@ -56,9 +57,9 @@ function toggleSelection(values: string[], value: string) {
 function ensurePhotoCards(photos: PhotoDraft[]) {
   const next = [...photos];
   while (next.length < 4) {
-    next.push({ id: `empty-${next.length}-${crypto.randomUUID()}`, imageUrl: "", daysFromBase: next.length === 0 ? "0" : "" });
+    next.push({ id: `empty-${next.length}-${crypto.randomUUID()}`, title: "", imageUrl: "", daysFromBase: next.length === 0 ? "0" : "" });
   }
-  return next.map((photo, index) => ({ ...photo, isBase: index === 0, daysFromBase: index === 0 ? "0" : photo.daysFromBase }));
+  return next.map((photo, index) => ({ ...photo, title: photo.title || "", isBase: index === 0 }));
 }
 
 export function PointEditorPanel(props: PointEditorPanelProps) {
@@ -112,7 +113,7 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
       ...draft,
       photos: [
         ...ensurePhotoCards(draft.photos),
-        { id: `photo-${crypto.randomUUID()}`, imageUrl: "", daysFromBase: "" },
+        { id: `photo-${crypto.randomUUID()}`, title: "", imageUrl: "", daysFromBase: "" },
       ],
     });
   }
@@ -128,11 +129,11 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
     if (draft) onSave({ ...draft, photos });
   }
 
-  const hasInvalidPhotoDay = photos.some((photo, index) => (
-    index > 0 &&
-    photo.imageUrl &&
-    (!photo.daysFromBase.trim() || Number(photo.daysFromBase) <= 0)
-  ));
+  const hasInvalidPhotoDay = photos.some((photo) => {
+    if (!photo.imageUrl) return false;
+    const value = Number(photo.daysFromBase);
+    return !photo.daysFromBase.trim() || !Number.isFinite(value) || value < 0;
+  });
 
   const canSave = Boolean(
     draft?.title.trim() &&
@@ -270,12 +271,21 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
               {photos.map((photo, index) => (
                 <div key={photo.id} className="photo-card">
                   <div className="photo-card-header">
-                    <strong>{index === 0 ? copy.basePhoto : `${copy.photo} ${index + 1}`}</strong>
+                    <strong>{copy.photoSlot} {index + 1}</strong>
                     {index > 3 && <button type="button" onClick={() => removePhoto(index)} aria-label={copy.remove}>{copy.remove}</button>}
                   </div>
+                  <label className="editor-field photo-title-field">
+                    <span>{copy.photoTitle}</span>
+                    <input
+                      value={photo.title}
+                      onChange={(event) => updatePhoto(index, { title: event.target.value })}
+                      placeholder={index === 0 ? copy.basePhoto : `${copy.photo} ${index + 1}`}
+                      maxLength={60}
+                    />
+                  </label>
                   <ImageUploadField
                     compact
-                    label={index === 0 ? copy.basePhoto : copy.uploadImage}
+                    label={copy.photoFile}
                     value={photo.imageUrl}
                     onUploaded={onAssetUploaded}
                     onChange={(asset) => updatePhoto(index, {
@@ -284,19 +294,17 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
                     })}
                     onBusyChange={(busy) => setUploadBusy(`photo-${index}`, busy)}
                   />
-                  {index > 0 && (
-                    <label className="editor-field photo-day-field">
-                      <span>{copy.daysFromBase}</span>
-                      <input
-                        type="number"
-                        min="1"
-                        step="1"
-                        value={photo.daysFromBase}
-                        onChange={(event) => updatePhoto(index, { daysFromBase: event.target.value })}
-                        placeholder="7"
-                      />
-                    </label>
-                  )}
+                  <label className="editor-field photo-day-field">
+                    <span>{copy.daysFromBase}</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="1"
+                      value={photo.daysFromBase}
+                      onChange={(event) => updatePhoto(index, { daysFromBase: event.target.value })}
+                      placeholder={index === 0 ? "0" : "7"}
+                    />
+                  </label>
                 </div>
               ))}
               <button className="photo-add-card" type="button" onClick={addPhoto} title={copy.addMorePhotos}>
