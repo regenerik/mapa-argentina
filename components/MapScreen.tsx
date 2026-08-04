@@ -43,7 +43,7 @@ function MapViewerScreen() {
           <div>
             <p className="map-title-eyebrow">{copy.interactiveMap}</p>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="map-title-brand map-title-brand-empera" src="/brand/empera-logo-blanco.png" alt="Empera" draggable={false} />
+            <img className="map-title-brand map-title-brand-empera" src="/brand/empera-logo-blanco-full.png" alt="Empera" draggable={false} />
           </div>
         </div>
         <div className="map-header-actions">

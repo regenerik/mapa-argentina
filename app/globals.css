@@ -485,6 +485,9 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .point-detail-list { display: flex; flex-direction: column; gap: 8px; margin: 18px 0 0; padding-right: 2px; }
 .point-detail-list span { display: grid; grid-template-columns: minmax(76px, .35fr) minmax(0, 1fr); gap: 12px; color: rgba(254, 254, 254, .82); font-size: 11px; line-height: 1.35; }
 .point-detail-list strong { color: #96704b; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; overflow-wrap: anywhere; }
+.point-weed-list { display: flex; min-width: 0; flex-direction: column; gap: 5px; }
+.point-weed-item { display: flex; min-width: 0; flex-direction: column; gap: 1px; color: rgba(254, 254, 254, .84); overflow-wrap: anywhere; }
+.point-weed-item em { color: rgba(254, 254, 254, .7); font-style: italic; }
 .point-meta { display: flex; align-items: baseline; gap: 8px; margin-top: 26px; color: #fefefe; }
 .point-meta span { font-size: 22px; font-weight: 800; }
 .point-meta small { color: rgba(254, 254, 254, .48); font-size: 11px; }

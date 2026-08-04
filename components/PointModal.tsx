@@ -7,6 +7,14 @@ import { TimelineSlider } from "@/components/TimelineSlider";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { MapPoint } from "@/types/map";
 
+function splitWeedLabel(weed: string) {
+  const [commonName, ...scientificNameParts] = weed.split(" - ");
+  return {
+    commonName: commonName.trim(),
+    scientificName: scientificNameParts.join(" - ").trim(),
+  };
+}
+
 export function PointModal({ point, onClose }: { point: MapPoint; onClose: () => void }) {
   const { copy } = useLanguage();
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -85,7 +93,22 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
                 {point.locality && <span><strong>{copy.locality}</strong>{point.locality}</span>}
                 {point.advisor && <span><strong>{copy.advisorShort}</strong>{point.advisor}</span>}
                 {point.dose && <span><strong>{copy.dose}</strong>{point.dose}</span>}
-                {point.targetWeeds.length > 0 && <span><strong>{copy.targetWeeds}</strong>{point.targetWeeds.join(", ")}</span>}
+                {point.targetWeeds.length > 0 && (
+                  <span>
+                    <strong>{copy.targetWeeds}</strong>
+                    <span className="point-weed-list">
+                      {point.targetWeeds.map((weed) => {
+                        const { commonName, scientificName } = splitWeedLabel(weed);
+                        return (
+                          <span key={weed} className="point-weed-item">
+                            <span>{commonName}</span>
+                            {scientificName && <em>{scientificName}</em>}
+                          </span>
+                        );
+                      })}
+                    </span>
+                  </span>
+                )}
               </div>
             </div>
             {scrollState.canScrollUp && (
