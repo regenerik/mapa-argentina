@@ -102,7 +102,12 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
                         return (
                           <span key={weed} className="point-weed-item">
                             <span>{commonName}</span>
-                            {scientificName && <em>{scientificName}</em>}
+                            {scientificName && (
+                              <>
+                                <span className="point-weed-separator"> - </span>
+                                <em>{scientificName}</em>
+                              </>
+                            )}
                           </span>
                         );
                       })}

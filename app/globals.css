@@ -483,10 +483,11 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .point-modal-rule { width: 42px; height: 2px; margin: 22px 0; background: #96704b; box-shadow: 0 0 12px rgba(150, 112, 75, .42); }
 .point-description { margin: 0; color: rgba(254, 254, 254, .86); font-size: clamp(13px, 1.25vw, 16px); line-height: 1.65; overflow-wrap: anywhere; white-space: pre-line; }
 .point-detail-list { display: flex; flex-direction: column; gap: 8px; margin: 18px 0 0; padding-right: 2px; }
-.point-detail-list span { display: grid; grid-template-columns: minmax(76px, .35fr) minmax(0, 1fr); gap: 12px; color: rgba(254, 254, 254, .82); font-size: 11px; line-height: 1.35; }
+.point-detail-list > span { display: grid; grid-template-columns: minmax(76px, .35fr) minmax(0, 1fr); gap: 12px; color: rgba(254, 254, 254, .82); font-size: 11px; line-height: 1.35; }
 .point-detail-list strong { color: #96704b; font-size: 9px; letter-spacing: .1em; text-transform: uppercase; overflow-wrap: anywhere; }
 .point-weed-list { display: flex; min-width: 0; flex-direction: column; gap: 5px; }
-.point-weed-item { display: flex; min-width: 0; flex-direction: column; gap: 1px; color: rgba(254, 254, 254, .84); overflow-wrap: anywhere; }
+.point-weed-item { display: block; min-width: 0; color: rgba(254, 254, 254, .84); overflow-wrap: break-word; word-break: normal; }
+.point-weed-separator { color: rgba(254, 254, 254, .72); }
 .point-weed-item em { color: rgba(254, 254, 254, .7); font-style: italic; }
 .point-meta { display: flex; align-items: baseline; gap: 8px; margin-top: 26px; color: #fefefe; }
 .point-meta span { font-size: 22px; font-weight: 800; }
@@ -601,7 +602,7 @@ body:has(.kiosk-rotation-stage.is-rotated) {
   .point-modal-copy h2 { font-size: 28px; }
   .point-modal-rule { margin: 14px 0; }
   .point-description { display: -webkit-box; overflow: hidden; font-size: 13px; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
-  .point-detail-list span { grid-template-columns: minmax(70px, .34fr) minmax(0, 1fr); }
+  .point-detail-list > span { grid-template-columns: minmax(70px, .34fr) minmax(0, 1fr); }
   .point-meta { margin-top: 18px; }
   .timeline { padding: 16px 26px 18px; }
   .timeline-heading { margin-bottom: 14px; }
@@ -634,7 +635,7 @@ body:has(.kiosk-rotation-stage.is-rotated) {
   .point-modal-rule { margin: 14px 0; }
   .point-description { display: -webkit-box; overflow: hidden; font-size: 12px; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
   .point-detail-list { margin-top: 14px; gap: 7px; }
-  .point-detail-list span { grid-template-columns: minmax(72px, .34fr) minmax(0, 1fr); font-size: 10px; }
+  .point-detail-list > span { grid-template-columns: minmax(72px, .34fr) minmax(0, 1fr); font-size: 10px; }
   .point-meta { margin-top: 18px; }
   .timeline { padding-top: 13px; padding-bottom: 15px; }
   .timeline-heading { margin-bottom: 10px; }
