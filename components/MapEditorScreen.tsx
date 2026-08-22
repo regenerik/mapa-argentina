@@ -58,6 +58,7 @@ function pointToDraft(point: MapPoint): PointDraft {
       publicId: image.publicId || getCloudinaryPublicId(image.imageUrl) || undefined,
       daysFromBase: String(image.daysFromBase),
       isBase: Boolean(image.isBase) || image.imageUrl === point.thumbnailUrl || index === 0,
+      previewPosition: image.previewPosition,
     }))
     : [{
       id: `photo-${point.id}-base`,
@@ -66,6 +67,7 @@ function pointToDraft(point: MapPoint): PointDraft {
       publicId: point.thumbnailPublicId || getCloudinaryPublicId(point.thumbnailUrl) || undefined,
       daysFromBase: "0",
       isBase: true,
+      previewPosition: point.images.find((image) => image.imageUrl === point.thumbnailUrl)?.previewPosition,
     }];
 
   return {
@@ -98,6 +100,7 @@ function draftToPoint(draft: PointDraft): MapPoint {
         imageUrl: photo.imageUrl,
         publicId: photo.publicId,
         isBase: index === 0,
+        previewPosition: photo.previewPosition,
       };
     })
     .sort((a, b) => a.daysFromBase - b.daysFromBase);
@@ -138,6 +141,12 @@ export function MapEditorScreen() {
   const [isAccessReady, setIsAccessReady] = useState(false);
   const pendingUploads = useRef(new Set<string>());
   const adminTokenRef = useRef("");
+
+  useEffect(() => {
+    if (!message) return;
+    const timer = window.setTimeout(() => setMessage(""), 4200);
+    return () => window.clearTimeout(timer);
+  }, [message]);
 
   useEffect(() => {
     const accessTimer = window.setTimeout(() => {
@@ -191,7 +200,7 @@ export function MapEditorScreen() {
       thumbnailUrl: draft.thumbnailUrl,
       thumbnailPublicId: draft.thumbnailPublicId,
       images: draft.thumbnailUrl
-        ? [{ day: "0", daysFromBase: 0, title: "", imageUrl: draft.thumbnailUrl, publicId: draft.thumbnailPublicId, isBase: true }]
+        ? [{ day: "0", daysFromBase: 0, title: "", imageUrl: draft.thumbnailUrl, publicId: draft.thumbnailPublicId, isBase: true, previewPosition: draft.photos[0]?.previewPosition }]
         : [],
       targetWeeds: draft.targetWeeds,
       province: draft.province,
@@ -301,6 +310,15 @@ export function MapEditorScreen() {
     setAdminToken(token);
   }
 
+  function logoutEditing() {
+    window.sessionStorage.removeItem(ADMIN_TOKEN_SESSION_KEY);
+    adminTokenRef.current = "";
+    setAdminToken("");
+    setDraft(null);
+    setIsPlacing(false);
+    window.location.assign("/");
+  }
+
   return (
     <main className="map-screen editor-screen">
       <header className="map-header">
@@ -311,6 +329,12 @@ export function MapEditorScreen() {
         <div className="map-header-actions">
           <KioskRotationButton />
           <FullscreenButton />
+          <button className="icon-button editor-logout-button" type="button" onClick={logoutEditing} aria-label={copy.logoutEditingAria}>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M10 6V5a2 2 0 0 1 2-2h6v18h-6a2 2 0 0 1-2-2v-1M3 12h11m-4-4 4 4-4 4" />
+            </svg>
+            <span>{copy.logoutEditing}</span>
+          </button>
         </div>
       </header>
 
@@ -353,6 +377,12 @@ export function MapEditorScreen() {
             onCancel={cancelEditing}
             onFiltersEnabledChange={changeFiltersEnabled}
           />
+          {message && (
+            <div className="editor-toast" role="status" aria-live="polite">
+              <span>{message}</span>
+              <button type="button" onClick={() => setMessage("")} aria-label={copy.closeForm}>×</button>
+            </div>
+          )}
         </div>
       )}
     </main>

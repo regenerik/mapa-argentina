@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { ARGENTINA_PROVINCES } from "@/data/province-options";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { MapFilters, MapPoint } from "@/types/map";
@@ -47,12 +47,29 @@ function splitWeedLabel(weed: string) {
   };
 }
 
+function uniqueLocalities(points: MapPoint[]) {
+  return [...new Set(points.map((point) => point.locality?.trim()).filter((locality): locality is string => Boolean(locality)))]
+    .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+}
+
+function normalizeFilters(filters: MapFilters): MapFilters {
+  return {
+    targetWeeds: filters.targetWeeds || [],
+    provinces: filters.provinces || [],
+    localities: filters.localities || [],
+  };
+}
+
 function pointMatches(point: MapPoint, filters: MapFilters) {
-  const weedMatch = !isNoFilterSelection(filters.targetWeeds)
-    && (filters.targetWeeds.length === 0 || point.targetWeeds.some((weed) => filters.targetWeeds.includes(weed)));
-  const provinceMatch = !isNoFilterSelection(filters.provinces)
-    && (filters.provinces.length === 0 || filters.provinces.includes(point.province));
-  return weedMatch && provinceMatch;
+  const normalizedFilters = normalizeFilters(filters);
+  const weedMatch = !isNoFilterSelection(normalizedFilters.targetWeeds)
+    && (normalizedFilters.targetWeeds.length === 0 || point.targetWeeds.some((weed) => normalizedFilters.targetWeeds.includes(weed)));
+  const provinceMatch = !isNoFilterSelection(normalizedFilters.provinces)
+    && (normalizedFilters.provinces.length === 0 || normalizedFilters.provinces.includes(point.province));
+  const locality = point.locality?.trim() || "";
+  const localityMatch = !isNoFilterSelection(normalizedFilters.localities)
+    && (normalizedFilters.localities.length === 0 || normalizedFilters.localities.includes(locality));
+  return weedMatch && provinceMatch && localityMatch;
 }
 
 export function filterMapPoints(points: MapPoint[], filters: MapFilters) {
@@ -60,21 +77,18 @@ export function filterMapPoints(points: MapPoint[], filters: MapFilters) {
 }
 
 export function hasActiveFilters(filters: MapFilters) {
-  return filters.targetWeeds.length > 0 || filters.provinces.length > 0;
+  const normalizedFilters = normalizeFilters(filters);
+  return normalizedFilters.targetWeeds.length > 0 || normalizedFilters.provinces.length > 0 || normalizedFilters.localities.length > 0;
 }
 
 export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onChange, onCancel }: MapFiltersPanelProps) {
   const { copy } = useLanguage();
-  const [draftFilters, setDraftFilters] = useState<MapFilters>(appliedFilters);
-  const [openSection, setOpenSection] = useState<"weeds" | "provinces">("weeds");
+  const [openSection, setOpenSection] = useState<"weeds" | "provinces" | "localities">("weeds");
+  const draftFilters = normalizeFilters(appliedFilters);
+  const localities = useMemo(() => uniqueLocalities(points), [points]);
   const resultCount = useMemo(() => filterMapPoints(points, draftFilters).length, [draftFilters, points]);
 
-  useEffect(() => {
-    setDraftFilters(appliedFilters);
-  }, [appliedFilters]);
-
   function applyFilters(filters: MapFilters) {
-    setDraftFilters(filters);
     onChange(filters);
   }
 
@@ -165,6 +179,44 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onChange,
                     </span>
                   </label>
                 ))}
+              </div>
+            </>
+          )}
+        </section>
+
+        <section className={`filter-accordion${openSection === "localities" ? " is-open" : ""}`}>
+          <button type="button" onClick={() => setOpenSection("localities")} aria-expanded={openSection === "localities"}>
+            <span>{copy.filterByLocality}</span>
+            <b>{getSectionSummary(draftFilters.localities, copy.all)}</b>
+          </button>
+          {openSection === "localities" && (
+            <>
+              <div className="filter-section-actions">
+                <button type="button" onClick={() => applyFilters({ ...draftFilters, localities: [] })}>
+                  {copy.selectAll}
+                </button>
+                <button
+                  type="button"
+                  disabled={isNoFilterSelection(draftFilters.localities)}
+                  onClick={() => applyFilters({ ...draftFilters, localities: [NO_FILTER_SELECTION] })}
+                >
+                  {copy.clearFilter}
+                </button>
+              </div>
+              <div className="filter-options">
+                {localities.map((locality) => (
+                  <label key={locality} className="filter-check">
+                    <input
+                      type="checkbox"
+                      checked={isOptionChecked(draftFilters.localities, locality)}
+                      onChange={() => applyFilters({ ...draftFilters, localities: toggle(draftFilters.localities, locality, localities) })}
+                    />
+                    <span className="filter-check-text">
+                      <span>{locality}</span>
+                    </span>
+                  </label>
+                ))}
+                {localities.length === 0 && <p>{copy.noLocalities}</p>}
               </div>
             </>
           )}

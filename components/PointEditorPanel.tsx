@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useId, useState, type FormEvent } from "react";
 import { ARGENTINA_PROVINCES } from "@/data/province-options";
+import { ImagePreviewEditor } from "@/components/ImagePreviewEditor";
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { CloudinaryAsset } from "@/lib/cloudinary";
-import type { MapPoint } from "@/types/map";
+import type { ImagePreviewSettings, MapPoint } from "@/types/map";
 
 export interface PhotoDraft {
   id: string;
@@ -14,6 +15,7 @@ export interface PhotoDraft {
   publicId?: string;
   daysFromBase: string;
   isBase?: boolean;
+  previewPosition?: ImagePreviewSettings;
 }
 
 export interface PointDraft {
@@ -62,8 +64,14 @@ function ensurePhotoCards(photos: PhotoDraft[]) {
   return next.map((photo, index) => ({ ...photo, title: photo.title || "", isBase: index === 0 }));
 }
 
+function uniqueLocalities(points: MapPoint[]) {
+  return [...new Set(points.map((point) => point.locality?.trim()).filter((locality): locality is string => Boolean(locality)))]
+    .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+}
+
 export function PointEditorPanel(props: PointEditorPanelProps) {
   const { copy } = useLanguage();
+  const localityListId = useId();
   const {
     points,
     draft,
@@ -83,7 +91,11 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
     onFiltersEnabledChange,
   } = props;
   const [uploadingSlots, setUploadingSlots] = useState<Set<string>>(new Set());
+  const [editingPreviewIndex, setEditingPreviewIndex] = useState<number | null>(null);
   const photos = draft ? ensurePhotoCards(draft.photos) : [];
+  const editingPreviewPhoto = editingPreviewIndex !== null ? photos[editingPreviewIndex] : null;
+  const sortedPoints = [...points].sort((a, b) => a.title.localeCompare(b.title, "es", { sensitivity: "base" }));
+  const localityOptions = uniqueLocalities(points);
 
   function setUploadBusy(slot: string, busy: boolean) {
     setUploadingSlots((current) => {
@@ -187,7 +199,7 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
           {points.length > 0 && (
             <div className="editor-point-list">
               <span>{copy.savedPoints} · {points.length}</span>
-              {points.map((point) => (
+              {sortedPoints.map((point) => (
                 <button key={point.id} type="button" onClick={() => onSelect(point)}>
                   <i style={{ backgroundImage: `url("${point.thumbnailUrl}")` }} />
                   <strong>{point.title}</strong>
@@ -252,7 +264,18 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
 
           <label className="editor-field">
             <span>{copy.locality}</span>
-            <input value={draft.locality} onChange={(event) => onDraftChange({ ...draft, locality: event.target.value })} placeholder={copy.localityPlaceholder} maxLength={90} />
+            <input
+              value={draft.locality}
+              onChange={(event) => onDraftChange({ ...draft, locality: event.target.value })}
+              placeholder={copy.localityPlaceholder}
+              maxLength={90}
+              list={localityOptions.length > 0 ? localityListId : undefined}
+            />
+            {localityOptions.length > 0 && (
+              <datalist id={localityListId}>
+                {localityOptions.map((locality) => <option key={locality} value={locality} />)}
+              </datalist>
+            )}
           </label>
 
           <label className="editor-field">
@@ -291,8 +314,11 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
                     onChange={(asset) => updatePhoto(index, {
                       imageUrl: asset?.imageUrl || "",
                       publicId: asset?.publicId,
+                      previewPosition: undefined,
                     })}
                     onBusyChange={(busy) => setUploadBusy(`photo-${index}`, busy)}
+                    previewSettings={photo.previewPosition}
+                    onEditPreview={photo.imageUrl ? () => setEditingPreviewIndex(index) : undefined}
                   />
                   <label className="editor-field photo-day-field">
                     <span>{copy.daysFromBase}</span>
@@ -322,8 +348,19 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
                 {isSaving ? copy.saving : uploadingSlots.size > 0 ? copy.uploadingImages : copy.savePoint}
               </button>
             </div>
-            {message && <div className="editor-message editor-save-feedback" role="status">{message}</div>}
           </div>
+          {editingPreviewIndex !== null && editingPreviewPhoto?.imageUrl && (
+            <ImagePreviewEditor
+              imageUrl={editingPreviewPhoto.imageUrl}
+              imageTitle={editingPreviewPhoto.title || `${copy.photoSlot} ${editingPreviewIndex + 1}`}
+              initialSettings={editingPreviewPhoto.previewPosition}
+              onClose={() => setEditingPreviewIndex(null)}
+              onSave={(previewPosition) => {
+                updatePhoto(editingPreviewIndex, { previewPosition });
+                setEditingPreviewIndex(null);
+              }}
+            />
+          )}
         </form>
       )}
     </aside>

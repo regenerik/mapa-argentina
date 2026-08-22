@@ -6,8 +6,8 @@ import { getMapCatalog, getMapPoints, MAP_CATALOG_UPDATED_EVENT, MAP_POINTS_UPDA
 import type { MapCatalog, MapPoint } from "@/types/map";
 
 export function useMapPoints() {
-  const [points, setPoints] = useState<MapPoint[]>(() => getMapPoints());
-  const [catalog, setCatalog] = useState<MapCatalog>(() => getMapCatalog());
+  const [points, setPoints] = useState<MapPoint[]>([]);
+  const [catalog, setCatalog] = useState<MapCatalog>({ targetWeeds: [], filtersEnabled: false });
   const [isHydrated, setIsHydrated] = useState(false);
 
   const refresh = useCallback(() => setPoints(getMapPoints()), []);

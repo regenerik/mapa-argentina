@@ -27,6 +27,32 @@ function responseCatalog(result: { targetWeeds?: unknown[]; filtersEnabled?: boo
   };
 }
 
+function mergeLocalPreviewPositions(remotePoints: MapPoint[], localPoints: MapPoint[]): MapPoint[] {
+  if (localPoints.length === 0) return remotePoints;
+  const localById = new Map(localPoints.map((point) => [point.id, point]));
+
+  return remotePoints.map((remotePoint) => {
+    const localPoint = localById.get(remotePoint.id);
+    if (!localPoint?.images?.length) return remotePoint;
+
+    const localImages = new Map(
+      localPoint.images
+        .filter((image) => image.previewPosition)
+        .map((image) => [image.publicId || image.imageUrl, image.previewPosition]),
+    );
+
+    if (localImages.size === 0) return remotePoint;
+
+    return {
+      ...remotePoint,
+      images: remotePoint.images.map((image) => ({
+        ...image,
+        previewPosition: image.previewPosition || localImages.get(image.publicId || image.imageUrl),
+      })),
+    };
+  });
+}
+
 export async function loadMapPoints(defaultPoints: MapPoint[], signal?: AbortSignal): Promise<PersistenceResult> {
   const localPoints = initializeMapPoints(defaultPoints);
   const localCatalog = getMapCatalog();
@@ -34,7 +60,7 @@ export async function loadMapPoints(defaultPoints: MapPoint[], signal?: AbortSig
     const result = await callGoogleAppsScript({ action: "list" }, { signal });
     if (!Array.isArray(result.points)) throw new Error("Respuesta remota invalida.");
     const catalog = saveMapCatalog(responseCatalog(result, localCatalog));
-    return { points: saveMapPoints(result.points as MapPoint[]), synced: true, catalog };
+    return { points: saveMapPoints(mergeLocalPreviewPositions(result.points as MapPoint[], localPoints)), synced: true, catalog };
   } catch (error) {
     return { points: localPoints, synced: false, error: error instanceof Error ? error.message : undefined, catalog: localCatalog };
   }

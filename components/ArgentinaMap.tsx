@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, type MouseEvent, type PointerEvent } from "react";
-import { geoArea, geoCentroid, geoContains, geoMercator, geoPath, type GeoPermissibleObjects } from "d3-geo";
+import { geoArea, geoContains, geoMercator, geoPath, type GeoPermissibleObjects } from "d3-geo";
 import { TransformComponent, TransformWrapper, useTransformEffect, type ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 import provincesData from "@/data/argentina-provinces.json";
 import { useKioskRotation } from "@/components/KioskRotationProvider";
@@ -10,13 +10,14 @@ import { MapControls } from "@/components/MapControls";
 import { MapPoint as MapPointMarker } from "@/components/MapPoint";
 import { useUIScale } from "@/components/UIScaleProvider";
 import { getMapResetTransform } from "@/lib/mapViewTransform";
-import type { MapMode, MapPoint, ProvinceLabel } from "@/types/map";
+import type { MapMode, MapPoint } from "@/types/map";
 
 const WIDTH = 800;
 const HEIGHT = 1040;
 const MIN_SCALE = 0.9;
-const MAX_SCALE = 25;
+const MAX_SCALE = 58;
 const WHEEL_STEP = 0.22;
+const WHEEL_ZOOM_FACTOR = 1.18;
 
 type ProvinceFeature = {
   type: "Feature";
@@ -81,28 +82,6 @@ const malvinasImage = {
   x: 432,
   y: 812,
 };
-
-const labelOverrides: Record<string, Partial<ProvinceLabel>> = {
-  "Buenos Aires": { coordinates: [-60.4, -36.4] },
-  Cordoba: { name: "Córdoba" },
-  "Entre Rios": { name: "Entre Ríos", shortName: "Entre Ríos" },
-  Neuquen: { name: "Neuquén" },
-  "Rio Negro": { name: "Río Negro" },
-  Tucuman: { name: "Tucumán", offset: [8, -3] },
-  "Tierra del Fuego": { shortName: "T. del Fuego", offset: [22, 0] },
-  "Santiago del Estero": { shortName: "Sgo. del Estero" },
-};
-
-function getLabel(feature: ProvinceFeature): ProvinceLabel {
-  const override = labelOverrides[feature.properties.name];
-  const centroid = geoCentroid(feature as unknown as GeoPermissibleObjects) as [number, number];
-  return {
-    name: override?.name ?? feature.properties.name,
-    shortName: override?.shortName,
-    coordinates: override?.coordinates ?? centroid,
-    offset: override?.offset,
-  };
-}
 
 function MapPointLayer({ points, onPointSelect, selectedPointId }: { points: MapPoint[]; onPointSelect?: (point: MapPoint) => void; selectedPointId?: string }) {
   const layerRef = useRef<SVGGElement>(null);
@@ -315,7 +294,7 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || (uiScale <= 1 && !isRotated)) return;
+    if (!container) return;
 
     function handleScaledWheel(event: WheelEvent) {
       // Let trackpad/browser pinch gestures continue through the library path.
@@ -332,7 +311,7 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
       const currentScale = ref.state.scale;
       const nextScale = Math.max(
         MIN_SCALE,
-        Math.min(MAX_SCALE, currentScale + (event.deltaY < 0 ? WHEEL_STEP : -WHEEL_STEP)),
+        Math.min(MAX_SCALE, event.deltaY < 0 ? currentScale * WHEEL_ZOOM_FACTOR : currentScale / WHEEL_ZOOM_FACTOR),
       );
       if (nextScale === currentScale) return;
 

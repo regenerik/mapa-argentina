@@ -163,7 +163,29 @@ function normalizeImage(image, index) {
     imageUrl: String(image.imageUrl || ""),
     publicId: image.publicId ? String(image.publicId) : undefined,
     isBase: Boolean(image.isBase),
+    previewPosition: normalizePreviewSettings(image.previewPosition),
   };
+}
+
+function normalizePreviewPosition(position) {
+  if (!position || typeof position !== "object") return undefined;
+  const x = Number(position.x);
+  const y = Number(position.y);
+  const zoom = Number(position.zoom);
+  if (!isFinite(x) || !isFinite(y) || !isFinite(zoom)) return undefined;
+  return {
+    x: Math.min(100, Math.max(0, x)),
+    y: Math.min(100, Math.max(0, y)),
+    zoom: Math.min(2.6, Math.max(1, zoom)),
+  };
+}
+
+function normalizePreviewSettings(settings) {
+  if (!settings || typeof settings !== "object") return undefined;
+  const desktop = normalizePreviewPosition(settings.desktop);
+  const mobile = normalizePreviewPosition(settings.mobile);
+  if (!desktop && !mobile) return undefined;
+  return { desktop: desktop, mobile: mobile };
 }
 
 function rowToPoint(row, headers) {

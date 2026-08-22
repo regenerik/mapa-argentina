@@ -73,7 +73,11 @@ key | value
     "title": "Foto inicial",
     "imageUrl": "https://res.cloudinary.com/...",
     "publicId": "carpeta/archivo",
-    "isBase": true
+    "isBase": true,
+    "previewPosition": {
+      "desktop": { "x": 50, "y": 50, "zoom": 1 },
+      "mobile": { "x": 50, "y": 50, "zoom": 1 }
+    }
   },
   {
     "day": "15",
@@ -85,7 +89,22 @@ key | value
 ]
 ```
 
-Nota compatible: la primera imagen del formulario se guarda tambien como `thumbnailUrl` para usarla como miniatura del punto. Cada foto puede tener `title` y `daysFromBase`, incluida la primera. Los puntos anteriores a este cambio siguen funcionando aunque no tengan `title` o `isBase`.
+`previewPosition` guarda el encuadre manual de la ficha para escritorio y móvil. `x` e `y` son porcentajes de foco de la imagen, y `zoom` controla el acercamiento usado solo en la previsualización de la tarjeta. La imagen original no se modifica ni se duplica en Cloudinary; al abrirla ampliada se ve completa.
+
+Nota compatible: la primera imagen del formulario se guarda tambien como `thumbnailUrl` para usarla como miniatura del punto. Cada foto puede tener `title`, `daysFromBase`, `isBase` y `previewPosition`. Los puntos anteriores a este cambio siguen funcionando aunque no tengan esos campos.
+
+### 1.2. Encadre manual de fotos
+
+En `/edicion`, cada imagen cargada muestra el botón **Vista** entre **Reemplazar** y **Quitar**. Al abrirlo:
+
+1. Elegir la pestaña **Desktop** o **Móvil**.
+2. Arrastrar la imagen dentro del marco para elegir el foco visible.
+3. Ajustar el zoom con el slider o los botones `+` y `-`.
+4. Repetir en la otra pestaña si hace falta.
+5. Presionar **Guardar recorte**.
+6. Guardar el punto con **Guardar punto** para sincronizar el encuadre en Google Sheets.
+
+El cambio se guarda dentro del JSON de `images`; no hace falta crear columnas nuevas en Google Sheets.
 
 ### 2. Configurar propiedades privadas
 
@@ -121,6 +140,8 @@ Si ya existe una implementación:
 8. Copiar la URL que termina en `/exec`.
 
 Al actualizar la implementación existente, la URL normalmente permanece igual. No usar la URL de prueba terminada en `/dev`.
+
+Para aplicar el encuadre manual en un entorno ya publicado, pegar primero el nuevo `docs/google-apps-script.js`, crear una **Nueva versión** de Apps Script y después desplegar el sitio estático actualizado. Las fotos ya existentes quedan centradas hasta que se les configure una vista manual.
 
 ### 3.1. Inicializar hojas nuevas
 

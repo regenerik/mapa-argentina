@@ -2,6 +2,19 @@ export type MapMode = "view" | "edit";
 
 export type TimelineDay = string;
 
+export type ImagePreviewViewport = "desktop" | "mobile";
+
+export interface ImagePreviewPosition {
+  x: number;
+  y: number;
+  zoom: number;
+}
+
+export interface ImagePreviewSettings {
+  desktop?: ImagePreviewPosition;
+  mobile?: ImagePreviewPosition;
+}
+
 export interface MapPointImage {
   day: TimelineDay;
   daysFromBase: number;
@@ -9,6 +22,7 @@ export interface MapPointImage {
   imageUrl: string;
   publicId?: string;
   isBase?: boolean;
+  previewPosition?: ImagePreviewSettings;
 }
 
 export interface MapPoint {
@@ -41,4 +55,5 @@ export interface MapCatalog {
 export interface MapFilters {
   targetWeeds: string[];
   provinces: string[];
+  localities: string[];
 }

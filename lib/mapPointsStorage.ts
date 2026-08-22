@@ -20,7 +20,31 @@ function normalizeImage(image: Partial<MapPointImage>, index: number): MapPointI
     imageUrl: image.imageUrl,
     publicId: image.publicId,
     isBase: Boolean(image.isBase),
+    previewPosition: normalizePreviewSettings(image.previewPosition),
   };
+}
+
+function normalizePreviewPosition(position: unknown) {
+  if (!position || typeof position !== "object") return undefined;
+  const source = position as { x?: unknown; y?: unknown; zoom?: unknown };
+  const x = Number(source.x);
+  const y = Number(source.y);
+  const zoom = Number(source.zoom);
+  if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(zoom)) return undefined;
+  return {
+    x: Math.min(100, Math.max(0, x)),
+    y: Math.min(100, Math.max(0, y)),
+    zoom: Math.min(2.6, Math.max(1, zoom)),
+  };
+}
+
+function normalizePreviewSettings(settings: unknown): MapPointImage["previewPosition"] {
+  if (!settings || typeof settings !== "object") return undefined;
+  const source = settings as { desktop?: unknown; mobile?: unknown };
+  const desktop = normalizePreviewPosition(source.desktop);
+  const mobile = normalizePreviewPosition(source.mobile);
+  if (!desktop && !mobile) return undefined;
+  return { desktop, mobile };
 }
 
 function normalizeImages(point: MapPoint): MapPointImage[] {

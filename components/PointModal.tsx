@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { TimelineSlider } from "@/components/TimelineSlider";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -13,6 +13,17 @@ function splitWeedLabel(weed: string) {
     commonName: commonName.trim(),
     scientificName: scientificNameParts.join(" - ").trim(),
   };
+}
+
+function selectedImageStyle(image: { previewPosition?: MapPoint["images"][number]["previewPosition"] }): CSSProperties {
+  const desktop = image.previewPosition?.desktop;
+  const mobile = image.previewPosition?.mobile || desktop;
+  return {
+    "--preview-position-desktop": desktop ? `${desktop.x}% ${desktop.y}%` : undefined,
+    "--preview-scale-desktop": desktop?.zoom,
+    "--preview-position-mobile": mobile ? `${mobile.x}% ${mobile.y}%` : undefined,
+    "--preview-scale-mobile": mobile?.zoom,
+  } as CSSProperties;
 }
 
 export function PointModal({ point, onClose }: { point: MapPoint; onClose: () => void }) {
@@ -76,7 +87,7 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
 
         <div className="point-modal-main">
           <button className="point-modal-image" type="button" onClick={() => setIsImageOpen(true)} aria-label={`${copy.enlargeImage} ${point.title}, ${selectedImageLabel}`}>
-            <Image key={selectedImage.imageUrl} src={selectedImage.imageUrl} alt={`${point.title}, ${selectedImageLabel}`} fill sizes="(max-width: 700px) 90vw, 50vw" unoptimized priority />
+            <Image key={selectedImage.imageUrl} src={selectedImage.imageUrl} alt={`${point.title}, ${selectedImageLabel}`} fill sizes="(max-width: 700px) 90vw, 50vw" unoptimized priority style={selectedImageStyle(selectedImage)} />
             <div className="point-image-badge">{selectedImageLabel}</div>
             <span className="point-image-expand" aria-hidden="true">
               <svg viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5" /></svg>
