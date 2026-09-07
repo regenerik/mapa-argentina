@@ -126,6 +126,11 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
                   </span>
                 )}
               </div>
+              <div className="point-usage-note">
+                <p>{copy.usageDisclaimer}</p>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/brand/empera-logo-blanco-full.png" alt="Empera" draggable={false} />
+              </div>
             </div>
             {scrollState.canScrollUp && (
               <button className="point-copy-scroll-button is-up" type="button" onClick={() => scrollCopy("up")} aria-label={copy.scrollInfoUp}>

@@ -178,6 +178,7 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .icon-button svg { width: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
 .icon-button span { font-size: 12px; font-weight: 600; }
 .back-button { justify-self: start; }
+.map-header-spacer { justify-self: start; width: 1px; height: 1px; }
 .fullscreen-button { justify-self: end; }
 .map-header-actions { position: absolute; top: 50%; right: clamp(14px, 3vw, 34px); display: flex; gap: 10px; transform: translateY(-50%); }
 .fullscreen-button span { display: none; }
@@ -554,6 +555,9 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .point-weed-item { display: block; min-width: 0; color: rgba(254, 254, 254, .84); overflow-wrap: break-word; word-break: normal; }
 .point-weed-separator { color: rgba(254, 254, 254, .72); }
 .point-weed-item em { color: rgba(254, 254, 254, .7); font-style: italic; }
+.point-usage-note { display: flex; flex-direction: column; align-items: center; gap: clamp(44px, 9vh, 88px); margin-top: clamp(18px, 3vh, 36px); padding-right: 2px; }
+.point-usage-note p { width: 100%; margin: 0; color: rgba(254, 254, 254, .68); font-size: clamp(9px, .82vw, 11px); font-style: italic; font-weight: 400; line-height: 1.45; overflow-wrap: break-word; }
+.point-usage-note img { display: block; width: clamp(118px, 10vw, 158px); height: auto; opacity: .96; filter: drop-shadow(0 12px 24px rgba(0, 0, 0, .32)); pointer-events: none; user-select: none; -webkit-user-drag: none; }
 .point-meta { display: flex; align-items: baseline; gap: 8px; margin-top: 26px; color: #fefefe; }
 .point-meta span { font-size: 22px; font-weight: 800; }
 .point-meta small { color: rgba(254, 254, 254, .48); font-size: 11px; }
@@ -669,6 +673,8 @@ body:has(.kiosk-rotation-stage.is-rotated) {
   .point-modal-rule { margin: 14px 0; }
   .point-description { display: -webkit-box; overflow: hidden; font-size: 13px; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
   .point-detail-list > span { grid-template-columns: minmax(70px, .34fr) minmax(0, 1fr); }
+  .point-usage-note { align-items: flex-start; gap: 18px; margin-top: 16px; }
+  .point-usage-note img { width: 112px; align-self: center; }
   .point-meta { margin-top: 18px; }
   .timeline { padding: 16px 26px 18px; }
   .timeline-heading { margin-bottom: 14px; }
@@ -720,6 +726,9 @@ body:has(.kiosk-rotation-stage.is-rotated) {
   .point-description { display: -webkit-box; overflow: hidden; font-size: 12px; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
   .point-detail-list { margin-top: 14px; gap: 7px; }
   .point-detail-list > span { grid-template-columns: minmax(72px, .34fr) minmax(0, 1fr); font-size: 10px; }
+  .point-usage-note { gap: 34px; margin-top: 14px; }
+  .point-usage-note p { font-size: 9px; line-height: 1.36; }
+  .point-usage-note img { width: 112px; }
   .point-meta { margin-top: 18px; }
   .timeline { padding-top: 13px; padding-bottom: 15px; }
   .timeline-heading { margin-bottom: 10px; }

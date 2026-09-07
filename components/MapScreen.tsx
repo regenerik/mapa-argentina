@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
+import { ADMIN_TOKEN_SESSION_KEY } from "@/components/AdminAccessGate";
 import { ArgentinaMap } from "@/components/ArgentinaMap";
 import { BackButton } from "@/components/BackButton";
 import { FullscreenButton } from "@/components/FullscreenButton";
@@ -15,6 +16,20 @@ import { UIScaleRoot } from "@/components/UIScaleProvider";
 import { useMapPoints } from "@/hooks/useMapPoints";
 import type { MapFilters, MapMode, MapPoint } from "@/types/map";
 
+function subscribeToAdminSession(onStoreChange: () => void) {
+  if (typeof window === "undefined") return () => undefined;
+  window.addEventListener("storage", onStoreChange);
+  return () => window.removeEventListener("storage", onStoreChange);
+}
+
+function getAdminSessionSnapshot() {
+  try {
+    return typeof window !== "undefined" && Boolean(window.sessionStorage.getItem(ADMIN_TOKEN_SESSION_KEY));
+  } catch {
+    return false;
+  }
+}
+
 function MapViewerScreen() {
   const { copy } = useLanguage();
   const { points, catalog, isHydrated } = useMapPoints();
@@ -22,6 +37,7 @@ function MapViewerScreen() {
   const [appliedFilters, setAppliedFilters] = useState<MapFilters>({ targetWeeds: [], provinces: [], localities: [] });
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(true);
   const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
+  const hasAdminSession = useSyncExternalStore(subscribeToAdminSession, getAdminSessionSnapshot, () => false);
   const closePoint = useCallback(() => setSelectedPoint(null), []);
   const visiblePoints = catalog.filtersEnabled ? filterMapPoints(points, appliedFilters) : points;
 
@@ -38,7 +54,7 @@ function MapViewerScreen() {
   return (
     <main className="map-screen">
       <header className="map-header">
-        <BackButton />
+        {hasAdminSession ? <BackButton /> : <span className="map-header-spacer" aria-hidden="true" />}
         <div className="map-title">
           <div>
             <p className="map-title-eyebrow">{copy.interactiveMap}</p>
