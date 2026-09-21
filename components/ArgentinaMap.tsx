@@ -388,6 +388,21 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
               <pattern id="map-grid" width="56" height="56" patternUnits="userSpaceOnUse">
                 <path d="M56 0H0V56" fill="none" stroke="#fefefe" strokeOpacity=".028" strokeWidth="1" />
               </pattern>
+              <filter id="malvinas-palette" colorInterpolationFilters="sRGB">
+                <feComponentTransfer in="SourceGraphic" result="recoloredMalvinas">
+                  <feFuncR type="linear" slope="1.389831" intercept="-0.388302" />
+                  <feFuncG type="linear" slope="1.302013" intercept="-0.300829" />
+                  <feFuncB type="linear" slope="1.138298" intercept="-0.137717" />
+                  <feFuncA type="identity" />
+                </feComponentTransfer>
+                <feMorphology in="SourceAlpha" operator="dilate" radius="0.4" result="malvinasOutlineMask" />
+                <feFlood floodColor="#fefefe" result="malvinasOutlineColor" />
+                <feComposite in="malvinasOutlineColor" in2="malvinasOutlineMask" operator="in" result="malvinasOutline" />
+                <feMerge>
+                  <feMergeNode in="malvinasOutline" />
+                  <feMergeNode in="recoloredMalvinas" />
+                </feMerge>
+              </filter>
             </defs>
 
             <rect width={WIDTH} height={HEIGHT} fill="url(#map-grid)" />
@@ -399,7 +414,7 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
             </g>
 
             <g className="malvinas-layer" aria-hidden="true">
-              <image href={malvinasImage.href} xlinkHref={malvinasImage.href} x={malvinasImage.x} y={malvinasImage.y} width={malvinasImage.width} height={malvinasImage.height} preserveAspectRatio="xMidYMid meet" />
+              <image href={malvinasImage.href} xlinkHref={malvinasImage.href} x={malvinasImage.x} y={malvinasImage.y} width={malvinasImage.width} height={malvinasImage.height} preserveAspectRatio="xMidYMid meet" filter="url(#malvinas-palette)" />
             </g>
 
             <AdaptiveLabelLayer />
