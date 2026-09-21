@@ -3,6 +3,7 @@
 import { useId, useState, type ChangeEvent } from "react";
 import { uploadImageToCloudinary, type CloudinaryAsset } from "@/lib/cloudinary";
 import { useLanguage } from "@/components/LanguageProvider";
+import { getRotatedImageUrl } from "@/lib/imageRotation";
 import type { ImagePreviewSettings } from "@/types/map";
 
 interface ImageUploadFieldProps {
@@ -10,6 +11,7 @@ interface ImageUploadFieldProps {
   value: string;
   compact?: boolean;
   previewSettings?: ImagePreviewSettings;
+  rotation?: number;
   onChange: (asset: CloudinaryAsset | null) => void;
   onUploaded: (asset: CloudinaryAsset) => void;
   onBusyChange: (busy: boolean) => void;
@@ -26,7 +28,7 @@ function previewImageStyle(imageUrl: string, settings?: ImagePreviewSettings) {
   };
 }
 
-export function ImageUploadField({ label, value, compact = false, previewSettings, onChange, onUploaded, onBusyChange, onEditPreview }: ImageUploadFieldProps) {
+export function ImageUploadField({ label, value, compact = false, previewSettings, rotation, onChange, onUploaded, onBusyChange, onEditPreview }: ImageUploadFieldProps) {
   const { copy } = useLanguage();
   const inputId = useId();
   const [preview, setPreview] = useState(value);
@@ -68,6 +70,7 @@ export function ImageUploadField({ label, value, compact = false, previewSetting
   }
 
   const shownImage = preview || value;
+  const shownImageUrl = getRotatedImageUrl(shownImage, rotation);
 
   return (
     <div className={`upload-field${compact ? " is-compact" : ""}`}>
@@ -77,7 +80,7 @@ export function ImageUploadField({ label, value, compact = false, previewSetting
           className={`upload-preview${shownImage ? " has-image" : ""}`}
           aria-label={shownImage ? `${copy.previewOf} ${label}` : undefined}
         >
-          {shownImage && <span className="upload-preview-image" style={previewImageStyle(shownImage, previewSettings)} />}
+          {shownImage && <span className="upload-preview-image" style={previewImageStyle(shownImageUrl, previewSettings)} />}
           {!shownImage && (
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3l1.5-2h7L17 7h3v12H4V7Zm8 3v6m-3-3h6" /></svg>
           )}

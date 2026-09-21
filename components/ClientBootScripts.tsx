@@ -7,6 +7,12 @@ const HYDRATION_RECOVERY_KEY = "mapa-hydration-recovery";
 
 export function ClientBootScripts({ googleTagManagerId }: { googleTagManagerId: string }) {
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const isEmbedded = params.get("embed") === "1" || window.self !== window.top;
+    document.documentElement.dataset.mapEmbedded = isEmbedded ? "true" : "false";
+  }, []);
+
+  useEffect(() => {
     if (document.getElementById(GTM_SCRIPT_ID)) return;
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });

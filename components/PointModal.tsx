@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties } from "re
 import { ImageLightbox } from "@/components/ImageLightbox";
 import { TimelineSlider } from "@/components/TimelineSlider";
 import { useLanguage } from "@/components/LanguageProvider";
+import { getRotatedImageUrl } from "@/lib/imageRotation";
 import type { MapPoint } from "@/types/map";
 
 function splitWeedLabel(weed: string) {
@@ -37,6 +38,7 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
     ? [...point.images].sort((a, b) => a.daysFromBase - b.daysFromBase)
     : [{ day: "0", daysFromBase: 0, title: "", imageUrl: point.thumbnailUrl, publicId: point.thumbnailPublicId, isBase: true }];
   const selectedImage = images[Math.min(selectedIndex, images.length - 1)];
+  const selectedImageUrl = getRotatedImageUrl(selectedImage.imageUrl, selectedImage.rotation);
   const selectedImageDayLabel = `${copy.day} ${selectedImage.daysFromBase}`;
   const selectedImageLabel = selectedImage.title?.trim() || selectedImageDayLabel;
 
@@ -87,7 +89,7 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
 
         <div className="point-modal-main">
           <button className="point-modal-image" type="button" onClick={() => setIsImageOpen(true)} aria-label={`${copy.enlargeImage} ${point.title}, ${selectedImageLabel}`}>
-            <Image key={selectedImage.imageUrl} src={selectedImage.imageUrl} alt={`${point.title}, ${selectedImageLabel}`} fill sizes="(max-width: 700px) 90vw, 50vw" unoptimized priority style={selectedImageStyle(selectedImage)} />
+            <Image key={selectedImageUrl} src={selectedImageUrl} alt={`${point.title}, ${selectedImageLabel}`} fill sizes="(max-width: 700px) 90vw, 50vw" unoptimized priority style={selectedImageStyle(selectedImage)} />
             <div className="point-image-badge">{selectedImageLabel}</div>
             <span className="point-image-expand" aria-hidden="true">
               <svg viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5" /></svg>
@@ -147,7 +149,7 @@ export function PointModal({ point, onClose }: { point: MapPoint; onClose: () =>
 
         <TimelineSlider key={point.id} images={images} selectedIndex={selectedIndex} onChange={setSelectedIndex} />
       </section>
-      {isImageOpen && <ImageLightbox imageUrl={selectedImage.imageUrl} alt={`${point.title}, ${selectedImageLabel}`} onClose={() => setIsImageOpen(false)} />}
+      {isImageOpen && <ImageLightbox imageUrl={selectedImageUrl} alt={`${point.title}, ${selectedImageLabel}`} onClose={() => setIsImageOpen(false)} />}
     </div>
   );
 }

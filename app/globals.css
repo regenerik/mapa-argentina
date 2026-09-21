@@ -163,6 +163,8 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .home-zoom-actions svg { width: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 2.1; }
 
 .map-screen { display: grid; grid-template-rows: 82px minmax(0, 1fr); height: var(--scaled-svh); overflow: hidden; background: #090d0a; }
+html[data-map-embedded="true"] .map-screen:not(.editor-screen) { grid-template-rows: minmax(0, 1fr); }
+html[data-map-embedded="true"] .map-screen:not(.editor-screen) > .map-header { display: none; }
 .map-header { position: relative; z-index: 20; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 12px clamp(14px, 3vw, 34px); border-bottom: 1px solid rgba(254, 254, 254, .16); background: linear-gradient(135deg, #886942, #412919); backdrop-filter: blur(20px); }
 .map-title { display: flex; min-width: 0; align-items: center; justify-content: center; gap: 12px; justify-self: center; text-align: center; }
 .map-title > div { display: flex; min-width: 0; flex-direction: column; align-items: center; justify-content: center; }
@@ -459,6 +461,11 @@ body:has(.kiosk-rotation-stage.is-rotated) {
 .crop-editor-controls button svg { width: 18px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
 .crop-editor-controls input { width: 100%; accent-color: #cba57f; }
 .crop-editor-controls span { min-width: 64px; padding: 9px 11px; border: 1px solid rgba(150, 112, 75, .28); border-radius: 999px; color: #fefefe; background: rgba(28, 17, 10, .54); font-size: 11px; text-align: center; white-space: nowrap; }
+.crop-editor-rotation { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 10px; }
+.crop-editor-rotation button { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; gap: 8px; padding: 0 14px; border: 1px solid rgba(150, 112, 75, .34); border-radius: 10px; color: #fefefe; background: rgba(28, 17, 10, .74); cursor: pointer; font-size: 11px; }
+.crop-editor-rotation button:hover, .crop-editor-rotation button:focus-visible { border-color: rgba(150, 112, 75, .78); background: rgba(65, 41, 25, .78); outline: none; }
+.crop-editor-rotation button svg { width: 18px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
+.crop-editor-rotation strong { min-width: 52px; color: #fefefe; font-size: 12px; text-align: center; }
 .crop-preview-card { overflow: hidden; border: 1px solid rgba(150, 112, 75, .34); border-radius: 18px; background: rgba(28, 17, 10, .7); box-shadow: inset 0 1px rgba(255, 255, 255, .04); }
 .crop-preview-card.is-desktop { display: grid; grid-template-columns: minmax(0, 1.26fr) minmax(120px, .74fr); grid-template-rows: auto 52px; }
 .crop-preview-image { position: relative; overflow: hidden; background: #120b07; }

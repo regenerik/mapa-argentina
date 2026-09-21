@@ -14,7 +14,7 @@ import { removeMapPoint, updateFiltersEnabled, upsertMapPoint, verifyAdminToken 
 import type { MapPoint, MapPointImage } from "@/types/map";
 
 function newPhoto(isBase = false): PhotoDraft {
-  return { id: `photo-${crypto.randomUUID()}`, title: "", imageUrl: "", publicId: undefined, daysFromBase: isBase ? "0" : "", isBase };
+  return { id: `photo-${crypto.randomUUID()}`, title: "", imageUrl: "", publicId: undefined, daysFromBase: isBase ? "0" : "", isBase, rotation: 0 };
 }
 
 function basePhotos(): PhotoDraft[] {
@@ -58,6 +58,7 @@ function pointToDraft(point: MapPoint): PointDraft {
       publicId: image.publicId || getCloudinaryPublicId(image.imageUrl) || undefined,
       daysFromBase: String(image.daysFromBase),
       isBase: Boolean(image.isBase) || image.imageUrl === point.thumbnailUrl || index === 0,
+      rotation: image.rotation || 0,
       previewPosition: image.previewPosition,
     }))
     : [{
@@ -67,6 +68,7 @@ function pointToDraft(point: MapPoint): PointDraft {
       publicId: point.thumbnailPublicId || getCloudinaryPublicId(point.thumbnailUrl) || undefined,
       daysFromBase: "0",
       isBase: true,
+      rotation: point.images.find((image) => image.imageUrl === point.thumbnailUrl)?.rotation || 0,
       previewPosition: point.images.find((image) => image.imageUrl === point.thumbnailUrl)?.previewPosition,
     }];
 
@@ -100,6 +102,7 @@ function draftToPoint(draft: PointDraft): MapPoint {
         imageUrl: photo.imageUrl,
         publicId: photo.publicId,
         isBase: index === 0,
+        rotation: photo.rotation || 0,
         previewPosition: photo.previewPosition,
       };
     })
@@ -200,7 +203,7 @@ export function MapEditorScreen() {
       thumbnailUrl: draft.thumbnailUrl,
       thumbnailPublicId: draft.thumbnailPublicId,
       images: draft.thumbnailUrl
-        ? [{ day: "0", daysFromBase: 0, title: "", imageUrl: draft.thumbnailUrl, publicId: draft.thumbnailPublicId, isBase: true, previewPosition: draft.photos[0]?.previewPosition }]
+        ? [{ day: "0", daysFromBase: 0, title: "", imageUrl: draft.thumbnailUrl, publicId: draft.thumbnailPublicId, isBase: true, rotation: draft.photos[0]?.rotation || 0, previewPosition: draft.photos[0]?.previewPosition }]
         : [],
       targetWeeds: draft.targetWeeds,
       province: draft.province,

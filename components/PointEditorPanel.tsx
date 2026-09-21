@@ -6,6 +6,7 @@ import { ImagePreviewEditor } from "@/components/ImagePreviewEditor";
 import { ImageUploadField } from "@/components/ImageUploadField";
 import { useLanguage } from "@/components/LanguageProvider";
 import type { CloudinaryAsset } from "@/lib/cloudinary";
+import { getRotatedImageUrl } from "@/lib/imageRotation";
 import type { ImagePreviewSettings, MapPoint } from "@/types/map";
 
 export interface PhotoDraft {
@@ -15,6 +16,7 @@ export interface PhotoDraft {
   publicId?: string;
   daysFromBase: string;
   isBase?: boolean;
+  rotation?: number;
   previewPosition?: ImagePreviewSettings;
 }
 
@@ -59,7 +61,7 @@ function toggleSelection(values: string[], value: string) {
 function ensurePhotoCards(photos: PhotoDraft[]) {
   const next = [...photos];
   while (next.length < 4) {
-    next.push({ id: `empty-${next.length}-${crypto.randomUUID()}`, title: "", imageUrl: "", daysFromBase: next.length === 0 ? "0" : "" });
+    next.push({ id: `empty-${next.length}-${crypto.randomUUID()}`, title: "", imageUrl: "", daysFromBase: next.length === 0 ? "0" : "", rotation: 0 });
   }
   return next.map((photo, index) => ({ ...photo, title: photo.title || "", isBase: index === 0 }));
 }
@@ -67,6 +69,11 @@ function ensurePhotoCards(photos: PhotoDraft[]) {
 function uniqueLocalities(points: MapPoint[]) {
   return [...new Set(points.map((point) => point.locality?.trim()).filter((locality): locality is string => Boolean(locality)))]
     .sort((a, b) => a.localeCompare(b, "es", { sensitivity: "base" }));
+}
+
+function pointThumbnailUrl(point: MapPoint) {
+  const baseImage = point.images.find((image) => image.isBase || image.imageUrl === point.thumbnailUrl) || point.images[0];
+  return getRotatedImageUrl(point.thumbnailUrl, baseImage?.rotation);
 }
 
 export function PointEditorPanel(props: PointEditorPanelProps) {
@@ -125,7 +132,7 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
       ...draft,
       photos: [
         ...ensurePhotoCards(draft.photos),
-        { id: `photo-${crypto.randomUUID()}`, title: "", imageUrl: "", daysFromBase: "" },
+        { id: `photo-${crypto.randomUUID()}`, title: "", imageUrl: "", daysFromBase: "", rotation: 0 },
       ],
     });
   }
@@ -201,7 +208,7 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
               <span>{copy.savedPoints} · {points.length}</span>
               {sortedPoints.map((point) => (
                 <button key={point.id} type="button" onClick={() => onSelect(point)}>
-                  <i style={{ backgroundImage: `url("${point.thumbnailUrl}")` }} />
+                  <i style={{ backgroundImage: `url("${pointThumbnailUrl(point)}")` }} />
                   <strong>{point.title}</strong>
                   <b>›</b>
                 </button>
@@ -314,10 +321,12 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
                     onChange={(asset) => updatePhoto(index, {
                       imageUrl: asset?.imageUrl || "",
                       publicId: asset?.publicId,
+                      rotation: 0,
                       previewPosition: undefined,
                     })}
                     onBusyChange={(busy) => setUploadBusy(`photo-${index}`, busy)}
                     previewSettings={photo.previewPosition}
+                    rotation={photo.rotation}
                     onEditPreview={photo.imageUrl ? () => setEditingPreviewIndex(index) : undefined}
                   />
                   <label className="editor-field photo-day-field">
@@ -354,9 +363,10 @@ export function PointEditorPanel(props: PointEditorPanelProps) {
               imageUrl={editingPreviewPhoto.imageUrl}
               imageTitle={editingPreviewPhoto.title || `${copy.photoSlot} ${editingPreviewIndex + 1}`}
               initialSettings={editingPreviewPhoto.previewPosition}
+              initialRotation={editingPreviewPhoto.rotation}
               onClose={() => setEditingPreviewIndex(null)}
-              onSave={(previewPosition) => {
-                updatePhoto(editingPreviewIndex, { previewPosition });
+              onSave={(previewPosition, rotation) => {
+                updatePhoto(editingPreviewIndex, { previewPosition, rotation });
                 setEditingPreviewIndex(null);
               }}
             />

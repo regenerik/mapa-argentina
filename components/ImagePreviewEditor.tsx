@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type PointerEvent, type WheelEvent } from "react";
 import { createPortal } from "react-dom";
 import { useLanguage } from "@/components/LanguageProvider";
+import { getRotatedImageUrl, normalizeImageRotation, rotateImageLeft, rotateImageRight } from "@/lib/imageRotation";
 import type { ImagePreviewPosition, ImagePreviewSettings, ImagePreviewViewport } from "@/types/map";
 
 const DEFAULT_POSITION: ImagePreviewPosition = { x: 50, y: 50, zoom: 1 };
@@ -74,14 +75,16 @@ interface ImagePreviewEditorProps {
   imageUrl: string;
   imageTitle: string;
   initialSettings?: ImagePreviewSettings;
+  initialRotation?: number;
   onClose: () => void;
-  onSave: (settings: ImagePreviewSettings) => void;
+  onSave: (settings: ImagePreviewSettings, rotation: number) => void;
 }
 
-export function ImagePreviewEditor({ imageUrl, imageTitle, initialSettings, onClose, onSave }: ImagePreviewEditorProps) {
+export function ImagePreviewEditor({ imageUrl, imageTitle, initialSettings, initialRotation, onClose, onSave }: ImagePreviewEditorProps) {
   const { copy } = useLanguage();
   const [activeViewport, setActiveViewport] = useState<ImagePreviewViewport>("desktop");
   const [positions, setPositions] = useState(() => normalizeSettings(initialSettings));
+  const [rotation, setRotation] = useState(() => normalizeImageRotation(initialRotation));
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const [frameSize, setFrameSize] = useState<{ width: number; height: number } | null>(null);
@@ -98,6 +101,7 @@ export function ImagePreviewEditor({ imageUrl, imageTitle, initialSettings, onCl
   const activeConfig = VIEWPORTS.find((viewport) => viewport.id === activeViewport) || VIEWPORTS[0];
   const previewLabel = activeViewport === "desktop" ? copy.desktopPreview : copy.mobilePreview;
   const zoomPercent = Math.round(activePosition.zoom * 100);
+  const displayImageUrl = getRotatedImageUrl(imageUrl, rotation);
 
   useEffect(() => {
     closeButtonRef.current?.focus();
@@ -134,6 +138,12 @@ export function ImagePreviewEditor({ imageUrl, imageTitle, initialSettings, onCl
 
   function resetActive() {
     updatePosition(() => DEFAULT_POSITION);
+  }
+
+  function changeRotation(direction: "left" | "right") {
+    setRotation((current) => direction === "left" ? rotateImageLeft(current) : rotateImageRight(current));
+    setPositions(normalizeSettings());
+    setImageSize(null);
   }
 
   function handlePointerDown(event: PointerEvent<HTMLDivElement>) {
@@ -226,7 +236,8 @@ export function ImagePreviewEditor({ imageUrl, imageTitle, initialSettings, onCl
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   className="crop-editor-image-plane"
-                  src={imageUrl}
+                  key={displayImageUrl}
+                  src={displayImageUrl}
                   alt={imageTitle}
                   draggable={false}
                   style={imagePlaneStyle(activePosition, frameSize, imageSize)}
@@ -262,6 +273,17 @@ export function ImagePreviewEditor({ imageUrl, imageTitle, initialSettings, onCl
                 {copy.resetCrop}
               </button>
             </div>
+            <div className="crop-editor-rotation" role="group" aria-label={copy.imageRotation}>
+              <button type="button" onClick={() => changeRotation("left")} aria-label={copy.rotateImageLeft}>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7v5h5M5.5 16a8 8 0 1 0 1-10L4 9" /></svg>
+                {copy.rotateLeft}
+              </button>
+              <strong>{rotation}°</strong>
+              <button type="button" onClick={() => changeRotation("right")} aria-label={copy.rotateImageRight}>
+                {copy.rotateRight}
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5m3.5 4a8 8 0 1 1-1-10L20 9" /></svg>
+              </button>
+            </div>
           </div>
 
           <aside className="crop-editor-preview">
@@ -270,7 +292,7 @@ export function ImagePreviewEditor({ imageUrl, imageTitle, initialSettings, onCl
             <div className={`crop-preview-card is-${activeViewport}`}>
               <div className="crop-preview-image" style={{ aspectRatio: activeConfig.aspect }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={imageUrl} alt={imageTitle} draggable={false} style={positionStyle(activePosition, imageUrl)} />
+                <img key={displayImageUrl} src={displayImageUrl} alt={imageTitle} draggable={false} style={positionStyle(activePosition, displayImageUrl)} />
                 <span className="point-image-badge">{copy.basePhoto}</span>
                 <span className="point-image-expand" aria-hidden="true">
                   <svg viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M8 21H3v-5m13 5h5v-5" /></svg>
@@ -293,7 +315,7 @@ export function ImagePreviewEditor({ imageUrl, imageTitle, initialSettings, onCl
 
         <footer className="crop-editor-footer">
           <button type="button" onClick={onClose}>{copy.cancel}</button>
-          <button type="button" onClick={() => onSave(positions)}>
+          <button type="button" onClick={() => onSave(positions, rotation)}>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v18M3 6h18M8 21h10a3 3 0 0 0 3-3V8M3 16h13a3 3 0 0 0 3-3V3" /></svg>
             {copy.saveCrop}
           </button>

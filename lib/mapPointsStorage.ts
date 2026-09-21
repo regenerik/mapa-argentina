@@ -1,4 +1,5 @@
 import type { MapCatalog, MapPoint, MapPointImage } from "@/types/map";
+import { normalizeImageRotation } from "@/lib/imageRotation";
 
 const STORAGE_KEY = "argentina-map-points-v3";
 const CATALOG_STORAGE_KEY = "argentina-map-catalog-v1";
@@ -20,6 +21,7 @@ function normalizeImage(image: Partial<MapPointImage>, index: number): MapPointI
     imageUrl: image.imageUrl,
     publicId: image.publicId,
     isBase: Boolean(image.isBase),
+    rotation: normalizeImageRotation(image.rotation),
     previewPosition: normalizePreviewSettings(image.previewPosition),
   };
 }

@@ -74,6 +74,7 @@ key | value
     "imageUrl": "https://res.cloudinary.com/...",
     "publicId": "carpeta/archivo",
     "isBase": true,
+    "rotation": 90,
     "previewPosition": {
       "desktop": { "x": 50, "y": 50, "zoom": 1 },
       "mobile": { "x": 50, "y": 50, "zoom": 1 }
@@ -89,7 +90,7 @@ key | value
 ]
 ```
 
-`previewPosition` guarda el encuadre manual de la ficha para escritorio y móvil. `x` e `y` son porcentajes de foco de la imagen, y `zoom` controla el acercamiento usado solo en la previsualización de la tarjeta. La imagen original no se modifica ni se duplica en Cloudinary; al abrirla ampliada se ve completa.
+`rotation` guarda la orientación visual en pasos de 90 grados (`0`, `90`, `180` o `270`). `previewPosition` guarda el encuadre manual de la ficha para escritorio y móvil. `x` e `y` son porcentajes de foco de la imagen, y `zoom` controla el acercamiento usado solo en la previsualización de la tarjeta. La imagen original no se reemplaza en Cloudinary: el sitio solicita una transformación de visualización y conserva la URL y el `publicId` originales.
 
 Nota compatible: la primera imagen del formulario se guarda tambien como `thumbnailUrl` para usarla como miniatura del punto. Cada foto puede tener `title`, `daysFromBase`, `isBase` y `previewPosition`. Los puntos anteriores a este cambio siguen funcionando aunque no tengan esos campos.
 
@@ -99,12 +100,23 @@ En `/edicion`, cada imagen cargada muestra el botón **Vista** entre **Reemplaza
 
 1. Elegir la pestaña **Desktop** o **Móvil**.
 2. Arrastrar la imagen dentro del marco para elegir el foco visible.
-3. Ajustar el zoom con el slider o los botones `+` y `-`.
-4. Repetir en la otra pestaña si hace falta.
-5. Presionar **Guardar recorte**.
-6. Guardar el punto con **Guardar punto** para sincronizar el encuadre en Google Sheets.
+3. Girar la imagen 90 grados hacia la izquierda o derecha si hace falta. Al girar se restablece el encuadre para evitar conservar coordenadas incompatibles con la nueva orientación.
+4. Ajustar el zoom con el slider o los botones `+` y `-`.
+5. Repetir el encuadre en la otra pestaña si hace falta.
+6. Presionar **Guardar recorte**.
+7. Guardar el punto con **Guardar punto** para sincronizar el encuadre y la rotación en Google Sheets.
 
 El cambio se guarda dentro del JSON de `images`; no hace falta crear columnas nuevas en Google Sheets.
+
+### 1.3. Vista embebida del mapa
+
+Cuando `/mapa` se abre dentro de un `iframe`, el encabezado superior se oculta automáticamente y el mapa ocupa toda el área disponible. También se puede forzar ese comportamiento con:
+
+```text
+/mapa/?embed=1
+```
+
+La ruta `/edicion` conserva siempre su encabezado, incluso si se abre dentro de un `iframe`.
 
 ### 2. Configurar propiedades privadas
 

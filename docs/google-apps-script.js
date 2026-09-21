@@ -163,8 +163,16 @@ function normalizeImage(image, index) {
     imageUrl: String(image.imageUrl || ""),
     publicId: image.publicId ? String(image.publicId) : undefined,
     isBase: Boolean(image.isBase),
+    rotation: normalizeImageRotation(image.rotation),
     previewPosition: normalizePreviewSettings(image.previewPosition),
   };
+}
+
+function normalizeImageRotation(value) {
+  const numericValue = Number(value);
+  if (!isFinite(numericValue)) return 0;
+  const snappedValue = Math.round(numericValue / 90) * 90;
+  return ((snappedValue % 360) + 360) % 360;
 }
 
 function normalizePreviewPosition(position) {

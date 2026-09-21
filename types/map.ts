@@ -22,6 +22,7 @@ export interface MapPointImage {
   imageUrl: string;
   publicId?: string;
   isBase?: boolean;
+  rotation?: number;
   previewPosition?: ImagePreviewSettings;
 }
 
