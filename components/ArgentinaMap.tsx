@@ -86,6 +86,7 @@ const malvinasImage = {
 function MapPointLayer({ points, onPointSelect, selectedPointId }: { points: MapPoint[]; onPointSelect?: (point: MapPoint) => void; selectedPointId?: string }) {
   const layerRef = useRef<SVGGElement>(null);
   const currentScaleRef = useRef(1);
+  const lastSyncedScaleRef = useRef<number | null>(null);
   const { copy } = useLanguage();
   const syncPointVisuals = useCallback((scale: number) => {
     const compensatedScale = 1 / Math.pow(scale, 0.82);
@@ -106,11 +107,16 @@ function MapPointLayer({ points, onPointSelect, selectedPointId }: { points: Map
 
   useTransformEffect(({ state }) => {
     currentScaleRef.current = state.scale;
+
+    if (lastSyncedScaleRef.current !== null && Math.abs(lastSyncedScaleRef.current - state.scale) < 0.0001) return;
+
+    lastSyncedScaleRef.current = state.scale;
     syncPointVisuals(state.scale);
   });
 
   useEffect(() => {
     syncPointVisuals(currentScaleRef.current);
+    lastSyncedScaleRef.current = currentScaleRef.current;
   }, [points, selectedPointId, syncPointVisuals]);
 
   return (
@@ -126,8 +132,12 @@ function MapPointLayer({ points, onPointSelect, selectedPointId }: { points: Map
 
 function MalvinasLayer() {
   const outlineRef = useRef<SVGFEMorphologyElement>(null);
+  const lastSyncedScaleRef = useRef<number | null>(null);
 
   useTransformEffect(({ state }) => {
+    if (lastSyncedScaleRef.current !== null && Math.abs(lastSyncedScaleRef.current - state.scale) < 0.0001) return;
+
+    lastSyncedScaleRef.current = state.scale;
     outlineRef.current?.setAttribute("radius", String(0.625 / Math.max(state.scale, 0.001)));
   });
 
