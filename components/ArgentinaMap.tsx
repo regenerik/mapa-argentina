@@ -389,18 +389,18 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
                 <path d="M56 0H0V56" fill="none" stroke="#fefefe" strokeOpacity=".028" strokeWidth="1" />
               </pattern>
               <filter id="malvinas-palette" colorInterpolationFilters="sRGB">
-                <feComponentTransfer in="SourceGraphic" result="recoloredMalvinas">
-                  <feFuncR type="linear" slope="1.389831" intercept="-0.388302" />
-                  <feFuncG type="linear" slope="1.302013" intercept="-0.300829" />
-                  <feFuncB type="linear" slope="1.138298" intercept="-0.137717" />
-                  <feFuncA type="identity" />
+                <feFlood floodColor="#5a3c28" result="malvinasFillColor" />
+                <feComposite in="malvinasFillColor" in2="SourceAlpha" operator="in" result="recoloredMalvinas" />
+                <feMorphology in="SourceAlpha" operator="erode" radius="0.625" result="malvinasInnerMask" />
+                <feComposite in="SourceAlpha" in2="malvinasInnerMask" operator="out" result="malvinasOutlineMask" />
+                <feComponentTransfer in="malvinasOutlineMask" result="malvinasOpaqueOutlineMask">
+                  <feFuncA type="linear" slope="3" />
                 </feComponentTransfer>
-                <feMorphology in="SourceAlpha" operator="dilate" radius="0.4" result="malvinasOutlineMask" />
-                <feFlood floodColor="#fefefe" result="malvinasOutlineColor" />
-                <feComposite in="malvinasOutlineColor" in2="malvinasOutlineMask" operator="in" result="malvinasOutline" />
+                <feFlood floodColor="#ffffff" result="malvinasOutlineColor" />
+                <feComposite in="malvinasOutlineColor" in2="malvinasOpaqueOutlineMask" operator="in" result="malvinasOutline" />
                 <feMerge>
-                  <feMergeNode in="malvinasOutline" />
                   <feMergeNode in="recoloredMalvinas" />
+                  <feMergeNode in="malvinasOutline" />
                 </feMerge>
               </filter>
             </defs>
