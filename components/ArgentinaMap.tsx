@@ -124,6 +124,39 @@ function MapPointLayer({ points, onPointSelect, selectedPointId }: { points: Map
   );
 }
 
+function MalvinasLayer() {
+  const outlineRef = useRef<SVGFEMorphologyElement>(null);
+
+  useTransformEffect(({ state }) => {
+    outlineRef.current?.setAttribute("radius", String(0.625 / Math.max(state.scale, 0.001)));
+  });
+
+  return (
+    <>
+      <defs>
+        <filter id="malvinas-palette" colorInterpolationFilters="sRGB">
+          <feFlood floodColor="#5a3c28" result="malvinasFillColor" />
+          <feComposite in="malvinasFillColor" in2="SourceAlpha" operator="in" result="recoloredMalvinas" />
+          <feMorphology ref={outlineRef} in="SourceAlpha" operator="erode" radius="0.625" result="malvinasInnerMask" />
+          <feComposite in="SourceAlpha" in2="malvinasInnerMask" operator="out" result="malvinasOutlineMask" />
+          <feComponentTransfer in="malvinasOutlineMask" result="malvinasOpaqueOutlineMask">
+            <feFuncA type="linear" slope="3" />
+          </feComponentTransfer>
+          <feFlood floodColor="#ffffff" result="malvinasOutlineColor" />
+          <feComposite in="malvinasOutlineColor" in2="malvinasOpaqueOutlineMask" operator="in" result="malvinasOutline" />
+          <feMerge>
+            <feMergeNode in="recoloredMalvinas" />
+            <feMergeNode in="malvinasOutline" />
+          </feMerge>
+        </filter>
+      </defs>
+      <g className="malvinas-layer" aria-hidden="true">
+        <image href={malvinasImage.href} xlinkHref={malvinasImage.href} x={malvinasImage.x} y={malvinasImage.y} width={malvinasImage.width} height={malvinasImage.height} preserveAspectRatio="xMidYMid meet" filter="url(#malvinas-palette)" />
+      </g>
+    </>
+  );
+}
+
 function AdaptiveLabelLayer() {
   return null;
 }
@@ -388,21 +421,6 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
               <pattern id="map-grid" width="56" height="56" patternUnits="userSpaceOnUse">
                 <path d="M56 0H0V56" fill="none" stroke="#fefefe" strokeOpacity=".028" strokeWidth="1" />
               </pattern>
-              <filter id="malvinas-palette" colorInterpolationFilters="sRGB">
-                <feFlood floodColor="#5a3c28" result="malvinasFillColor" />
-                <feComposite in="malvinasFillColor" in2="SourceAlpha" operator="in" result="recoloredMalvinas" />
-                <feMorphology in="SourceAlpha" operator="erode" radius="0.625" result="malvinasInnerMask" />
-                <feComposite in="SourceAlpha" in2="malvinasInnerMask" operator="out" result="malvinasOutlineMask" />
-                <feComponentTransfer in="malvinasOutlineMask" result="malvinasOpaqueOutlineMask">
-                  <feFuncA type="linear" slope="3" />
-                </feComponentTransfer>
-                <feFlood floodColor="#ffffff" result="malvinasOutlineColor" />
-                <feComposite in="malvinasOutlineColor" in2="malvinasOpaqueOutlineMask" operator="in" result="malvinasOutline" />
-                <feMerge>
-                  <feMergeNode in="recoloredMalvinas" />
-                  <feMergeNode in="malvinasOutline" />
-                </feMerge>
-              </filter>
             </defs>
 
             <rect width={WIDTH} height={HEIGHT} fill="url(#map-grid)" />
@@ -413,9 +431,7 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
               ))}
             </g>
 
-            <g className="malvinas-layer" aria-hidden="true">
-              <image href={malvinasImage.href} xlinkHref={malvinasImage.href} x={malvinasImage.x} y={malvinasImage.y} width={malvinasImage.width} height={malvinasImage.height} preserveAspectRatio="xMidYMid meet" filter="url(#malvinas-palette)" />
-            </g>
+            <MalvinasLayer />
 
             <AdaptiveLabelLayer />
 
