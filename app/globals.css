@@ -237,11 +237,9 @@ html[data-map-embedded="true"] .map-screen:not(.editor-screen) .map-workspace-br
 .map-controls button:last-child { border-bottom: 0; }
 .map-controls button:hover, .map-controls button:focus-visible { color: white; background: rgba(136, 105, 66, .48); outline: none; }
 .map-controls svg { width: 21px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.7; }
-.map-filter-controls { position: absolute; z-index: 12; top: 24px; right: clamp(82px, 3vw + 66px, 98px); display: flex; flex-direction: column; gap: 10px; }
-.map-filter-controls button { position: relative; display: grid; width: 54px; height: 54px; place-items: center; border: 1px solid rgba(254, 254, 254, .16); border-radius: 50%; color: #fefefe; background: rgba(28, 17, 10, .78); box-shadow: 0 12px 36px rgba(0, 0, 0, .34); cursor: pointer; backdrop-filter: blur(14px); }
-.map-filter-controls button:hover, .map-filter-controls button:focus-visible { color: white; border-color: rgba(150, 112, 75, .72); background: rgba(65, 41, 25, .82); outline: none; }
-.map-filter-controls svg { width: 22px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.9; }
-.map-filter-controls button > span { position: absolute; top: 9px; right: 9px; width: 11px; height: 11px; border: 2px solid #1c110a; border-radius: 50%; background: #96704b; box-shadow: 0 0 12px rgba(150, 112, 75, .82); }
+.map-controls .map-filter-control { position: relative; }
+.map-controls .map-filter-control svg { width: 22px; stroke-width: 1.9; }
+.map-controls .map-filter-control > span { position: absolute; top: 9px; right: 9px; width: 11px; height: 11px; border: 2px solid #1c110a; border-radius: 50%; background: #96704b; box-shadow: 0 0 12px rgba(150, 112, 75, .82); }
 .app-dialog-overlay { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 18px; background: rgba(10, 6, 3, .62); backdrop-filter: blur(10px); animation: modal-fade-in .18s ease-out both; }
 .app-dialog { width: min(420px, 100%); padding: 24px; border: 1px solid rgba(150, 112, 75, .38); border-radius: 24px; background: linear-gradient(145deg, rgba(45, 29, 18, .97), rgba(18, 11, 7, .97)); box-shadow: 0 28px 86px rgba(8, 4, 2, .62), inset 0 1px rgba(255, 255, 255, .04); animation: modal-rise-in .22s cubic-bezier(.2, .8, .2, 1) both; }
 .app-dialog > p { margin: 0 0 8px; color: #cba57f; font-size: 9px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
@@ -252,7 +250,7 @@ html[data-map-embedded="true"] .map-screen:not(.editor-screen) .map-workspace-br
 .app-dialog-actions button:first-child { border: 1px solid rgba(150, 112, 75, .28); color: rgba(254, 254, 254, .72); background: transparent; }
 .app-dialog-actions button:last-child { border: 1px solid rgba(150, 112, 75, .62); color: #fefefe; background: linear-gradient(135deg, #886942, #412919); box-shadow: 0 10px 26px rgba(65, 41, 25, .26); }
 .app-dialog-actions button:hover, .app-dialog-actions button:focus-visible { color: white; border-color: rgba(150, 112, 75, .72); outline: none; }
-.filter-panel { position: absolute; z-index: 30; top: 18px; right: clamp(132px, 3vw + 116px, 150px); display: flex; width: min(225px, calc(100vw - 28px)); max-height: min(548px, calc(var(--scaled-svh) - 104px)); flex-direction: column; overflow: hidden; border: 1px solid rgba(150, 112, 75, .42); border-radius: 20px; background: rgba(24, 15, 9, .96); box-shadow: 0 28px 80px rgba(0, 5, 12, .52); backdrop-filter: blur(18px); }
+.filter-panel { position: absolute; z-index: 30; top: 24px; right: clamp(81px, calc(3vw + 66px), 98px); display: flex; width: min(225px, calc(100vw - 28px)); max-height: min(548px, calc(var(--scaled-svh) - 104px)); flex-direction: column; overflow: hidden; border: 1px solid rgba(150, 112, 75, .42); border-radius: 20px; background: rgba(24, 15, 9, .96); box-shadow: 0 28px 80px rgba(0, 5, 12, .52); backdrop-filter: blur(18px); }
 .filter-panel-header { position: relative; flex: 0 0 auto; padding: 14px 46px 12px 16px; border-bottom: 1px solid rgba(150, 112, 75, .26); }
 .filter-panel-header span { display: block; margin-bottom: 5px; color: #cba57f; font-size: 9px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
 .filter-panel-header strong { color: #fefefe; font-size: 16px; letter-spacing: -.025em; }
@@ -276,18 +274,9 @@ html[data-map-embedded="true"] .map-screen:not(.editor-screen) .map-workspace-br
 .filter-check-text { display: flex; min-width: 0; flex-direction: column; gap: 2px; }
 .filter-check-text span { color: #fefefe; font-size: 15px; font-weight: 800; line-height: 1.12; }
 .filter-check-text em { color: rgba(254, 254, 254, .7); font-size: 10px; font-style: italic; font-weight: 500; line-height: 1.24; }
-.kiosk-rotation-stage.is-rotated .map-filter-controls {
-  top: 86px;
-  right: auto;
-  left: 24px;
-  flex-direction: row;
-}
 .kiosk-rotation-stage.is-rotated .filter-panel {
-  top: 154px;
-  right: auto;
-  left: 24px;
   width: min(225px, calc(var(--scaled-svh) - 48px));
-  max-height: calc(100vw / var(--ui-scale) - 190px);
+  max-height: calc(100vw / var(--ui-scale) - 104px);
 }
 .kiosk-rotation-stage.is-rotated .filter-options {
   max-height: min(176px, calc(100vw / var(--ui-scale) - 384px));
@@ -541,6 +530,8 @@ html[data-map-embedded="true"] .map-screen:not(.editor-screen) .map-workspace-br
 .point-modal-image { position: relative; min-height: 0; overflow: hidden; padding: 0; border: 0; color: inherit; background: #120b07; cursor: zoom-in; isolation: isolate; }
 .point-modal-image::after { content: ""; position: absolute; inset: 0; z-index: 1; box-shadow: inset -50px 0 80px rgba(21, 13, 8, .22), inset 0 -72px 90px rgba(9, 5, 3, .5); pointer-events: none; }
 .point-modal-image img { z-index: 0; object-fit: cover; object-position: var(--preview-position-desktop, 50% 50%); scale: var(--preview-scale-desktop, 1); transform-origin: var(--preview-position-desktop, 50% 50%); animation: image-reveal .25s ease-out both; }
+.point-modal-image.is-loading img { opacity: 0; animation: none; }
+.point-image-loading { position: absolute; z-index: 3; inset: 0; display: flex; align-items: center; justify-content: center; gap: 11px; color: rgba(254, 254, 254, .86); background: radial-gradient(circle, rgba(65, 41, 25, .52), rgba(18, 11, 7, .92)); font-size: 11px; font-weight: 700; pointer-events: none; }
 .point-image-badge { position: absolute; z-index: 4; bottom: clamp(18px, 3.2vh, 34px); left: clamp(18px, 2.4vw, 30px); padding: 9px 13px; border: 1px solid rgba(254, 254, 254, .28); border-radius: 999px; color: #fefefe; background: rgba(27, 16, 10, .82); font-size: 12px; font-weight: 700; backdrop-filter: blur(10px); box-shadow: 0 10px 28px rgba(9, 5, 3, .42); }
 .point-image-expand { position: absolute; z-index: 4; right: clamp(18px, 2.2vw, 30px); bottom: clamp(16px, 3vh, 32px); display: grid; width: 44px; height: 44px; place-items: center; border: 1px solid rgba(254, 254, 254, .28); border-radius: 50%; color: #fefefe; background: rgba(27, 16, 10, .82); box-shadow: 0 10px 28px rgba(9, 5, 3, .42); backdrop-filter: blur(10px); }
 .point-image-expand svg { width: 20px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
@@ -665,9 +656,7 @@ html[data-map-embedded="true"] .map-screen:not(.editor-screen) .map-workspace-br
   .argentina-map { width: 96vw; height: calc(var(--scaled-svh) - 80px); }
   .map-controls { top: 12px; right: 12px; }
   .map-controls button { width: 48px; height: 48px; }
-  .map-filter-controls { top: 12px; right: 72px; gap: 8px; }
-  .map-filter-controls button { width: 48px; height: 48px; }
-  .filter-panel { top: 72px; right: 12px; width: min(225px, calc(100vw - 24px)); max-height: calc(var(--scaled-svh) - 146px); }
+  .filter-panel { top: 12px; right: 72px; width: min(225px, calc(100vw - 84px)); max-height: calc(var(--scaled-svh) - 86px); }
   .filter-options { max-height: min(210px, calc(var(--scaled-svh) - 276px)); }
   .edit-notice { top: 12px; left: 12px; max-width: 220px; }
   .map-hint { bottom: 12px; }

@@ -30,3 +30,22 @@ export function getRotatedImageUrl(imageUrl: string, rotation: number | undefine
     return imageUrl;
   }
 }
+
+export function getMapThumbnailUrl(imageUrl: string, rotation: number | undefined): string {
+  const normalizedRotation = normalizeImageRotation(rotation);
+  if (!imageUrl) return imageUrl;
+
+  try {
+    const url = new URL(imageUrl);
+    if (url.hostname !== "res.cloudinary.com") return getRotatedImageUrl(imageUrl, rotation);
+    const uploadMarker = "/image/upload/";
+    const uploadIndex = url.pathname.indexOf(uploadMarker);
+    if (uploadIndex < 0) return getRotatedImageUrl(imageUrl, rotation);
+    const insertionIndex = uploadIndex + uploadMarker.length;
+    const rotationTransform = normalizedRotation === 0 ? "" : `a_${normalizedRotation}/`;
+    url.pathname = `${url.pathname.slice(0, insertionIndex)}${rotationTransform}c_limit,w_160,h_160/f_auto,q_auto/${url.pathname.slice(insertionIndex)}`;
+    return url.toString();
+  } catch {
+    return getRotatedImageUrl(imageUrl, rotation);
+  }
+}

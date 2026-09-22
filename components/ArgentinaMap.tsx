@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, type MouseEvent, type PointerEvent } from "react";
+import { useCallback, useEffect, useRef, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 import { geoArea, geoContains, geoMercator, geoPath, type GeoPermissibleObjects } from "d3-geo";
 import { TransformComponent, TransformWrapper, useTransformEffect, type ReactZoomPanPinchRef } from "react-zoom-pan-pinch";
 import provincesData from "@/data/argentina-provinces.json";
@@ -174,12 +174,13 @@ function AdaptiveLabelLayer() {
 interface ArgentinaMapProps {
   mode: MapMode;
   points: MapPoint[];
+  leadingControl?: ReactNode;
   onPointSelect?: (point: MapPoint) => void;
   onMapSelect?: (coordinates: [number, number]) => void;
   selectedPointId?: string;
 }
 
-export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selectedPointId }: ArgentinaMapProps) {
+export function ArgentinaMap({ mode, points, leadingControl, onPointSelect, onMapSelect, selectedPointId }: ArgentinaMapProps) {
   const { copy } = useLanguage();
   const { scale: uiScale } = useUIScale();
   const { isRotated } = useKioskRotation();
@@ -409,7 +410,7 @@ export function ArgentinaMap({ mode, points, onPointSelect, onMapSelect, selecte
         onZoomStop={keepCountryVisible}
         onPinchStop={keepCountryVisible}
       >
-        <MapControls />
+        <MapControls leadingControl={leadingControl} />
         <TransformComponent wrapperClass="map-transform-wrapper" contentClass="map-transform-content">
           <svg
             className={`argentina-map${onMapSelect ? " is-editable" : ""}`}

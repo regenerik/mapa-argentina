@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useRef, type MouseEvent as ReactMouseEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { useControls } from "react-zoom-pan-pinch";
 import { useKioskRotation } from "@/components/KioskRotationProvider";
 import { useLanguage } from "@/components/LanguageProvider";
@@ -80,7 +80,7 @@ function HoldZoomButton({
   );
 }
 
-export function MapControls() {
+export function MapControls({ leadingControl }: { leadingControl?: ReactNode }) {
   const { zoomIn, zoomOut, setTransform } = useControls();
   const { isRotated } = useKioskRotation();
   const { scale: uiScale } = useUIScale();
@@ -104,6 +104,7 @@ export function MapControls() {
 
   return (
     <div className="map-controls" aria-label={copy.mapControls}>
+      {leadingControl}
       <HoldZoomButton action={zoomIn} label={copy.zoomIn}>+</HoldZoomButton>
       <HoldZoomButton action={zoomOut} label={copy.zoomOut}>-</HoldZoomButton>
       <button className="reset-control" type="button" onClick={resetView} aria-label={copy.resetView}>

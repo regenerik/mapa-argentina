@@ -9,7 +9,7 @@ import { KioskRotationButton } from "@/components/KioskRotationButton";
 import { KioskRotationProvider } from "@/components/KioskRotationProvider";
 import { useLanguage } from "@/components/LanguageProvider";
 import { MapFilterControls } from "@/components/MapFilterControls";
-import { filterMapPoints, hasActiveFilters, MapFiltersPanel } from "@/components/MapFiltersPanel";
+import { filterMapPoints, MapFiltersPanel } from "@/components/MapFiltersPanel";
 import { MapEditorScreen } from "@/components/MapEditorScreen";
 import { PointModal } from "@/components/PointModal";
 import { UIScaleRoot } from "@/components/UIScaleProvider";
@@ -36,20 +36,9 @@ function MapViewerScreen() {
   const [selectedPoint, setSelectedPoint] = useState<MapPoint | null>(null);
   const [appliedFilters, setAppliedFilters] = useState<MapFilters>({ targetWeeds: [], provinces: [], localities: [] });
   const [isFilterPanelOpen, setIsFilterPanelOpen] = useState(true);
-  const [isClearConfirmOpen, setIsClearConfirmOpen] = useState(false);
   const hasAdminSession = useSyncExternalStore(subscribeToAdminSession, getAdminSessionSnapshot, () => false);
   const closePoint = useCallback(() => setSelectedPoint(null), []);
   const visiblePoints = catalog.filtersEnabled ? filterMapPoints(points, appliedFilters) : points;
-
-  function clearFilters() {
-    if (!hasActiveFilters(appliedFilters)) return;
-    setIsClearConfirmOpen(true);
-  }
-
-  function confirmClearFilters() {
-    setAppliedFilters({ targetWeeds: [], provinces: [], localities: [] });
-    setIsClearConfirmOpen(false);
-  }
 
   return (
     <main className="map-screen">
@@ -71,25 +60,16 @@ function MapViewerScreen() {
       <section className="map-workspace" aria-label={copy.mapAria}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="map-workspace-brand" src="/brand/sumitomo-logo-horizontal-neg.png" alt="Sumitomo Chemical" draggable={false} />
-        <ArgentinaMap mode="view" points={visiblePoints} onPointSelect={setSelectedPoint} />
+        <ArgentinaMap
+          mode="view"
+          points={visiblePoints}
+          leadingControl={catalog.filtersEnabled ? (
+            <MapFilterControls filters={appliedFilters} onOpen={() => setIsFilterPanelOpen(true)} />
+          ) : undefined}
+          onPointSelect={setSelectedPoint}
+        />
         {catalog.filtersEnabled && (
           <>
-            <MapFilterControls filters={appliedFilters} onOpen={() => setIsFilterPanelOpen(true)} onClear={clearFilters} />
-            {isClearConfirmOpen && (
-              <div className="app-dialog-overlay" role="presentation" onPointerDown={(event) => {
-                if (event.target === event.currentTarget) setIsClearConfirmOpen(false);
-              }}>
-                <section className="app-dialog" role="dialog" aria-modal="true" aria-labelledby="clear-filters-title">
-                  <p>{copy.filters}</p>
-                  <h2 id="clear-filters-title">{copy.clearFiltersTitle}</h2>
-                  <span>{copy.clearFiltersConfirm}</span>
-                  <div className="app-dialog-actions">
-                    <button type="button" onClick={() => setIsClearConfirmOpen(false)}>{copy.cancel}</button>
-                    <button type="button" onClick={confirmClearFilters}>{copy.clearFilters}</button>
-                  </div>
-                </section>
-              </div>
-            )}
             {isFilterPanelOpen && (
               <MapFiltersPanel
                 points={points}
