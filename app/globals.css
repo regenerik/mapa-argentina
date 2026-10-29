@@ -222,7 +222,7 @@ html[data-map-embedded="true"] .map-screen:not(.editor-screen) .map-workspace-br
 .map-point-base { fill: #160d08; stroke: rgba(203, 165, 127, .65); stroke-width: 1; }
 .map-point-ring { fill: none; stroke: #fefefe; stroke-width: 1.1; }
 .map-point-anchor image { pointer-events: none; }
-.map-point-anchor text { fill: #fff; font-family: Pusia, Inter, "Segoe UI", Arial, sans-serif; font-size: 17px; font-weight: 700; letter-spacing: -.02em; pointer-events: none; stroke: none; text-anchor: middle; }
+.map-point-anchor text { fill: #fff; font-family: Pusia, Inter, "Segoe UI", Arial, sans-serif; font-size: 17.85px; font-weight: 700; letter-spacing: -.02em; pointer-events: none; stroke: none; text-anchor: middle; }
 .map-point-anchor.is-interactive { cursor: pointer; }
 .map-point-anchor.is-interactive .map-point-scale { transition: filter .18s ease; }
 .map-point-anchor.is-interactive:hover .map-point-scale,
@@ -732,6 +732,18 @@ html[data-map-embedded="true"] .map-screen:not(.editor-screen) .map-workspace-br
   .point-meta { margin-top: 18px; }
   .timeline { padding-top: 13px; padding-bottom: 15px; }
   .timeline-heading { margin-bottom: 10px; }
+}
+
+@media (min-width: 701px) {
+  .point-image-badge { font-size: 14.4px; }
+  .point-modal-copy-scroll > p:first-child { font-size: 12px; }
+  .point-description { font-size: clamp(15.6px, 1.5vw, 19.2px); }
+  .point-detail-list > span { font-size: 13.86px; }
+  .point-detail-list strong { font-size: 11.34px; }
+  .point-usage-note p { font-size: clamp(11.34px, 1.029vw, 13.86px); }
+  .timeline-heading span { font-size: 12px; }
+  .timeline-heading strong { font-size: 18px; }
+  .timeline-mark-label { font-size: 15.12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
