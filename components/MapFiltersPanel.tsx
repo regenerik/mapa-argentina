@@ -14,6 +14,7 @@ interface MapFiltersPanelProps {
 }
 
 const NO_FILTER_SELECTION = "__NO_FILTER_SELECTION__";
+const HIDE_PROVINCE_FILTER = true;
 
 function isNoFilterSelection(values: string[]) {
   return values.includes(NO_FILTER_SELECTION);
@@ -55,7 +56,7 @@ function uniqueLocalities(points: MapPoint[]) {
 function normalizeFilters(filters: MapFilters): MapFilters {
   return {
     targetWeeds: filters.targetWeeds || [],
-    provinces: filters.provinces || [],
+    provinces: HIDE_PROVINCE_FILTER ? [] : filters.provinces || [],
     localities: filters.localities || [],
   };
 }
@@ -147,42 +148,44 @@ export function MapFiltersPanel({ points, targetWeeds, appliedFilters, onChange,
           )}
         </section>
 
-        <section className={`filter-accordion${openSection === "provinces" ? " is-open" : ""}`}>
-          <button type="button" onClick={() => setOpenSection("provinces")} aria-expanded={openSection === "provinces"}>
-            <span>{copy.filterByProvince}</span>
-            <b>{getSectionSummary(draftFilters.provinces, copy.all)}</b>
-          </button>
-          {openSection === "provinces" && (
-            <>
-              <div className="filter-section-actions">
-                <button type="button" onClick={() => applyFilters({ ...draftFilters, provinces: [] })}>
-                  {copy.selectAll}
-                </button>
-                <button
-                  type="button"
-                  disabled={isNoFilterSelection(draftFilters.provinces)}
-                  onClick={() => applyFilters({ ...draftFilters, provinces: [NO_FILTER_SELECTION] })}
-                >
-                  {copy.clearFilter}
-                </button>
-              </div>
-              <div className="filter-options">
-                {ARGENTINA_PROVINCES.map((province) => (
-                  <label key={province} className="filter-check">
-                    <input
-                      type="checkbox"
-                      checked={isOptionChecked(draftFilters.provinces, province)}
-                      onChange={() => applyFilters({ ...draftFilters, provinces: toggle(draftFilters.provinces, province, ARGENTINA_PROVINCES) })}
-                    />
-                    <span className="filter-check-text">
-                      <span>{province}</span>
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </>
-          )}
-        </section>
+        {!HIDE_PROVINCE_FILTER && (
+          <section className={`filter-accordion${openSection === "provinces" ? " is-open" : ""}`}>
+            <button type="button" onClick={() => setOpenSection("provinces")} aria-expanded={openSection === "provinces"}>
+              <span>{copy.filterByProvince}</span>
+              <b>{getSectionSummary(draftFilters.provinces, copy.all)}</b>
+            </button>
+            {openSection === "provinces" && (
+              <>
+                <div className="filter-section-actions">
+                  <button type="button" onClick={() => applyFilters({ ...draftFilters, provinces: [] })}>
+                    {copy.selectAll}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isNoFilterSelection(draftFilters.provinces)}
+                    onClick={() => applyFilters({ ...draftFilters, provinces: [NO_FILTER_SELECTION] })}
+                  >
+                    {copy.clearFilter}
+                  </button>
+                </div>
+                <div className="filter-options">
+                  {ARGENTINA_PROVINCES.map((province) => (
+                    <label key={province} className="filter-check">
+                      <input
+                        type="checkbox"
+                        checked={isOptionChecked(draftFilters.provinces, province)}
+                        onChange={() => applyFilters({ ...draftFilters, provinces: toggle(draftFilters.provinces, province, ARGENTINA_PROVINCES) })}
+                      />
+                      <span className="filter-check-text">
+                        <span>{province}</span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </>
+            )}
+          </section>
+        )}
 
         <section className={`filter-accordion${openSection === "localities" ? " is-open" : ""}`}>
           <button type="button" onClick={() => setOpenSection("localities")} aria-expanded={openSection === "localities"}>
